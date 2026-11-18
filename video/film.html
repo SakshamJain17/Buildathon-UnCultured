@@ -1,0 +1,278 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Alluré — film</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+<style>html,body{margin:0;background:#000;overflow:hidden}canvas{display:block;width:100vw;height:56.25vw;max-height:100vh;max-width:177.78vh;margin:auto}#hint{position:fixed;bottom:8px;left:8px;color:#888;font:12px sans-serif}</style>
+</head><body><canvas id="c" width="1920" height="1080"></canvas><div id="hint">Space: play / restart</div>
+<script>
+// Alluré — 72 s motion film. Everything is a pure function of time t, so it renders identically every take.
+const W = 1920, H = 1080, END = 72, cv = document.getElementById('c'), x = cv.getContext('2d');
+const SERIF = '"Playfair Display", Georgia, serif', SANS = 'Inter, -apple-system, Helvetica, sans-serif';
+const BG = '#f4f2ee', INK = '#111';
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v)), lerp = (a, b, k) => a + (b - a) * k;
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const eOut = (k) => 1 - Math.pow(1 - k, 3), eIn = (k) => k * k * k, eIO = (k) => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+const eBack = (k) => { const c = 1.7; return 1 + (c + 1) * Math.pow(k - 1, 3) + c * Math.pow(k - 1, 2); };
+const rnd = (s) => { const v = Math.sin(s * 127.1 + 311.7) * 43758.5453; return v - Math.floor(v); };
+const SHAPES = {
+  tee: 'M60 30 L85 20 Q100 34 115 20 L140 30 L175 60 L155 85 L140 72 L140 210 L60 210 L60 72 L45 85 L25 60 Z',
+  shirt: 'M62 28 L88 18 L100 40 L112 18 L138 28 L172 70 L158 210 L140 110 L140 215 L60 215 L60 110 L42 210 L28 70 Z',
+  hoodie: 'M58 40 Q70 10 100 8 Q130 10 142 40 L178 70 L165 210 L145 205 L145 215 L55 215 L55 205 L35 210 L22 70 Z',
+  jacket: 'M60 30 L88 18 L100 60 L112 18 L140 30 L176 72 L166 215 L142 215 L142 220 L58 220 L58 215 L34 215 L24 72 Z',
+  dress: 'M78 20 L90 16 Q100 30 110 16 L122 20 L130 70 L120 95 L170 225 L30 225 L80 95 L70 70 Z',
+  trousers: 'M60 15 L140 15 L150 230 L112 230 L100 80 L88 230 L50 230 Z',
+  skirt: 'M70 40 L130 40 L170 200 L30 200 Z',
+  shoes: 'M20 130 L20 100 Q40 96 60 80 L80 80 Q90 100 120 106 L172 118 Q186 124 182 140 L20 140 Z',
+  bag: 'M45 90 L155 90 L165 205 L35 205 Z M72 90 Q72 45 100 45 Q128 45 128 90',
+  cap: 'M40 130 Q40 60 100 60 Q160 60 160 130 Z M140 130 L195 140 L140 145 Z',
+  sunglasses: 'M20 90 L180 90 L176 100 L150 100 Q148 135 120 132 Q102 130 104 100 L96 100 Q98 130 80 132 Q52 135 50 100 L24 100 Z',
+};
+const P2 = Object.fromEntries(Object.entries(SHAPES).map(([k, v]) => [k, new Path2D(v)]));
+const TYPES = ['tee', 'shirt', 'hoodie', 'jacket', 'dress', 'trousers', 'skirt', 'shoes', 'bag', 'cap'];
+const COLS = ['#c4683f', '#2f5d46', '#d8a42c', '#22304f', '#e8b4b0', '#6e1f2c', '#b88a5a', '#3b5b8c', '#9caf88', '#f1e9d8'];
+function garment(type, col, cx, cy, s, rot, alpha = 1) { // 200x240 artwork centred at cx,cy, s = scale
+  x.save(); x.globalAlpha = alpha; x.translate(cx, cy); x.rotate(rot); x.scale(s, s); x.translate(-100, -120);
+  x.fillStyle = col; x.fill(P2[type], 'evenodd'); x.lineWidth = 3 / s * s; x.strokeStyle = 'rgba(0,0,0,.25)'; x.stroke(P2[type]); x.restore();
+}
+function text(str, px, py, font, col, align = 'center', alpha = 1, spacing = 0) {
+  x.save(); x.globalAlpha = alpha; x.font = font; x.fillStyle = col; x.textAlign = align; x.textBaseline = 'middle';
+  if (spacing) x.letterSpacing = spacing + 'px'; x.fillText(str, px, py); x.restore();
+}
+const IMG = []; // product photos for the upload scene
+async function loadImages() {
+  let files = []; try { files = await fetch('/api/products').then((r) => r.json()); } catch {}
+  const pick = ['Zip Hoodie A', 'Brocade Keyhole Dress', 'Regular Fit Oxford Shirt A', 'Loose Jeans A', 'Lightweight Bomber Jacket'];
+  const chosen = pick.map((p) => files.find((f) => f.startsWith(p))).filter(Boolean);
+  await Promise.all(chosen.slice(0, 5).map((f, i) => new Promise((res) => { const im = new Image(); im.onload = () => { IMG[i] = im; res(); }; im.onerror = res; im.src = '/products/' + encodeURIComponent(f); })));
+}
+
+// ---------- Scene 1 (0–9.2 s): clothes thrown from your POV, until the screen is buried in black ----------
+const THROWS = []; (() => { const sched = [[0.4, 1], [1.4, 1], [2.3, 2], [3.1, 4], [3.8, 6], [4.4, 10], [4.9, 16], [5.4, 26], [5.9, 40], [6.35, 60], [6.8, 90], [7.2, 140], [7.6, 220], [7.95, 300]];
+  let n = 0; for (const [t0, k] of sched) for (let i = 0; i < k; i++, n++) {
+    const late = t0 > 5.2, dark = late ? (rnd(n * 3) < .85) : t0 > 4.3 && rnd(n * 5) < .5;
+    THROWS.push({ t0: t0 + rnd(n * 7) * .35, type: TYPES[Math.floor(rnd(n * 11) * TYPES.length)], col: dark ? ['#0b0b0c', '#151517', '#1d1d20', '#26262a'][n % 4] : COLS[n % COLS.length],
+      tx: rnd(n * 13) * W, ty: rnd(n * 17) * H, s: .8 + rnd(n * 19) * (late ? 1.6 : 1.0), r: (rnd(n * 23) - .5) * 2.4, spin: (rnd(n * 29) - .5) * 6 });
+  } })();
+function scene1(t) {
+  x.fillStyle = BG; x.fillRect(0, 0, W, H);
+  if (t < 1.2) text('another day. another scroll.', W / 2, H / 2, `italic 400 54px ${SERIF}`, '#77736b', 'center', clamp(1 - prog(t, .5, 1.2)));
+  for (const g of THROWS) { const k = prog(t, g.t0, g.t0 + .55); if (k <= 0) continue; const e = eOut(k);
+    // thrown from the camera: starts huge at the bottom centre, flies away and lands
+    const cx = lerp(W / 2 + (g.tx - W / 2) * .1, g.tx, e), cy = lerp(H + 260, g.ty, e) - Math.sin(k * Math.PI) * 140, sc = lerp(5.5, g.s, e);
+    garment(g.type, g.col, cx, cy, sc, g.r + g.spin * (1 - e), clamp(k * 4)); }
+  const dark = prog(t, 8.0, 9.0); if (dark) { x.fillStyle = `rgba(0,0,0,${eIn(dark)})`; x.fillRect(0, 0, W, H); }
+}
+// ---------- Scene 2 (9.2–13 s): letters shuffle into STOP SCROLLING ----------
+const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#%&@$*+?!0123456789';
+function scene2(t, ox = 0) {
+  x.fillStyle = '#000'; x.fillRect(ox, 0, W, H);
+  const words = 'STOP SCROLLING.', n = words.length, size = 150; x.font = `700 ${size}px ${SERIF}`;
+  const total = x.measureText(words).width; let px = W / 2 - total / 2 + ox;
+  for (let i = 0; i < n; i++) { const ch = words[i], wch = x.measureText(ch).width, resolve = 9.8 + i * .13;
+    let shown = ch; if (ch !== ' ' && t < resolve) shown = GLYPHS[Math.floor(rnd(i * 31 + Math.floor(t * 24)) * GLYPHS.length)];
+    const a = clamp(prog(t, 9.3 + i * .03, 9.6 + i * .03)); text(shown, px + wch / 2, H / 2, `700 ${size}px ${SERIF}`, t < resolve ? '#8a857a' : '#f4f2ee', 'center', a); px += wch; }
+  const u = prog(t, 11.4, 12.2); if (u) { x.fillStyle = '#f4f2ee'; x.fillRect(W / 2 - total / 2 + ox, H / 2 + 100, total * eOut(u), 4); }
+}
+// ---------- Scene 3/4 (13–21.6 s): push left into five upload blocks → merge → explode → white ----------
+const BLK = { w: 270, h: 360, gap: 34 };
+function blockPos(i) { const tw = 5 * BLK.w + 4 * BLK.gap; return [W / 2 - tw / 2 + i * (BLK.w + BLK.gap), H / 2 - BLK.h / 2 + 40]; }
+function scene4(t, ox = 0) {
+  x.fillStyle = BG; x.fillRect(ox, 0, W, H);
+  text('02', 160 + ox, 150, `700 90px ${SERIF}`, INK, 'left'); text('SHOW US YOUR FIVE FAVOURITE FITS', 300 + ox, 150, `700 22px ${SANS}`, '#77736b', 'left', 1, 5);
+  const merge = eIO(prog(t, 18.0, 19.1)), crush = prog(t, 19.1, 19.7), boom = t >= 19.7;
+  if (boom) return;
+  for (let i = 0; i < 5; i++) { let [bx, by] = blockPos(i); bx += ox;
+    const tx = W / 2 - BLK.w / 2 + ox, ty = H / 2 - BLK.h / 2 + 40; bx = lerp(bx, tx, merge); by = lerp(by, ty, merge);
+    const shake = crush ? (rnd(i + Math.floor(t * 60)) - .5) * 24 * crush : 0, sc = 1 - .25 * crush;
+    x.save(); x.translate(bx + BLK.w / 2 + shake, by + BLK.h / 2 + shake * .6); x.scale(sc, sc); x.rotate(merge * (i - 2) * .05);
+    x.fillStyle = '#fff'; x.strokeStyle = INK; x.lineWidth = 2; x.fillRect(-BLK.w / 2, -BLK.h / 2, BLK.w, BLK.h); x.strokeRect(-BLK.w / 2, -BLK.h / 2, BLK.w, BLK.h);
+    const drop = prog(t, 14.6 + i * .55, 15.2 + i * .55);
+    if (drop < 1) text('+', 0, 0, `300 80px ${SERIF}`, '#b5b0a4', 'center', 1 - drop);
+    if (drop > 0 && IMG[i]) { const im = IMG[i], k = eBack(drop), dy = (1 - k) * -500; x.save(); x.beginPath(); x.rect(-BLK.w / 2 + 8, -BLK.h / 2 + 8, BLK.w - 16, BLK.h - 16); x.clip();
+      const r = Math.max((BLK.w - 16) / im.width, (BLK.h - 16) / im.height); x.drawImage(im, -im.width * r / 2, -im.height * r / 2 + dy, im.width * r, im.height * r); x.restore(); }
+    else if (drop > 0) { x.fillStyle = COLS[i]; x.fillRect(-BLK.w / 2 + 8, -BLK.h / 2 + 8 + (1 - eBack(drop)) * -500, BLK.w - 16, BLK.h - 16); }
+    x.restore(); }
+  if (t > 16.9 && t < 18) text('5 / 5', W / 2 + ox, H - 130, `700 22px ${SANS}`, INK, 'center', prog(t, 16.9, 17.3), 6);
+}
+function explosion(t) { const k = prog(t, 19.7, 21.0); if (!k) return;
+  for (let i = 0; i < 260; i++) { const a = rnd(i * 3) * Math.PI * 2, sp = 300 + rnd(i * 7) * 1500, d = eOut(k) * sp, s = 6 + rnd(i * 11) * 40;
+    x.fillStyle = i % 4 === 0 ? '#111' : COLS[i % COLS.length]; x.globalAlpha = 1 - k; x.save(); x.translate(W / 2 + Math.cos(a) * d, H / 2 + 40 + Math.sin(a) * d); x.rotate(k * 8 * (rnd(i) - .5)); x.fillRect(-s / 2, -s / 2, s, s); x.restore(); }
+  x.globalAlpha = 1; const fl = prog(t, 19.75, 20.6), g = x.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, 200 + fl * 1600);
+  g.addColorStop(0, `rgba(255,255,255,${fl})`); g.addColorStop(1, `rgba(255,255,255,${fl * fl})`); x.fillStyle = g; x.fillRect(0, 0, W, H);
+}
+// ---------- Avatar (scenes 5–8) ----------
+const SKIN = '#c68e65';
+const OUTFITS = [
+  { top: 'hoodie', tc: '#2b2b2f', bot: 'trousers', bc: '#16161a', name: 'Charcoal hoodie · black cargos' },
+  { top: 'shirt', tc: '#c4683f', bot: 'trousers', bc: '#d6c4a6', name: 'Terracotta linen · beige pleats' },
+  { top: 'jacket', tc: '#22304f', bot: 'trousers', bc: '#8a8d91', name: 'Navy blazer · grey trousers' },
+  { top: 'tee', tc: '#2f5d46', bot: 'skirt', bc: '#e8b4b0', name: 'Forest tee · blush skirt' },
+  { top: 'shirt', tc: '#a9c4e2', bot: 'trousers', bc: '#22304f', name: 'Powder oxford · navy chinos' },
+  { top: 'hoodie', tc: '#b9a6d6', bot: 'trousers', bc: '#f2efe8', name: 'Lilac hoodie · ecru joggers' },
+  { top: 'jacket', tc: '#6b6b3a', bot: 'trousers', bc: '#3b2a20', name: 'Olive bomber · brown cords' },
+  { top: 'tee', tc: '#d8a42c', bot: 'trousers', bc: '#16161a', name: 'Mustard tee · black denim' },
+  { top: 'shirt', tc: '#6e1f2c', bot: 'skirt', bc: '#111', name: 'Wine shirt · black mini' },
+];
+const FINAL = { top: 'tee', tc: '#f6f4ef', bot: 'jeans', bc: '#5677a6', name: 'White tee · loose jeans' };
+function drawTop(o, cx) { const L = (px) => cx - 960 + px; x.fillStyle = o.tc; x.strokeStyle = 'rgba(0,0,0,.28)'; x.lineWidth = 3;
+  const long = o.top !== 'tee', sl = long ? 650 : 470;
+  if (o.top === 'hoodie') { x.beginPath(); x.ellipse(L(960), 305, 82, 60, 0, Math.PI, 0); x.fill(); }
+  x.beginPath(); x.moveTo(L(925), 312); x.quadraticCurveTo(L(960), 345, L(995), 312); x.lineTo(L(1078), 340); x.lineTo(L(long ? 1128 : 1124), sl); x.lineTo(L(long ? 1082 : 1078), sl + 10); x.lineTo(L(1062), o.top === 'jacket' ? 640 : 605);
+  x.lineTo(L(858), o.top === 'jacket' ? 640 : 605); x.lineTo(L(long ? 838 : 842), sl + 10); x.lineTo(L(long ? 792 : 796), sl); x.lineTo(L(842), 340); x.closePath(); x.fill(); x.stroke();
+  if (o.top === 'jacket') { x.fillStyle = '#f2efe8'; x.beginPath(); x.moveTo(L(935), 318); x.lineTo(L(960), 360); x.lineTo(L(985), 318); x.lineTo(L(975), 640); x.lineTo(L(945), 640); x.closePath(); x.fill();
+    x.strokeStyle = 'rgba(0,0,0,.35)'; x.beginPath(); x.moveTo(L(945), 330); x.lineTo(L(930), 470); x.moveTo(L(975), 330); x.lineTo(L(990), 470); x.stroke(); }
+  if (o.top === 'shirt') { x.strokeStyle = 'rgba(0,0,0,.3)'; x.beginPath(); x.moveTo(L(960), 335); x.lineTo(L(960), 600); x.stroke(); for (let i = 0; i < 5; i++) { x.fillStyle = 'rgba(255,255,255,.7)'; x.beginPath(); x.arc(L(966), 370 + i * 45, 4, 0, 7); x.fill(); } }
+  if (o.top === 'hoodie') { x.strokeStyle = 'rgba(255,255,255,.35)'; x.strokeRect(L(905), 500, 110, 70); x.beginPath(); x.moveTo(L(948), 330); x.lineTo(L(946), 410); x.moveTo(L(972), 330); x.lineTo(L(974), 410); x.stroke(); }
+  if (o === FINAL) { text('A', L(960), 450, `italic 600 46px ${SERIF}`, '#111', 'center', .85); }
+}
+function drawBottom(o, cx) { const L = (px) => cx - 960 + px; x.fillStyle = o.bc; x.strokeStyle = 'rgba(0,0,0,.28)'; x.lineWidth = 3;
+  if (o.bot === 'skirt') { x.beginPath(); x.moveTo(L(868), 590); x.lineTo(L(1052), 590); x.lineTo(L(1100), 790); x.lineTo(L(820), 790); x.closePath(); x.fill(); x.stroke(); return; }
+  const wide = o.bot === 'jeans' ? 14 : 4;
+  x.beginPath(); x.moveTo(L(866), 588); x.lineTo(L(1054), 588); x.lineTo(L(1060 + wide), 958); x.lineTo(L(968), 958); x.lineTo(L(960), 690); x.lineTo(L(952), 958); x.lineTo(L(860 - wide), 958); x.closePath(); x.fill(); x.stroke();
+  if (o.bot === 'jeans') { x.strokeStyle = 'rgba(255,255,255,.35)'; x.lineWidth = 2; x.beginPath(); x.moveTo(L(900), 600); x.lineTo(L(888), 950); x.moveTo(L(1020), 600); x.lineTo(L(1032), 950); x.moveTo(L(866), 940); x.lineTo(L(952), 940); x.moveTo(L(968), 940); x.lineTo(L(1066), 940); x.stroke(); }
+}
+function drawBody(cx, legsVisible) { const L = (px) => cx - 960 + px; x.fillStyle = SKIN;
+  x.beginPath(); x.ellipse(L(960), 238, 52, 62, 0, 0, 7); x.fill(); x.fillRect(L(940), 280, 40, 50);
+  x.fillStyle = '#1b1411'; x.beginPath(); x.ellipse(L(960), 205, 58, 40, 0, Math.PI, 0); x.fill(); x.fillRect(L(902), 200, 18, 50); x.fillRect(L(1000), 200, 18, 50);
+  x.fillStyle = SKIN; x.beginPath(); x.ellipse(L(812), 690, 16, 22, 0, 0, 7); x.ellipse(L(1108), 690, 16, 22, 0, 0, 7); x.fill();
+  x.strokeStyle = SKIN; x.lineWidth = 34; x.lineCap = 'round'; x.beginPath(); x.moveTo(L(850), 360); x.lineTo(L(812), 670); x.moveTo(L(1070), 360); x.lineTo(L(1108), 670); x.stroke();
+  if (legsVisible) { x.lineWidth = 46; x.beginPath(); x.moveTo(L(905), 600); x.lineTo(L(905), 955); x.moveTo(L(1015), 600); x.lineTo(L(1015), 955); x.stroke(); }
+}
+function shoes(cx, col) { const L = (px) => cx - 960 + px; x.fillStyle = col; x.beginPath(); x.ellipse(L(895), 972, 58, 20, 0, 0, 7); x.ellipse(L(1025), 972, 58, 20, 0, 0, 7); x.fill(); x.strokeStyle = 'rgba(0,0,0,.3)'; x.lineWidth = 3; x.stroke(); }
+function avatar(cx, outA, outB, mix, extra = {}) { // outB slides in from the left, outA leaves to the right
+  x.save(); x.fillStyle = 'rgba(0,0,0,.08)'; x.beginPath(); x.ellipse(cx, 990, 230, 26, 0, 0, 7); x.fill(); x.restore();
+  drawBody(cx, true); shoes(cx, extra.shoes || '#111');
+  const clip = (fn, from, to) => { x.save(); x.beginPath(); x.rect(from, 0, to - from, H); x.clip(); fn(); x.restore(); };
+  const edge = cx - 320 + mix * 640; // wipe line
+  if (outA) clip(() => { const off = mix * 520; drawBottom(outA, cx + off * 0); drawTop(outA, cx); }, edge, W);
+  if (outB) clip(() => { drawBottom(outB, cx); drawTop(outB, cx); }, 0, edge);
+  if (outA && outB && mix > 0 && mix < 1) { x.fillStyle = 'rgba(255,255,255,.55)'; x.fillRect(edge - 3, 140, 6, 860); }
+  if (extra.layer) { x.save(); x.globalAlpha = extra.layerA; drawTop(extra.layer, cx); x.restore(); }
+  if (extra.glasses) { x.save(); x.globalAlpha = extra.glasses; garment('sunglasses', '#111', cx, 246, .62, 0); x.restore(); }
+  if (extra.cap) { x.save(); x.globalAlpha = extra.cap; garment('cap', '#22304f', cx + 6, 186, .78, 0); x.restore(); }
+  if (extra.bag) { x.save(); x.globalAlpha = extra.bag; garment('bag', '#b88a5a', cx + 175, 720, .62, -.06); x.restore(); }
+}
+// ---------- Scene 5 (21.6–40 s): outfit swaps, 2 s → 1 s → rapid shuffle → stops on the look ----------
+const SWAPS = (() => { const a = [], push = (t, o) => a.push([t, o]); push(22.6, OUTFITS[0]); push(24.6, OUTFITS[1]); push(26.6, OUTFITS[2]); push(28.6, OUTFITS[3]);
+  for (let i = 0; i < 4; i++) push(29.6 + i, OUTFITS[(4 + i) % OUTFITS.length]); let t = 33.6; let i = 0; while (t < 36.2) { push(t, OUTFITS[i++ % OUTFITS.length]); t += .11; } push(36.3, FINAL); return a; })();
+function outfitAt(t) { let cur = null, prev = null, at = 0; for (const [ts, o] of SWAPS) if (t >= ts) { prev = cur; cur = o; at = ts; } return { cur, prev, at }; }
+function scene5(t) {
+  x.fillStyle = BG; x.fillRect(0, 0, W, H);
+  const fadeIn = prog(t, 21.6, 22.6); const { cur, prev, at } = outfitAt(t); const dur = t >= 33.6 && t < 36.3 ? .09 : .42, mix = eOut(prog(t, at, at + dur));
+  text('03', 160, 150, `700 90px ${SERIF}`, INK, 'left', fadeIn); text('SWIPE THROUGH LOOKS PICKED FOR YOU', 300, 150, `700 22px ${SANS}`, '#77736b', 'left', fadeIn, 5);
+  x.save(); x.globalAlpha = fadeIn; avatar(960, prev, cur, prev ? mix : 1); x.restore();
+  if (cur) { const final = cur === FINAL, a = final ? prog(t, 36.4, 37) : 1; text(cur.name, 1380, 820, `italic 400 ${final ? 40 : 34}px ${SERIF}`, INK, 'left', a * fadeIn);
+    text(final ? 'THE ONE' : String(SWAPS.findIndex((s) => s[1] === cur) + 1).padStart(2, '0'), 1380, 770, `700 18px ${SANS}`, '#77736b', 'left', a * fadeIn, 5); }
+  const wf = 1 - prog(t, 21.6, 22.4); if (wf) { x.fillStyle = `rgba(255,255,255,${wf})`; x.fillRect(0, 0, W, H); }
+}
+// ---------- 3D cursor ----------
+function cursor(cx, cy, press = 0, a = 1) { x.save(); x.globalAlpha = a; x.translate(cx, cy); const s = 1.6 * (1 - press * .18); x.scale(s, s); x.rotate(-.12);
+  x.fillStyle = 'rgba(0,0,0,.28)'; x.beginPath(); x.moveTo(10, 14); x.lineTo(10, 70); x.lineTo(24, 58); x.lineTo(34, 82); x.lineTo(44, 78); x.lineTo(34, 54); x.lineTo(52, 54); x.closePath(); x.fill();
+  const g = x.createLinearGradient(0, 0, 40, 70); g.addColorStop(0, '#ffffff'); g.addColorStop(1, '#cfcac0');
+  x.fillStyle = g; x.strokeStyle = '#111'; x.lineWidth = 2.4; x.lineJoin = 'round'; x.beginPath(); x.moveTo(0, 0); x.lineTo(0, 56); x.lineTo(14, 44); x.lineTo(24, 68); x.lineTo(34, 64); x.lineTo(24, 40); x.lineTo(42, 40); x.closePath(); x.fill(); x.stroke();
+  x.fillStyle = 'rgba(255,255,255,.9)'; x.beginPath(); x.moveTo(4, 8); x.lineTo(4, 30); x.lineTo(14, 22); x.closePath(); x.fill(); x.restore(); }
+function ripple(cx, cy, t, t0) { const k = prog(t, t0, t0 + .7); if (!k || k >= 1) return; for (let i = 0; i < 2; i++) { const kk = clamp(k - i * .2); x.strokeStyle = `rgba(17,17,17,${(1 - kk) * .8})`; x.lineWidth = 4; x.beginPath(); x.arc(cx, cy, 20 + kk * 110, 0, 7); x.stroke(); } }
+const bez = (p0, p1, p2, k) => [lerp(lerp(p0[0], p1[0], k), lerp(p1[0], p2[0], k), k), lerp(lerp(p0[1], p1[1], k), lerp(p1[1], p2[1], k), k)];
+// ---------- Scene 6 (37–52 s): click → details, accessories, every weather → Go ----------
+const WEATHER = [['SUNNY', '#f4f2ee'], ['RAIN', '#d9dde2'], ['COLD', '#e6ebf0'], ['NIGHT OUT', '#2a2a30']];
+function scene6(t) {
+  const shift = eIO(prog(t, 39.6, 40.6)), cx = lerp(960, 620, shift);
+  const wIdx = t < 45.6 ? 0 : t < 46.9 ? 1 : t < 48.2 ? 2 : t < 49.4 ? 3 : 0; const night = wIdx === 3;
+  x.fillStyle = WEATHER[wIdx][1]; x.fillRect(0, 0, W, H);
+  if (wIdx === 1) { x.strokeStyle = 'rgba(70,90,120,.35)'; x.lineWidth = 2; for (let i = 0; i < 140; i++) { const rx = (rnd(i) * W + t * 300) % W, ry = (rnd(i * 3) * H + t * 1600) % H; x.beginPath(); x.moveTo(rx, ry); x.lineTo(rx - 10, ry + 40); x.stroke(); } }
+  if (wIdx === 2) { x.fillStyle = 'rgba(255,255,255,.9)'; for (let i = 0; i < 120; i++) { const sx = (rnd(i) * W + Math.sin(t + i) * 30) % W, sy = (rnd(i * 5) * H + t * 120) % H; x.beginPath(); x.arc(sx, sy, 3 + rnd(i * 9) * 3, 0, 7); x.fill(); } }
+  if (wIdx === 0 && t > 44) { const sun = prog(t, 44, 44.6); x.fillStyle = `rgba(216,164,44,${.25 * sun})`; x.beginPath(); x.arc(cx + 330, 230, 120, 0, 7); x.fill(); }
+  const layer = wIdx === 1 ? { top: 'jacket', tc: '#22304f' } : wIdx === 2 ? { top: 'hoodie', tc: '#3a3b40' } : wIdx === 3 ? { top: 'jacket', tc: '#111' } : null;
+  const acc = prog(t, 42.4, 43.4);
+  avatar(cx, null, FINAL, 1, { glasses: (wIdx === 0 || wIdx === 3) ? prog(t, 43.0, 43.5) : 0, cap: wIdx === 2 ? 1 : 0, bag: acc, shoes: '#f5f5f2', layer, layerA: layer ? 1 : 0 });
+  // details panel
+  const pk = eOut(prog(t, 40.0, 40.9)), px = lerp(W + 40, 1060, pk), ink = night ? '#f4f2ee' : INK, mute = night ? '#a39e92' : '#77736b';
+  if (pk > 0) { x.save(); x.fillStyle = night ? '#16161a' : '#fff'; x.strokeStyle = ink; x.lineWidth = 2; x.fillRect(px, 140, 720, 800); x.strokeRect(px, 140, 720, 800);
+    text('THE LOOK', px + 50, 200, `700 18px ${SANS}`, mute, 'left', 1, 6); text('White tee, loose jeans', px + 50, 262, `600 46px ${SERIF}`, ink, 'left');
+    const rows = [['Heavyweight cotton tee', '₹799'], ['Loose straight jeans', '₹1,999']]; rows.forEach(([n, p], i) => { const ry = 350 + i * 70, a = prog(t, 40.5 + i * .2, 40.9 + i * .2);
+      text(n, px + 50, ry, `500 28px ${SANS}`, ink, 'left', a); text(p, px + 670, ry, `600 30px ${SERIF}`, ink, 'right', a); x.globalAlpha = a; x.fillStyle = night ? '#333' : '#e4e0d8'; x.fillRect(px + 50, ry + 32, 620, 2); x.globalAlpha = 1; });
+    text('PAIRED FOR YOU', px + 50, 520, `700 18px ${SANS}`, mute, 'left', acc, 6);
+    [['shoes', '#f5f5f2', 'Sneakers'], ['sunglasses', '#111', 'Shades'], ['bag', '#b88a5a', 'Tote'], ['cap', '#22304f', 'Cap']].forEach(([ty, c, n], i) => { const a = eBack(prog(t, 42.4 + i * .18, 42.9 + i * .18)); if (a <= 0) return;
+      const bx = px + 110 + i * 160; x.save(); x.globalAlpha = clamp(a); x.fillStyle = night ? '#222' : '#f4f2ee'; x.fillRect(bx - 60, 560, 120, 120); garment(ty, c, bx, 620, .42 * a, 0); x.restore(); text(n, bx, 700, `500 18px ${SANS}`, mute, 'center', clamp(a)); });
+    text('STYLED FOR', px + 50, 770, `700 18px ${SANS}`, mute, 'left', prog(t, 44.6, 45), 6);
+    WEATHER.forEach(([n], i) => { const bx = px + 50 + i * 160, on = i === wIdx && t > 45.3; x.globalAlpha = prog(t, 44.7 + i * .08, 45.1 + i * .08); x.fillStyle = on ? ink : 'transparent'; x.strokeStyle = ink; x.lineWidth = 1.5; x.fillRect(bx, 795, 145, 46); x.strokeRect(bx, 795, 145, 46); x.globalAlpha = 1;
+      text(n, bx + 72, 818, `700 15px ${SANS}`, on ? (night ? '#111' : '#fff') : ink, 'center', prog(t, 44.7 + i * .08, 45.1 + i * .08), 3); });
+    const go = prog(t, 49.6, 50); x.fillStyle = ink; x.globalAlpha = go; x.fillRect(px + 50, 870, 620, 56); x.globalAlpha = 1; text('GO', px + 360, 898, `700 22px ${SANS}`, night ? '#111' : '#fff', 'center', go, 8);
+    x.restore(); }
+  // cursor: in → click avatar → rest → Go
+  let cp, press = 0, ca = prog(t, 37.2, 37.6);
+  if (t < 39.2) cp = bez([1700, 1000], [1400, 700], [960, 460], eIO(prog(t, 37.4, 39.0)));
+  else if (t < 49.8) cp = bez([960, 460], [1250, 980], [1500, 1000], eIO(prog(t, 39.6, 40.6)));
+  else cp = bez([1500, 1000], [1450, 960], [px + 360, 898], eIO(prog(t, 49.8, 50.5)));
+  if (t > 39.0 && t < 39.35) press = 1; if (t > 50.55 && t < 50.9) press = 1;
+  ripple(960, 460, t, 39.05); ripple(px + 360, 898, t, 50.6); cursor(cp[0], cp[1], press, ca);
+  const cap = (s, a, b) => { const k = prog(t, a, a + .3) * (1 - prog(t, b - .3, b)); if (k) text(s, 620 - 0, 1040, `italic 400 34px ${SERIF}`, night ? '#f4f2ee' : INK, 'center', k); };
+  cap('Accessories that belong with it', 42.6, 45.4); cap('Styled for every weather', 45.5, 49.5);
+}
+// ---------- Scene 7 (51–61 s): the wallet buys it the second the sale goes live ----------
+function scene7(t) {
+  x.fillStyle = BG; x.fillRect(0, 0, W, H); const k = eOut(prog(t, 51, 51.9));
+  text('04', 160, 150, `700 90px ${SERIF}`, INK, 'left', k); text('SAVE IT. WE BUY IT THE SECOND THE SALE DROPS.', 300, 150, `700 22px ${SANS}`, '#77736b', 'left', k, 5);
+  const cy = lerp(H + 300, 300, k); x.fillStyle = '#111'; x.fillRect(260, cy, 760, 470);
+  text('ALLURÉ WALLET', 310, cy + 60, `700 18px ${SANS}`, '#a39e92', 'left', 1, 6);
+  const bought = t > 55.4, bal = bought ? lerp(12500, 10260, eOut(prog(t, 55.4, 56.2))) : 12500;
+  text('₹' + Math.round(bal).toLocaleString('en-IN'), 310, cy + 160, `600 110px ${SERIF}`, '#f4f2ee', 'left');
+  text('A', 960, cy + 400, `italic 400 260px ${SERIF}`, 'rgba(255,255,255,.06)', 'center');
+  text('Watching: Black Friday Sale', 310, cy + 270, `500 26px ${SANS}`, '#d8d3c8', 'left');
+  const left = Math.max(0, 55 - t), cd = t < 55 ? `00:00:0${Math.ceil(left)}` : 'SALE LIVE';
+  text(cd, 310, cy + 330, `700 34px ${SANS}`, t < 55 ? '#f4f2ee' : '#d8a42c', 'left', prog(t, 52.2, 52.6), 4);
+  if (t > 54.98 && t < 55.25) { x.fillStyle = 'rgba(216,164,44,.35)'; x.fillRect(0, 0, W, H); }
+  // order card
+  const ok = eOut(prog(t, 55.5, 56.1)); if (ok) { const ox = lerp(W, 1120, ok); x.fillStyle = '#fff'; x.strokeStyle = INK; x.lineWidth = 2; x.fillRect(ox, 300, 560, 470); x.strokeRect(ox, 300, 560, 470);
+    text('✓  BOUGHT IN 0.4 s', ox + 40, 350, `700 20px ${SANS}`, '#1e7a4c', 'left', 1, 4); text('White tee, loose jeans', ox + 40, 410, `600 40px ${SERIF}`, INK, 'left');
+    text('Sale price ₹2,240  ·  saved ₹558', ox + 40, 465, `500 24px ${SANS}`, '#77736b', 'left');
+    const dk = eIO(prog(t, 56.6, 59.6)); x.fillStyle = '#e4e0d8'; x.fillRect(ox + 40, 580, 480, 4); x.fillStyle = INK; x.fillRect(ox + 40, 580, 480 * dk, 4);
+    x.beginPath(); x.arc(ox + 40 + 480 * dk, 582, 12, 0, 7); x.fill(); text('Packed', ox + 40, 620, `500 20px ${SANS}`, '#77736b', 'left'); text('Home', ox + 520, 620, `500 20px ${SANS}`, '#77736b', 'right');
+    text(dk >= 1 ? 'Delivered to your door' : 'Out for delivery…', ox + 40, 690, `italic 400 34px ${SERIF}`, INK, 'left', prog(t, 56.8, 57.2)); }
+}
+// ---------- Logo ----------
+function logo(t) { x.fillStyle = '#000'; x.fillRect(0, 0, W, H); const a = prog(t, 63.6, 64.8), b = prog(t, 64.2, 65.4), c = prog(t, 65.8, 66.8);
+  x.save(); x.font = `600 230px ${SERIF}`; const w1 = x.measureText('All').width; x.font = `italic 400 230px ${SERIF}`; const w2 = x.measureText('uré').width; x.restore();
+  const sx = W / 2 - (w1 + w2) / 2; x.save(); x.filter = `blur(${(1 - eOut(a)) * 24}px)`;
+  text('All', sx, H / 2 - 30, `600 230px ${SERIF}`, '#f4f2ee', 'left', eOut(a)); text('uré', sx + w1, H / 2 - 30 + (1 - eOut(b)) * 40, `italic 400 230px ${SERIF}`, '#f4f2ee', 'left', eOut(b)); x.restore();
+  x.fillStyle = '#f4f2ee'; x.fillRect(W / 2 - 300 * eOut(c), H / 2 + 120, 600 * eOut(c), 2);
+  text('FIND YOUR KIND OF STYLE', W / 2, H / 2 + 175, `700 26px ${SANS}`, '#a39e92', 'center', c, 10); const fo = prog(t, 71, 72); if (fo) { x.fillStyle = `rgba(0,0,0,${fo})`; x.fillRect(0, 0, W, H); } }
+// ---------- Master timeline ----------
+function scene(t) {
+  if (t < 9.2) return scene1(t);
+  if (t < 13) return scene2(t);
+  if (t < 14.2) { const k = eIO(prog(t, 13, 14.2)); scene2(t, -W * k); scene4(t, W * (1 - k)); return; }
+  if (t < 21.6) { scene4(t); explosion(t); if (t > 20.6) { x.fillStyle = '#fff'; x.fillRect(0, 0, W, H); } return; }
+  if (t < 37) return scene5(t);
+  if (t < 51) { scene6(t); const k = prog(t, 50.8, 51); if (k) { x.fillStyle = `rgba(244,242,238,${k})`; x.fillRect(0, 0, W, H); } return; }
+  if (t < 61.4) return scene7(t);
+}
+function frame(t) {
+  x.setTransform(1, 0, 0, 1, 0, 0); x.globalAlpha = 1; x.filter = 'none';
+  if (t < 61.4) return scene(t);
+  if (t < 63.2) { // rewind everything in under 2 seconds
+    const k = prog(t, 61.4, 63.2), rt = lerp(61.3, 0.2, eIn(k) * .6 + k * .4); scene(rt);
+    x.globalCompositeOperation = 'difference'; x.fillStyle = `rgba(30,0,0,${.3})`; x.fillRect(0, 0, W, H); x.globalCompositeOperation = 'source-over';
+    for (let i = 0; i < 18; i++) { const y = (rnd(i + Math.floor(t * 40)) * H) | 0; x.fillStyle = 'rgba(255,255,255,.18)'; x.fillRect(0, y, W, 2 + rnd(i * 3) * 6); }
+    text('◀◀  REWIND', 120, 90, `700 34px ${SANS}`, '#fff', 'left', .9, 6);
+    const wf = prog(t, 62.9, 63.2); if (wf) { x.fillStyle = `rgba(0,0,0,${wf})`; x.fillRect(0, 0, W, H); } return; }
+  logo(t);
+}
+// ---------- playback + recording ----------
+let t0 = null, playing = false;
+function loop(now) { if (!playing) return; if (t0 === null) t0 = now; const t = (now - t0) / 1000; frame(Math.min(t, END)); if (t >= END) { playing = false; onEnd && onEnd(); return; } requestAnimationFrame(loop); }
+let onEnd = null;
+function play() { t0 = null; playing = true; requestAnimationFrame(loop); }
+const qs = new URLSearchParams(location.search);
+(async () => {
+  await loadImages(); try { await Promise.all([document.fonts.load(`600 100px "Playfair Display"`), document.fonts.load(`italic 400 100px "Playfair Display"`), document.fonts.load(`700 20px Inter`)]); } catch {}
+  if (qs.has('t')) { frame(+qs.get('t')); return; } // still frame for checking: ?t=42
+  frame(0);
+  if (qs.has('render')) { // record the canvas in real time and hand the file to the render server
+    const mime = ['video/mp4;codecs=avc1.640028', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm'].find((m) => MediaRecorder.isTypeSupported(m));
+    const rec = new MediaRecorder(cv.captureStream(60), { mimeType: mime, videoBitsPerSecond: 16e6 }), parts = [];
+    rec.ondataavailable = (e) => e.data.size && parts.push(e.data);
+    rec.onstop = async () => { const blob = new Blob(parts, { type: mime }); await fetch('/out?type=' + encodeURIComponent(mime), { method: 'POST', body: blob }); document.title = 'DONE'; };
+    onEnd = () => setTimeout(() => rec.stop(), 300); rec.start(1000); play();
+  } else addEventListener('keydown', (e) => { if (e.code === 'Space') play(); });
+})();
+</script></body></html>
