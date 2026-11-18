@@ -417,7 +417,7 @@ function logo(t) { x.fillStyle = '#000'; x.fillRect(0, 0, W, H); const a = prog(
   const sx = W / 2 - (w1 + w2) / 2; x.save(); x.filter = `blur(${(1 - eOut(a)) * 24}px)`;
   text('ALLUR', sx, H / 2 - 30, `200 210px ${SERIF}`, '#ffffff', 'left', eOut(a), 12); text('é', sx + w1, H / 2 - 30 + (1 - eOut(b)) * 40, `200 210px ${SERIF}`, '#ffffff', 'left', eOut(b)); x.restore();
   x.fillStyle = '#ffffff'; x.fillRect(W / 2 - 300 * eOut(c), H / 2 + 120, 600 * eOut(c), 2);
-  text('FIND YOUR KIND OF STYLE', W / 2, H / 2 + 175, `700 26px ${SANS}`, '#ffffff', 'center', c, 10); const fo = prog(t, 71, 72); if (fo) { x.fillStyle = `rgba(0,0,0,${fo})`; x.fillRect(0, 0, W, H); } }
+  text('STYLE IS ALL YOURS', W / 2, H / 2 + 175, `700 26px ${SANS}`, '#ffffff', 'center', c, 10); const fo = prog(t, 71, 72); if (fo) { x.fillStyle = `rgba(0,0,0,${fo})`; x.fillRect(0, 0, W, H); } }
 // ---------- Master timeline ----------
 function scene(t) {
   if (t < 9.2) return scene1(t);
