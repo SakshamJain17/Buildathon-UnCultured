@@ -42,3 +42,5 @@ xcuserdata/
 
 ios/.build-log.txt
 ios/.screenshots/
+macos/.build/
+web/.screenshots/
