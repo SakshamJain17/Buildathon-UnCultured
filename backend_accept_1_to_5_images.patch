@@ -1,0 +1,34 @@
+--- a/backend/app/main.py	2026-11-18 17:16:16
++++ b/backend/app/main.py	2026-11-18 17:16:16
+@@ -122,9 +122,9 @@
+ 
+ @app.post('/api/v1/style/analyze')
+ async def analyze(request:Request,user:User,images:Annotated[list[UploadFile],File()]):
+-    if len(images)!=5: raise ProviderError('IMAGE_COUNT','Exactly five outfit references are required.',422)
++    if not 1<=len(images)<=5: raise ProviderError('IMAGE_COUNT','Provide between one and five outfit references.',422)
+     raw=[await image_bytes(image) for image in images]
+-    prompt=('Analyse only clothing in these five reference images. Do not infer age, ethnicity, health, body measurements, attractiveness, or other sensitive traits. '
++    prompt=('Analyse only clothing in these reference images (one to five). Do not infer age, ethnicity, health, body measurements, attractiveness, or other sensitive traits. '
+         'Return one entry per image. Use lowercase aesthetic tags, common colour names, silhouettes and garment categories. '
+         'Garment categories should be tops, bottoms, footwear, one-pieces, accessories. Material descriptions are visual guesses, explicitly qualified. '
+         'Include ambiguity in uncertainty. These are references, not proof of ownership or personal identity.')
+@@ -145,7 +145,7 @@
+         for key,value in consolidated.items():
+             if not p.get(key): p[key]=value
+         conn.execute('UPDATE users SET preferences=? WHERE id=?',(json.dumps(p),user['id']))
+-    return ok(request,{'style_profile':consolidated,'per_image':[x.model_dump() for x in result.images],'confidence':None,'source_image_count':5,'aggregation':'frequency across images; explicit saved preferences take precedence','images_stored':False})
++    return ok(request,{'style_profile':consolidated,'per_image':[x.model_dump() for x in result.images],'confidence':None,'source_image_count':len(images),'aggregation':'frequency across the supplied images; explicit saved preferences take precedence','images_stored':False})
+ 
+ @app.get('/api/v1/recommendations')
+ async def recommendations(request:Request,user:User,limit:int=Query(12,ge=1,le=50),include_seen:bool=False):
+--- a/backend/app/schemas.py	2026-11-18 17:16:16
++++ b/backend/app/schemas.py	2026-11-18 17:16:16
+@@ -80,7 +80,7 @@
+     uncertainty: list[str]
+ 
+ class VisionResult(Strict):
+-    images: list[VisionImage] = Field(min_length=5,max_length=5)
++    images: list[VisionImage] = Field(min_length=1,max_length=5)
+ 
+ class PaletteIn(Strict):
+     undertone: Literal['warm','cool','neutral','unsure']
