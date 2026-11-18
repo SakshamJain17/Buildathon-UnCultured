@@ -36,7 +36,7 @@ async def lifespan(app):
     if tasks:
         await asyncio.gather(*tasks,return_exceptions=True)
 
-app=FastAPI(title='StyleMatch AI',version='0.1.0',lifespan=lifespan,description='Fashion intelligence tools, weather-aware personalisation, and virtual try-on. Provider availability is explicit. Session bearer tokens isolate user records.')
+app=FastAPI(title='ALLURÉ',version='0.1.0',lifespan=lifespan,description='Fashion intelligence tools, weather-aware personalisation, and virtual try-on. Provider availability is explicit. Session bearer tokens isolate user records.')
 app.add_middleware(CORSMiddleware,allow_origins=settings.origins,allow_credentials=False,allow_methods=['GET','POST','PUT','DELETE'],allow_headers=['Authorization','Content-Type','Idempotency-Key'])
 
 @app.middleware('http')

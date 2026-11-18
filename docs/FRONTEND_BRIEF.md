@@ -1,6 +1,10 @@
-# StyleMatch frontend handoff
+# ALLURÉ frontend handoff
 
 UI is owned by the frontend teammate. Backend is implemented independently in `backend/`.
+
+## Brand
+
+Use **ALLURÉ** as the display name and **Find your kind of style.** as the primary tagline. ASCII fallback: ALLURE. The voice is warm, confident, personal and expressive. Emphasise individuality and discovery; avoid declaring one objectively correct style or promising capabilities the backend does not provide.
 
 ## Direction
 

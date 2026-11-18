@@ -1,4 +1,4 @@
-# StyleMatch API contract — v0.1
+# ALLURÉ API contract — v0.1
 
 Base URL: `http://localhost:8766` for this session, or `http://localhost:8000` with the default README command. All paths below start `/api/v1`. Interactive schemas and multipart forms: `/docs`; machine-readable request schemas: `/openapi.json`.
 
@@ -55,17 +55,17 @@ Open-Meteo forecast and geocoding; free non-commercial endpoint with attribution
 curl http://localhost:8766/api/v1/health
 curl -X POST http://localhost:8766/api/v1/sessions \
   -H 'Content-Type: application/json' -d '{"name":"Saksham"}'
-# Copy the returned token into a local shell variable STYLEMATCH_TOKEN.
-curl http://localhost:8766/api/v1/me -H "Authorization: Bearer $STYLEMATCH_TOKEN"
+# Copy the returned token into a local shell variable ALLURE_TOKEN.
+curl http://localhost:8766/api/v1/me -H "Authorization: Bearer $ALLURE_TOKEN"
 curl -X POST http://localhost:8766/api/v1/stylist/daily \
-  -H "Authorization: Bearer $STYLEMATCH_TOKEN" -H 'Content-Type: application/json' \
+  -H "Authorization: Bearer $ALLURE_TOKEN" -H 'Content-Type: application/json' \
   -d '{"location":{"latitude":28.46,"longitude":77.03},"occasion":"everyday"}'
 curl -X POST http://localhost:8766/api/v1/style/analyze \
-  -H "Authorization: Bearer $STYLEMATCH_TOKEN" \
+  -H "Authorization: Bearer $ALLURE_TOKEN" \
   -F 'images=@outfit1.jpg' -F 'images=@outfit2.jpg' -F 'images=@outfit3.jpg' \
   -F 'images=@outfit4.jpg' -F 'images=@outfit5.jpg'
 curl -X POST http://localhost:8766/api/v1/tryon \
-  -H "Authorization: Bearer $STYLEMATCH_TOKEN" -H 'Idempotency-Key: unique-user-action-1' \
+  -H "Authorization: Bearer $ALLURE_TOKEN" -H 'Idempotency-Key: unique-user-action-1' \
   -F 'person_image=@person.jpg' -F 'garment_image=@shirt.jpg' -F 'consent=true' -F 'category=tops'
 ```
 

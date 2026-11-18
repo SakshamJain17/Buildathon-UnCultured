@@ -129,13 +129,17 @@ _Replace this section with your project README:_
 
 ---
 
-## StyleMatch AI — Your project
+## ALLURÉ — Find your kind of style.
 
 **Team:** UnCultured — Saksham Jain, Palakshi Purohit, Aditya Sharma. `team.json` currently includes the supplied, verified SakshamJain17 account; the other members' usernames still need to be recorded.
 
 **Track:** Build for AI Agents (`ai-agents`).
 
-**Problem:** Shopping assistants can describe fashion, but often lack a persistent understanding of someone's taste, local weather, and evidence that two listings represent the same garment variant. StyleMatch gives agents callable fashion tools and gives users explanations grounded in preferences and retrieved data.
+ALLURÉ is a personalised fashion experience centred on individuality, expression and personal style. Inspired by the French word *allure*—charm, appeal and the distinctive way someone carries themselves—the brand reflects a belief that fashion is a way to express who you are. Our vision is to use AI to understand individual aesthetics, preferences and colour choices, helping people discover fashion that resonates with them.
+
+*ALLURÉ isn’t just about finding your next outfit; it’s about finding your kind of style.*
+
+**Problem:** Shopping assistants can describe fashion, but often lack a persistent understanding of someone's taste, local weather, and evidence that two listings represent the same garment variant. ALLURÉ gives agents callable fashion tools and gives users explanations grounded in preferences and retrieved data.
 
 **What we built:** A FastAPI backend with session-scoped preferences, five-image style-analysis integration, bounded swipe learning, weather-aware daily outfit suggestions, optional user-selected undertone palettes, real shopping-search integration, conservative offer matching, price arithmetic, and asynchronous virtual try-on integration. A local Ollama agent chooses tools and reads their results. Frontend development is handled separately by the teammate; no website frontend is included yet.
 

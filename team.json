@@ -1,9 +1,12 @@
 {
   "team_name": "UnCultured",
-  "project_title": "StyleMatch AI",
-  "one_liner": "Personal style intelligence for shopping agents, with weather-aware outfits and virtual try-on.",
+  "project_title": "ALLURÉ",
+  "one_liner": "A personalised AI fashion experience that helps you discover your kind of style.",
   "track": "ai-agents",
   "members": [
-    { "name": "Saksham Jain", "github": "SakshamJain17" }
+    {
+      "name": "Saksham Jain",
+      "github": "SakshamJain17"
+    }
   ]
 }
