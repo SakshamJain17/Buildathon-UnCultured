@@ -260,3 +260,70 @@ def test_inspiration_and_hair(client,auth,monkeypatch):
     monkeypatch.setattr(main,'gemini',model)
     result=client.post('/api/v1/stylist/hair',headers=auth,json={'length':'short','texture':'wavy','goal':'Low maintenance'})
     assert result.status_code==200 and result.json()['data']['photo_analysis'] is False
+
+def test_safe_ai_avatar(client,auth,monkeypatch):
+    async def model(*a,**kw):return {'parts':[{'text':json.dumps({'top_color':'#112233','bottom_color':'#443322','shoe_color':'#000000','backdrop_color':'#EEEEEE','silhouette':'relaxed','explanation':'A relaxed neutral study.'})}]}
+    monkeypatch.setattr(main,'gemini',model)
+    data=client.post('/api/v1/stylist/avatar',headers=auth,json={}).json()['data']
+    assert data['svg'].startswith('<svg') and '<script' not in data['svg']
+    assert 'not a personal likeness' in data['notice']
+
+def test_avatar_rejects_unsafe_colour(client,auth,monkeypatch):
+    async def model(*a,**kw):return {'parts':[{'text':json.dumps({'top_color':'<script>','bottom_color':'#443322','shoe_color':'#000000','backdrop_color':'#EEEEEE','silhouette':'relaxed','explanation':'bad'})}]}
+    monkeypatch.setattr(main,'gemini',model)
+    assert client.post('/api/v1/stylist/avatar',headers=auth,json={}).status_code==502
+
+def test_wardrobe_ai_labels_require_review(client,auth,monkeypatch):
+    async def model(*a,**kw):return {'parts':[{'text':json.dumps({'title':'Relaxed shirt','category':'tops','colors':['beige'],'aesthetics':['minimalist'],'fit':'relaxed','uncertainty':['Colour depends on lighting']})}]}
+    monkeypatch.setattr(main,'gemini',model)
+    data=client.post('/api/v1/wardrobe/analyze',headers=auth,files={'image':('garment.jpg',image(),'image/jpeg')}).json()['data']
+    assert data['requires_user_review'] is True and data['image_stored'] is False
+    assert client.get('/api/v1/wardrobe',headers=auth).json()['data']['items']==[]
+
+def test_conversation_followup_is_owned(client,auth):
+    result=client.post('/api/v1/agent/shop',headers=auth,json={'message':'Find a shirt'}).json()['data']
+    other=client.post('/api/v1/sessions',json={'name':'Other'}).json()['data']
+    response=client.post('/api/v1/agent/shop',headers={'Authorization':'Bearer '+other['token']},json={'message':'Continue','previous_run_id':result['run_id']})
+    assert response.status_code==404
+
+def test_wardrobe_considered_by_daily(client,auth,monkeypatch):
+    client.post('/api/v1/wardrobe',headers=auth,files={'image':('shirt.jpg',image(),'image/jpeg')},data={'title':'My shirt','category':'tops','color':'beige','aesthetics':'minimalist','fit':'relaxed'})
+    async def forecast(*a):return {'current':{'apparent_temperature':25},'daily':{},'tags':['warm'],'source':'fixture','precipitation_probability_percent':0,'currently_precipitating':False}
+    monkeypatch.setattr(intelligence,'weather',forecast)
+    result=client.post('/api/v1/stylist/daily',headers=auth,json={'location':{'latitude':28,'longitude':77}}).json()['data']
+    assert result['wardrobe_considered'] is True
+
+def test_agent_feedback_and_preference_actions(client,auth,monkeypatch):
+    replies=iter([
+        {'role':'model','parts':[{'functionCall':{'name':'record_product_feedback','args':{'action':'save'}}}]},
+        {'role':'model','parts':[{'functionCall':{'name':'update_style_preferences','args':{'preferred_colors':['black','white']}}}]},
+        {'role':'model','parts':[{'text':'Saved the item and updated your colours.'}]}])
+    async def model(*a,**kw):return next(replies)
+    monkeypatch.setattr(agent,'gemini',model)
+    response=client.post('/api/v1/agent/shop',headers=auth,json={'message':'Save this piece and change my colours to black and white.','selected_product_id':'neutral-shirt'})
+    assert response.status_code==200,response.text
+    data=response.json()['data'];assert data['status']=='completed'
+    assert len([x for x in data['ui_actions'] if x['type']=='refresh'])==2
+    assert client.get('/api/v1/saved',headers=auth).json()['data']['products'][0]['id']=='neutral-shirt'
+    assert client.get('/api/v1/me',headers=auth).json()['data']['preferences']['preferred_colors']==['black','white']
+
+def test_agent_dismiss_filters_response(client,auth,monkeypatch):
+    replies=iter([
+        {'role':'model','parts':[{'functionCall':{'name':'record_product_feedback','args':{'action':'dislike'}}}]},
+        {'role':'model','parts':[{'text':'Dismissed.'}]}])
+    async def model(*a,**kw):return next(replies)
+    monkeypatch.setattr(agent,'gemini',model)
+    data=client.post('/api/v1/agent/shop',headers=auth,json={'message':'Never show this piece again.','selected_product_id':'neutral-shirt'}).json()['data']
+    assert data['products']==[]
+    items=client.get('/api/v1/recommendations?include_seen=true',headers=auth).json()['data']['items']
+    assert 'neutral-shirt' not in [x['product']['id'] for x in items]
+
+def test_agent_requests_photo_feature_without_generating(client,auth,monkeypatch):
+    replies=iter([
+        {'role':'model','parts':[{'functionCall':{'name':'open_app_feature','args':{'feature':'tryon'}}}]},
+        {'role':'model','parts':[{'text':'Please provide your photo and consent in the fitting room.'}]}])
+    async def model(*a,**kw):return next(replies)
+    monkeypatch.setattr(agent,'gemini',model)
+    data=client.post('/api/v1/agent/shop',headers=auth,json={'message':'Open try-on for this piece','selected_product_id':'neutral-shirt'}).json()['data']
+    assert data['ui_actions'][0]['feature']=='tryon'
+    with db.connect() as conn:assert conn.execute('SELECT count(*) FROM jobs').fetchone()[0]==0

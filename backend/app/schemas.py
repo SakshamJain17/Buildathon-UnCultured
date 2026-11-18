@@ -71,9 +71,10 @@ class AgentIn(Strict):
     message: str = Field(min_length=2,max_length=2000)
     location: Location | None = None
     previous_run_id: str | None = Field(default=None,max_length=100)
+    selected_product_id: str | None = Field(default=None,max_length=200)
 
 class VisionImage(Strict):
-    aesthetics: list[str]
+    aesthetics: list[Literal['minimalist','streetwear','smart_casual','formal','athleisure','vintage','contemporary','casual','romantic','outdoor','preppy','bohemian']]
     preferred_colors: list[str]
     silhouettes: list[str]
     garment_preferences: list[str]
@@ -107,3 +108,12 @@ class AvatarDesign(Strict):
     backdrop_color: str = Field(pattern=r'^#[0-9A-Fa-f]{6}$')
     silhouette: Literal['relaxed','tailored','oversized']
     explanation: str = Field(min_length=1,max_length=500)
+
+
+class GarmentAnalysis(Strict):
+    title: str = Field(min_length=1,max_length=120)
+    category: Literal['tops','bottoms','footwear','one-pieces','accessories']
+    colors: list[str] = Field(max_length=6)
+    aesthetics: list[Literal['minimalist','streetwear','smart_casual','formal','athleisure','vintage','contemporary','casual','romantic','outdoor','preppy','bohemian']] = Field(max_length=5)
+    fit: Literal['relaxed','oversized','regular','straight','slim','tailored','unknown']
+    uncertainty: list[str] = Field(max_length=8)

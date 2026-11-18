@@ -66,6 +66,7 @@ def seed_products():
 def products():
     with connect() as db:
         items=[json.loads(row['data']) for row in db.execute('SELECT data FROM products')]
+        items=[{k:v for k,v in p.items() if k not in {'reference_price','image_source'}} for p in items]
         if any(p.get('source')=='reference_catalogue' for p in items):
             return [p for p in items if p.get('source')!='demo_catalogue']
         return items

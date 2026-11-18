@@ -50,7 +50,7 @@ async def request_id(request,call_next):
         return JSONResponse({'success':False,'error':{'code':'REQUEST_TOO_LARGE','message':'Request must be at most 45 MB.'},'request_id':request.state.request_id},status_code=413)
     response=await call_next(request)
     response.headers['X-Request-ID']=request.state.request_id
-    response.headers['Cache-Control']='no-store'
+    response.headers['Cache-Control']='public, max-age=3600' if request.url.path.startswith('/assets/') else 'no-store'
     return response
 
 def ok(request,data): return {'success':True,'data':data,'request_id':request.state.request_id}
@@ -156,20 +156,7 @@ async def recommendations(request:Request,user:User,limit:int=Query(12,ge=1,le=5
 
 @app.post('/api/v1/swipes')
 async def swipe(request:Request,body:SwipeIn,user:User,idempotency_key:Annotated[str|None,Header(max_length=120)]=None):
-    with db.connect() as conn:
-        conn.execute('BEGIN IMMEDIATE')
-        if idempotency_key:
-            old=conn.execute("SELECT result_id FROM idempotency WHERE user_id=? AND key=? AND kind='swipe'",(user['id'],idempotency_key)).fetchone()
-            if old: return ok(request,{'swipe_id':old[0],'replayed':True})
-        row=conn.execute('SELECT data FROM products WHERE id=?',(body.product_id,)).fetchone()
-        if not row: raise ProviderError('NOT_FOUND','Unknown product.',404)
-        p=json.loads(conn.execute('SELECT preferences FROM users WHERE id=?',(user['id'],)).fetchone()[0])
-        p=intelligence.adapt(p,json.loads(row[0]),body.action)
-        swipe_id='swp_'+uuid.uuid4().hex
-        conn.execute('UPDATE users SET preferences=? WHERE id=?',(json.dumps(p),user['id']))
-        conn.execute('INSERT INTO swipes VALUES (?,?,?,?,?)',(swipe_id,user['id'],body.product_id,body.action,db.now()))
-        if idempotency_key: conn.execute('INSERT INTO idempotency VALUES (?,?,?,?)',(user['id'],idempotency_key,'swipe',swipe_id))
-    return ok(request,{'swipe_id':swipe_id,'action':body.action,'preferences':p})
+    return ok(request,personal.feedback(user,body.product_id,body.action,idempotency_key))
 
 @app.get('/api/v1/saved')
 async def saved(request:Request,user:User):
@@ -262,10 +249,10 @@ async def hairstyle(request:Request,body:HairIn,user:User):
     return ok(request,{'advice':'\n'.join(p.get('text','') for p in result.get('parts',[]) if not p.get('thought')),'source':'model_generated','photo_analysis':False})
 
 @app.post('/api/v1/wardrobe',status_code=201)
-async def wardrobe_add(request:Request,user:User,image:Annotated[UploadFile,File()],title:Annotated[str,Form(min_length=1,max_length=120)],category:Annotated[Literal['tops','bottoms','footwear','one-pieces','accessories'],Form()],color:Annotated[str,Form(max_length=40)]='neutral'):
+async def wardrobe_add(request:Request,user:User,image:Annotated[UploadFile,File()],title:Annotated[str,Form(min_length=1,max_length=120)],category:Annotated[Literal['tops','bottoms','footwear','one-pieces','accessories'],Form()],color:Annotated[str,Form(max_length=40)]='neutral',aesthetics:Annotated[str,Form(max_length=200)]='',fit:Annotated[str,Form(max_length=30)]=''):
     raw=await image_bytes(image)
     item_id='ward_'+uuid.uuid4().hex
-    p={'id':item_id,'title':title,'category':category,'colors':[color.lower()],'aesthetics':[],'fits':[],'weather_tags':[],'functional_tags':[], 'price':None,'currency':'INR','source':'your_wardrobe','is_demo':False,'image_url':None,'merchant_url':None}
+    p={'id':item_id,'title':title,'category':category,'colors':[color.lower()],'aesthetics':[x.strip().lower() for x in aesthetics.split(',') if x.strip()][:10],'fits':[fit.lower()] if fit else [],'weather_tags':[],'functional_tags':[], 'price':None,'currency':'INR','source':'your_wardrobe','is_demo':False,'image_url':None,'merchant_url':None}
     with db.connect() as conn: conn.execute('INSERT INTO wardrobe VALUES (?,?,?,?,?)',(item_id,user['id'],json.dumps(p),raw,db.now()))
     return ok(request,{'item':p})
 
@@ -309,7 +296,9 @@ async def insights(request:Request,user:User):
         wardrobe_count=conn.execute('SELECT count(*) FROM wardrobe WHERE user_id=?',(user['id'],)).fetchone()[0]
     p=json.loads(user['preferences'])
     strongest=sorted(p.get('learned',{}).items(),key=lambda x:-x[1])[:6]
-    return ok(request,{'interactions':counts,'wardrobe_count':wardrobe_count,'strongest_signals':[{'feature':k,'weight':v} for k,v in strongest],'inspirations':p.get('inspirations',[]),'confidence':None})
+    with db.connect() as conn:
+        activity=[{'action':r['action'],'created_at':r['created_at'],'title':json.loads(r['data'])['title']} for r in conn.execute('SELECT s.action,s.created_at,p.data FROM swipes s JOIN products p ON p.id=s.product_id WHERE s.user_id=? ORDER BY s.created_at DESC LIMIT 12',(user['id'],))]
+    return ok(request,{'interactions':counts,'wardrobe_count':wardrobe_count,'strongest_signals':[{'feature':k,'weight':v} for k,v in strongest],'inspirations':p.get('inspirations',[]),'recent_activity':activity,'confidence':None})
 
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
@@ -330,3 +319,46 @@ async def avatar(request:Request,user:User):
     # Only schema-validated colour strings and a bounded integer enter the SVG. No model SVG/code is executed.
     svg=f'''<svg xmlns="http://www.w3.org/2000/svg" width="440" height="640" viewBox="0 0 440 640"><rect width="440" height="640" fill="{design.backdrop_color}"/><ellipse cx="220" cy="595" rx="95" ry="12" fill="#000000" opacity=".08"/><path d="M181 130Q177 75 220 70Q264 75 259 130L245 173H195Z" fill="#D9D3C7"/><path d="M195 157L195 186H245V157" fill="#D9D3C7"/><path d="M{220-width} 185L195 174Q220 192 245 174L{220+width} 185L{230+width} 340L{208+width} 346L{205+width} 260L{205+width} 375H{235-width}V260L{232-width} 346L{210-width} 340Z" fill="{design.top_color}"/><path d="M{235-width} 370H{205+width}L285 566H231L220 435L208 566H153Z" fill="{design.bottom_color}"/><path d="M153 558H208V586H133Q130 567 153 558M231 558H285L308 578V586H231Z" fill="{design.shoe_color}"/><path d="M180 105Q180 67 220 65Q260 67 261 105L247 89Q221 106 190 94Z" fill="#393A36"/><path d="M220 206V358" stroke="#FFFFFF" stroke-width="1" opacity=".2"/><text x="220" y="625" text-anchor="middle" font-family="Georgia" font-size="9" letter-spacing="4" fill="#333333">ALLURÉ / STYLE STUDY</text></svg>'''
     return ok(request,{'svg':svg,'explanation':design.explanation,'method':'local_or_hosted_llm_design_with_safe_vector_rendering','notice':'AI-styled illustration, not a personal likeness or physical-fit preview.'})
+
+
+from .schemas import GarmentAnalysis
+@app.post('/api/v1/wardrobe/analyze')
+async def wardrobe_analyze(request:Request,user:User,image:Annotated[UploadFile,File()]):
+    raw=await image_bytes(image)
+    prompt=('Describe the main clothing item in this image for a private wardrobe. Return a concise garment title, category, visible colours, aesthetic tags, approximate fit and uncertainty. '
+        'Do not infer sensitive personal traits or exact fabric composition. Use unknown fit if unclear. Analyse the garment, not the person. Suggestions will be reviewed by the user before storage.')
+    result=await gemini([{'role':'user','parts':[{'text':prompt},inline(raw)]}],schema=GarmentAnalysis.model_json_schema())
+    try: parsed=GarmentAnalysis.model_validate_json(''.join(x.get('text','') for x in result.get('parts',[]) if not x.get('thought')))
+    except (ValueError,ValidationError):raise ProviderError('INVALID_MODEL_OUTPUT','Garment labels could not be reliably extracted.',502)
+    return ok(request,{'suggested_labels':parsed.model_dump(),'requires_user_review':True,'image_stored':False,'confidence':None})
+
+
+@app.post('/api/v1/demo/seed')
+async def seed_demo(request:Request,user:User):
+    # Additive and idempotent: never deletes or overwrites an existing personal wardrobe.
+    with db.connect() as conn:
+        existing=conn.execute("SELECT result_id FROM idempotency WHERE user_id=? AND key='sample-data-v1' AND kind='demo'",(user['id'],)).fetchone()
+        if existing:return ok(request,{'seeded':False,'notice':'Sample walkthrough data is already present.','progress':personal.progress(user)})
+    catalogue=[p for p in db.products() if p.get('source')=='reference_catalogue']
+    if not catalogue:raise ProviderError('DEMO_ASSETS_MISSING','Download the supplied reference catalogue to enable sample wardrobe data.',503)
+    selected=[]
+    for category in ('tops','tops','bottoms','footwear','one-pieces','accessories'):
+        item=next((p for p in catalogue if p.get('category')==category and p['id'] not in {x['id'] for x in selected}),None)
+        if item:selected.append(item)
+    added=0
+    with db.connect() as conn:
+        conn.execute('BEGIN IMMEDIATE')
+        for p in selected:
+            path=Path(__file__).resolve().parents[1]/'runtime/assets/products'/(p['id']+'.jpg')
+            if not path.exists():continue
+            item={**p,'id':'sample_'+uuid.uuid4().hex,'title':'Sample · '+p['title'],'source':'sample_wardrobe','is_demo':True,'image_url':None,'sample_data':True}
+            conn.execute('INSERT INTO wardrobe VALUES (?,?,?,?,?)',(item['id'],user['id'],json.dumps(item),path.read_bytes(),db.now()));added+=1
+        prefs=json.loads(conn.execute('SELECT preferences FROM users WHERE id=?',(user['id'],)).fetchone()[0])
+        if not prefs.get('aesthetics'):prefs['aesthetics']=['minimalist','smart_casual']
+        if not prefs.get('preferred_colors'):prefs['preferred_colors']=['beige','black','olive']
+        if not prefs.get('silhouettes'):prefs['silhouettes']=['relaxed']
+        conn.execute('UPDATE users SET preferences=? WHERE id=?',(json.dumps(prefs),user['id']))
+        conn.execute('INSERT INTO idempotency VALUES (?,?,?,?)',(user['id'],'sample-data-v1','demo','seeded'))
+    for index,item in enumerate(catalogue[8:14]):
+        personal.feedback(user,item['id'],['like','save','like','dislike','save','like'][index],idempotency_key='sample-'+item['id'])
+    return ok(request,{'seeded':True,'sample_wardrobe_items':added,'notice':'Clearly labelled sample wardrobe and sample interactions were added. They are illustrative, not real purchases or claims about your taste.','progress':personal.progress(user)})

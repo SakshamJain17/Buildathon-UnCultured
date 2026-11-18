@@ -32,7 +32,7 @@ async def request_json(method,url,*,retry=True,**kwargs):
             raise ProviderError(message='Provider request failed or returned invalid data.')
     raise ProviderError()
 
-async def gemini(contents,*,schema=None,tools=None):
+async def _generate(contents,*,schema=None,tools=None):
     has_images=any('inlineData' in part for content in contents for part in content.get('parts',[]))
     provider=settings.vision_provider if has_images else settings.llm_provider
     if provider == 'ollama':
@@ -91,7 +91,7 @@ async def ollama_generate(contents,*,schema=None,tools=None):
         if functions:
             message['tool_calls']=[{'type':'function','function':{'name':f['name'],'arguments':f.get('args',{})}} for f in functions]
         messages.append(message)
-    payload={'model':model,'messages':messages,'stream':False,'think':False,'options':{'temperature':0.2,'num_ctx':8192}}
+    payload={'model':model,'messages':messages,'stream':False,'think':False,'options':{'temperature':0.2,'num_ctx':8192 if has_images else 16384}}
     if has_images: payload.pop('think',None)
     if schema: payload['format']=schema
     if tools: payload['tools']=[{'type':'function','function':f} for f in tools]
@@ -109,3 +109,11 @@ async def ollama_generate(contents,*,schema=None,tools=None):
         parts.append({'functionCall':{'name':f.get('name'),'args':args}})
     if not parts: raise ProviderError('MODEL_NO_RESULT','Local model returned no usable answer.',502)
     return {'role':'model','parts':parts}
+
+
+_model_slots=asyncio.Semaphore(2)
+async def gemini(contents,*,schema=None,tools=None):
+    try: await asyncio.wait_for(_model_slots.acquire(),timeout=3)
+    except asyncio.TimeoutError: raise ProviderError('MODEL_BUSY','The demo stylist is helping other visitors. Please retry in a moment.',429)
+    try: return await _generate(contents,schema=schema,tools=tools)
+    finally: _model_slots.release()
