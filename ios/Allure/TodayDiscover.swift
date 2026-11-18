@@ -90,9 +90,16 @@ struct DiscoverView: View {
     @State private var drag: CGSize = .zero
     @State private var sendingSwipe=false
     @State private var modelLooks=true
-    private let modelIDs:Set<String> = ["ref_f8ed3becb467d2f3","ref_db22deae6cda0525","ref_9d4b3874f67fbd53","ref_eb0b325eb2666025"]
-    private var discoveryFeed:[Ranked] {modelLooks ? store.feed.filter {modelIDs.contains($0.id)} : store.feed}
+    private let modelIDs:Set<String> = ["ref_f8ed3becb467d2f3","ref_db22deae6cda0525","ref_9d4b3874f67fbd53","ref_eb0b325eb2666025","ref_423136ff1d66037f","ref_dc2aac9e596b4552","ref_53dca7dcad4ae24b","ref_54be1c4c539acc5c","ref_a408fec68ea8e579","ref_86244a249a0f5db2"]
+    private var discoveryFeed:[Ranked] {
+        guard modelLooks else {return store.feed}
+        let looks=store.feed.filter {modelIDs.contains($0.id)}
+        let fullBody:Set<String>=["ref_f8ed3becb467d2f3","ref_db22deae6cda0525","ref_9d4b3874f67fbd53","ref_eb0b325eb2666025"]
+        return looks.filter{fullBody.contains($0.id)}+looks.filter{!fullBody.contains($0.id)}
+    }
     @State private var swipeLabel=""
+    @State private var whyLook=false
+    @State private var feedback=""
     @State private var showSaved=false
     @State private var query=""
     @State private var selected:Product?
@@ -106,12 +113,12 @@ struct DiscoverView: View {
                     Picker("Explore",selection:$modelLooks) {Text("Styled looks").tag(true);Text("Individual pieces").tag(false)}.pickerStyle(.segmented)
                     if let item=discoveryFeed.first {
                         discoveryCard(item.product)
-                        HStack(spacing:28) {
-                            actionButton("Dismiss",symbol:"xmark",action:"dislike",product:item.product)
-                            actionButton("Save",symbol:"bookmark",action:"save",product:item.product)
-                            actionButton("Like",symbol:"heart",action:"like",product:item.product)
-                        }.frame(maxWidth:.infinity)
-                        Text("← Dismiss · ↓ Save · Like →").font(.caption).foregroundStyle(.secondary).frame(maxWidth:.infinity)
+                        HStack {
+                            Button("Why this look?") {whyLook=true}
+                            Spacer()
+                            Button("Style it with Allure",systemImage:"sparkles") {store.focusedProductID=item.product.id;store.assistantDraft="Help me style this selected piece using my actual profile and wardrobe.";store.assistantAutoSend=true;store.showAssistant=true}
+                        }.font(.caption).buttonStyle(.bordered).controlSize(.regular)
+                        if !feedback.isEmpty {Label(feedback,systemImage:"checkmark.circle").font(.caption).foregroundStyle(.secondary)}
                     } else {
                         ContentUnavailableView("You’re all caught up",systemImage:"checkmark.seal",description:Text("Your dismissed items stay hidden. Switch to Individual pieces to explore more of your edit, or ask Allure to find something new."))
                     }
@@ -121,12 +128,18 @@ struct DiscoverView: View {
                     ForEach(results) {p in VStack(alignment:.leading) {ProductRow(product:p); if let url=p.merchantUrl,let link=URL(string:url) {Link("View listing",destination:link).font(.caption)}; Button("Dismiss this item") {Task {await store.swipe(p,action:"dislike"); if store.error == nil {results.removeAll{$0.id==p.id}}}}.font(.caption)} }
                 }.padding(24)
                 .offset(x:reduceMotion ? 0 : drag.width,y:reduceMotion ? 0 : drag.height)
-            }.background(Theme.paper).navigationTitle("ALLURÉ").navigationBarTitleDisplayMode(.inline)
+            }.background(Theme.paper).navigationTitle("").toolbar {ToolbarItem(placement:.principal) {BrandLockup(size:26)}}.navigationBarTitleDisplayMode(.inline)
+            .safeAreaInset(edge:.bottom) {if let item=discoveryFeed.first {HStack(spacing:30) {
+                actionButton("Dismiss",symbol:"xmark",action:"dislike",product:item.product)
+                actionButton("Save",symbol:"bookmark",action:"save",product:item.product)
+                actionButton("Like",symbol:"heart",action:"like",product:item.product)
+            }.frame(maxWidth:.infinity).padding(.vertical,10).background(.white)}}
+            .sheet(isPresented:$whyLook) {NavigationStack {ScrollView {VStack(alignment:.leading,spacing:22) {Text("A little more you.").font(.system(size:32,design:.serif));if let item=discoveryFeed.first {ForEach(item.reasons,id:\.self) {reason in Label(reason,systemImage:"checkmark.circle")};Text("Feedback is stored for the featured piece. The model photograph is a style reference; fit and merchant availability remain unverified.").font(.caption).foregroundStyle(.secondary)}}.padding(24)}.navigationTitle("Why this look?").navigationBarTitleDisplayMode(.inline).toolbar {Button("Done") {whyLook=false}}}}
             .sheet(isPresented:$showSaved) {NavigationStack {List(store.saved) {ProductRow(product:$0)}.navigationTitle("Saved for later").toolbar {Button("Done") {showSaved=false}}}}
             .sheet(item:$selected) {ProductDetailView(product:$0)}
             .sheet(isPresented:$today) {TodayView()}
             .onChange(of:discoveryFeed.first?.id,initial:true) {_,id in store.focusedProductID=id}
-            .refreshable {await store.perform {try await store.refresh()}}
+
         }
     }
     func discoveryCard(_ product:Product) -> some View {
@@ -143,8 +156,9 @@ struct DiscoverView: View {
         .shadow(color:.black.opacity(0.06),radius:18,y:8)
 
         .onTapGesture {if !sendingSwipe {selected=product}}
-        .highPriorityGesture(DragGesture(minimumDistance:12).onChanged { value in
+        .simultaneousGesture(DragGesture(minimumDistance:12).onChanged { value in
             guard !sendingSwipe && !store.busy else {return}
+            if value.translation.height < -abs(value.translation.width)*1.15 {drag = .zero;swipeLabel="";return}
             drag=value.translation
             swipeLabel=drag.height > abs(drag.width)*1.15 ? "SAVE FOR LATER" : drag.width > 0 ? "MY STYLE" : "PASS"
         }.onEnded { value in
@@ -169,7 +183,9 @@ struct DiscoverView: View {
                 drag=action == "save" ? CGSize(width:0,height:900) : CGSize(width:action == "like" ? 650 : -650,height:35)
             }
             if !reduceMotion {try? await Task.sleep(for:.milliseconds(250))}
+            store.error=nil
             await store.swipe(product,action:action)
+            if store.error == nil {feedback=action == "save" ? "Saved to your collection." : action == "like" ? "Your style signals are updated." : "Dismissed. Hidden from new recommendations.";UINotificationFeedbackGenerator().notificationOccurred(.success)}
             var transaction=Transaction();transaction.disablesAnimations=true
             withTransaction(transaction) {drag = .zero;swipeLabel="";sendingSwipe=false}
         }

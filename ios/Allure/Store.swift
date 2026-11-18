@@ -8,6 +8,8 @@ final class AppStore {
     var name = ""
     var selectedTab:AppTab = .discover
     var showAssistant=false
+    var assistantDraft=""
+    var assistantAutoSend=false
     var showWalkthrough=false
     var profileTarget:String?
     var focusedProductID:String?
@@ -25,7 +27,12 @@ final class AppStore {
     var locationLabel = "Choose your city"
     var endpoint: String { api.baseURL }
     init() {
-        api = API(baseURL: UserDefaults.standard.string(forKey:"allure-backend") ?? "http://127.0.0.1:8766")
+        #if targetEnvironment(simulator)
+        let defaultEndpoint="http://127.0.0.1:8766"
+        #else
+        let defaultEndpoint="https://allure-sakshamjain17s-projects.vercel.app"
+        #endif
+        api = API(baseURL: UserDefaults.standard.string(forKey:"allure-backend") ?? defaultEndpoint)
         api.token = Vault.load(account:api.baseURL)
         authenticated = !api.token.isEmpty
         name = UserDefaults.standard.string(forKey:"allure-name") ?? ""

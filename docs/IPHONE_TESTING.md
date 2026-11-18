@@ -13,3 +13,11 @@ The native app requires iOS 26 or newer. A development signing team must be conf
 Keep the development Mac, backend, Ollama, Node proxy and tunnel running. The public tunnel address may change when restarted. The Mac DMG does not install on iPhone. TestFlight distribution has not been configured.
 
 Apple setup: https://developer.apple.com/documentation/xcode/enabling-developer-mode-on-a-device
+
+## No cable: use the hosted web app with the real AI stylist
+
+Open https://allure-sakshamjain17s-projects.vercel.app/app in Safari. Choose Explore with a reference profile for labelled sample wardrobe data. Open Try the live demo for a four-step interactive guide, or tap Ask Allure to do it. Suggested prompt: "Read my wardrobe and build an outfit from what I own." Try-on generation is unavailable; local text/vision AI, wardrobe tools, weather and shopping use the configured backend. Add the web app to the Home Screen from Safari's Share menu for a standalone window. This is a web app shortcut, not the native Swift app.
+
+The frontend and logo are hosted on Vercel. API requests proxy to the active Cloudflare tunnel, so keep the development Mac, FastAPI, Ollama, Node proxy and tunnel running. If the tunnel changes, rebuild the static package with web/build_static.py --backend NEW_HTTPS_ORIGIN and redeploy. No provider keys belong in the static package.
+
+On new physical-device installs, the native app now defaults to the Vercel server URL. An existing install may retain its previous Prototype connection value; update it there if needed.

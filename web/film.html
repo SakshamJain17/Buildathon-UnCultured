@@ -2,7 +2,7 @@
 <html lang="en"><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta charset="utf-8"><title>Alluré — film</title>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
 <style>html,body{margin:0;background:#000;overflow:hidden}canvas{display:block;width:100%;height:auto;max-height:100vh;max-width:100%;margin:auto}#hint{position:fixed;bottom:8px;left:8px;color:#888;font:12px sans-serif}</style>
-</head><body><div style="position:relative;max-width:1600px;margin:70px auto 100px"><canvas id="c" width="1920" height="1080" role="img" aria-label="Animated ALLURE story: outfit references, swipe discovery, weather-aware looks and a saved wardrobe."></canvas></div><nav style="position:fixed;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:16px;background:#fff;color:#111;font:14px sans-serif"><a href="/" style="color:inherit">ALLURÉ</a><button id="playFilm" disabled style="padding:12px 24px">Play film</button><label><input type="checkbox" id="filmSound"> Sound</label><a href="/app" style="color:inherit">Open app ↗</a></nav><div id="hint">Aditya’s animated brand film · Style references, not generated try-on results</div>
+<link rel="icon" type="image/png" href="/brand/allure-logo.png"><link rel="apple-touch-icon" href="/brand/allure-logo.png"><link rel="stylesheet" href="/brand.css"><script src="/brand.js" defer></script></head><body><div style="position:relative;max-width:1600px;margin:70px auto 100px"><canvas id="c" width="1920" height="1080" role="img" aria-label="Animated ALLURE story: outfit references, swipe discovery, weather-aware looks and a saved wardrobe."></canvas></div><nav style="position:fixed;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:16px;background:#fff;color:#111;font:14px sans-serif"><a href="/" style="color:inherit">ALLURÉ</a><button id="playFilm" disabled style="padding:12px 24px">Play film</button><label><input type="checkbox" id="filmSound"> Sound</label><a href="/app" style="color:inherit">Open app ↗</a></nav><div id="hint">Aditya’s animated brand film · Style references, not generated try-on results</div>
 <script>
 // Alluré — 72 s motion film. Everything is a pure function of time t, so it renders identically every take.
 const W = 1920, H = 1080, END = 72, cv = document.getElementById('c'), x = cv.getContext('2d');
@@ -37,6 +37,7 @@ function text(str, px, py, font, col, align = 'center', alpha = 1, spacing = 0) 
   x.save(); x.globalAlpha = alpha; x.font = font; x.fillStyle = col; x.textAlign = align; x.textBaseline = 'middle';
   if (spacing) x.letterSpacing = spacing + 'px'; x.fillText(str, px, py); x.restore();
 }
+const brandImage=new Image();brandImage.src="/brand/allure-logo.png";
 const IMG = [], PH = {}, ALL = [], STILL = []; // real H&M product photos
 const ph = (name) => PH[name] || ALL[0];
 async function loadImages() {
@@ -373,6 +374,8 @@ function frame(t) {
     const wf = prog(t, 62.9, 63.2); if (wf) { x.fillStyle = `rgba(0,0,0,${wf})`; x.fillRect(0, 0, W, H); } return; }
   logo(t);
 }
+const drawFrame=frame;
+frame=function(t){drawFrame(t);if(brandImage.complete&&brandImage.naturalWidth){x.save();x.fillStyle='rgba(247,245,240,.94)';x.fillRect(W-140,20,110,110);x.drawImage(brandImage,190,150,240,240,W-135,25,100,100);x.restore()}};
 // Accessible playback: opt-in motion and sound, no recording or upload endpoint.
 let playing=false,startTime=0,elapsed=0,animationFrame=0,actx=null,soundOutput=null;
 function loop(now){if(!playing)return;elapsed=Math.min(END,(now-startTime)/1000);frame(elapsed);if(elapsed>=END){playing=false;document.getElementById('playFilm').textContent='Replay';return}animationFrame=requestAnimationFrame(loop)}

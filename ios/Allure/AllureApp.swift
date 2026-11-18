@@ -13,6 +13,27 @@ enum Theme {
     static let sand=Color(white:0.92)
 }
 
+struct BrandSymbol:UIViewRepresentable {
+    func makeUIView(context:Context)->UIView {
+        let view=UIView();view.clipsToBounds=true
+        if let path=Bundle.main.path(forResource:"allure-logo",ofType:"png"),let image=UIImage(contentsOfFile:path) {
+            view.layer.contents=image.cgImage;view.layer.contentsGravity = .resize
+            view.layer.contentsRect=CGRect(x:190.0/597.0,y:150.0/610.0,width:240.0/597.0,height:240.0/610.0)
+        }
+        view.backgroundColor=UIColor(red:0.969,green:0.961,blue:0.941,alpha:1);view.layer.cornerRadius=6
+        return view
+    }
+    func updateUIView(_ uiView:UIView,context:Context) {}
+}
+
+struct BrandLockup:View {
+    var size:CGFloat=32
+    var body:some View {HStack(spacing:10) {
+        BrandSymbol().frame(width:size,height:size).accessibilityHidden(true)
+        Text("ALLURÉ").font(.system(size:size*0.58,design:.serif)).tracking(3)
+    }.accessibilityElement(children:.ignore).accessibilityLabel("ALLURÉ")}
+}
+
 struct RootView: View {
     @Environment(AppStore.self) private var store
     @State private var launching=true
@@ -65,14 +86,14 @@ struct OrbCluster:View {
     }
 }
 struct MonochromeSplash:View {
-    var body:some View {ZStack {Color.white.ignoresSafeArea();OrbCluster().frame(width:330,height:330);VStack(spacing:24) {Text("ALLURÉ").font(.system(size:43,design:.serif)).tracking(7);Text("YOUR STYLE, COMING INTO FOCUS.").font(.system(size:8)).tracking(2).foregroundStyle(.secondary)}}}
+    var body:some View {ZStack {Color.white.ignoresSafeArea();OrbCluster().frame(width:330,height:330);VStack(spacing:24) {BrandSymbol().frame(width:140,height:140).accessibilityLabel("ALLURÉ. Your fashion, your way.");Text("YOUR STYLE, COMING INTO FOCUS.").font(.system(size:8)).tracking(2).foregroundStyle(.secondary)}}}
 }
 struct WelcomeView:View {
     @Environment(AppStore.self) private var store
     @State private var name=""
     @State private var endpoint="http://127.0.0.1:8766"
     var body:some View {NavigationStack {ScrollView {VStack(alignment:.leading,spacing:26) {
-        Text("ALLURÉ").font(.system(size:34,design:.serif)).tracking(5).padding(.top,20)
+        BrandLockup(size:48).padding(.top,20)
         ZStack {OrbCluster().frame(height:200);Text("Individually you.").font(.system(size:28,design:.serif))}
         Text("Your personal stylist.\nA little more you.").font(.system(size:38,design:.serif))
         Text("Swipe what you love. Build from your wardrobe. Ask Allure to take care of the details.").font(.subheadline).foregroundStyle(.secondary)
@@ -99,7 +120,7 @@ struct WalkthroughView:View {
 }
 struct SavedView:View {
     @Environment(AppStore.self) private var store
-    var body:some View {NavigationStack {ScrollView {VStack(alignment:.leading,spacing:20) {Text("Your saved edit.").font(.system(size:34,design:.serif));if store.saved.isEmpty {ContentUnavailableView("A place for possibilities",systemImage:"bookmark",description:Text("Swipe down or tap Save to collect the pieces you want to return to."))};ForEach(store.saved){ProductRow(product:$0)}}.padding(24)}.background(.white).navigationTitle("ALLURÉ").navigationBarTitleDisplayMode(.inline)}}
+    var body:some View {NavigationStack {ScrollView {VStack(alignment:.leading,spacing:20) {Text("Your saved edit.").font(.system(size:34,design:.serif));if store.saved.isEmpty {ContentUnavailableView("A place for possibilities",systemImage:"bookmark",description:Text("Swipe down or tap Save to collect the pieces you want to return to."))};ForEach(store.saved){ProductRow(product:$0)}}.padding(24)}.background(.white).navigationTitle("").toolbar {ToolbarItem(placement:.principal) {BrandLockup(size:26)}}.navigationBarTitleDisplayMode(.inline)}}
 }
 
 struct SectionHeading: View {

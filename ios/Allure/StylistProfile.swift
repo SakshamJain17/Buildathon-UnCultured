@@ -30,7 +30,8 @@ struct StylistView:View {
                     }
                     Text("Powered by your configured model. Tool results are the evidence; generated advice can be imperfect. Demo products are not merchant listings.").font(.caption).foregroundStyle(.secondary)
                 }.padding(24)
-            }.background(Theme.paper).navigationTitle("Allure").navigationBarTitleDisplayMode(.inline).toolbar {Button("Done") {dismiss()}}
+            }.background(Theme.paper).navigationTitle("").toolbar {ToolbarItem(placement:.principal) {BrandLockup(size:26)}}.navigationBarTitleDisplayMode(.inline).toolbar {Button("Done") {dismiss()}}
+            .task {if !store.assistantDraft.isEmpty {prompt=store.assistantDraft;store.assistantDraft="";if store.assistantAutoSend {store.assistantAutoSend=false;await ask()}}}
             .sheet(isPresented:$showAdd) {AddGarmentView()}
             .sheet(isPresented:$showTryOn) {TryOnView(selectedProduct:actionProduct)}
             .sheet(isPresented:$showAvatar) {StyleAvatarView()}
@@ -99,7 +100,7 @@ struct ProfileView:View {
                 Button("Delete profile and wardrobe",role:.destructive) {confirmDelete=true}
             }
         }
-    }.navigationTitle("ALLURÉ").navigationBarTitleDisplayMode(.inline)
+    }.navigationTitle("").toolbar {ToolbarItem(placement:.principal) {BrandLockup(size:26)}}.navigationBarTitleDisplayMode(.inline)
     .sheet(isPresented:$showHair) {HairView()}.sheet(isPresented:$showPalette) {PaletteView()}
     .confirmationDialog("Delete your profile and private wardrobe photos?",isPresented:$confirmDelete,titleVisibility:.visible) {Button("Delete profile",role:.destructive) {Task {await store.perform {let _:EmptyResult=try await store.api.request("/me",method:"DELETE");store.signOut()}}}}
     .onAppear {aesthetic=store.preferences?.aesthetics?.first ?? "minimalist";colors=store.preferences?.preferredColors?.joined(separator:", ") ?? "beige, olive";fit=store.preferences?.silhouettes?.first ?? "relaxed";openTarget()}

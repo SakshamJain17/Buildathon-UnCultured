@@ -118,7 +118,7 @@
 .motion-paused *,.motion-paused *::before,.motion-paused *::after{animation-play-state:paused!important}
 .hero{padding-left:var(--pad);padding-right:var(--pad)}.hero h1{font-size:clamp(54px,6.5vw,110px)}
 </style>
-</head>
+<link rel="icon" type="image/png" href="/brand/allure-logo.png"><link rel="apple-touch-icon" href="/brand/allure-logo.png"><link rel="stylesheet" href="/brand.css"><script src="/brand.js" defer></script></head>
 <body>
 <div class="progress" id="progress"></div>
 <nav id="nav">
@@ -213,7 +213,7 @@ addEventListener('scroll', () => { const y = scrollY, max = document.documentEle
 // products → hero stack, marquee, swipe card
 fetch('/api/v1/catalogue').then(r => r.json()).catch(() => ({})).then(result => {
   const items = (result.data?.products||[]).map(p => ({name:p.title,src:p.image_url}));
-  const pick = ['Zip Hoodie A', 'Rust', 'Loose Jeans A'].map(n => items.find(i => i.name.includes(n))).filter(Boolean);
+  const pick = ['Loose Straight Jeans A', 'Loose Jeans A', 'Loose Jeans B'].map(n => items.find(i => i.name.includes(n))).filter(Boolean);
   const hero = (pick.length === 3 ? pick : items.filter((_, i) => i % 9 === 1).slice(0, 3));
   const stack = $('#stack'); stack.innerHTML = '';
   (hero.length ? hero : [{ name: 'Linen Shirt' }, { name: 'Wide Jeans' }, { name: 'Camel Coat' }]).forEach((p, i) => { const d = document.createElement('div'); d.className = 'pcard'; d.dataset.name = p.name; if (p.src) d.style.backgroundImage = `url("${p.src}")`; else d.style.background = ['#c4683f', '#5b7fae', '#b88a5a'][i]; stack.append(d); cards.push([d, [.04, .09, .02][i]]); });

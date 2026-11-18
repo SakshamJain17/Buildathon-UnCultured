@@ -1,0 +1,17 @@
+{
+  "name": "ALLUR\u00c9 \u2014 Your personal stylist",
+  "short_name": "ALLUR\u00c9",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/brand/allure-logo.png",
+      "sizes": "597x610",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9F754548F18ACD93DBB10F59 /* allure-logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 6E3EEB633AD0D56EAAAA4DE2; };
 		44318FD73A417671A60B7D73 /* ProductDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE569ABAB7F2EFE0B64ECE8C /* ProductDetail.swift */; };
 		487C502A5481E87001E8CC43 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19BFBC84FD9B2B92C10227AA /* Models.swift */; };
 		4E0F9D679C675784E3C32A49 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12CBFEB39ECB8E7457A77787 /* API.swift */; };
@@ -19,6 +20,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6E3EEB633AD0D56EAAAA4DE2 /* allure-logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "allure-logo.png"; sourceTree = "<group>"; };
 		12CBFEB39ECB8E7457A77787 /* API.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
 		19BFBC84FD9B2B92C10227AA /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		1CD62B3DC3EFA90D427790C8 /* StylistProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StylistProfile.swift; sourceTree = "<group>"; };
@@ -53,6 +55,7 @@
 		482182478A3ECD4745BEA917 /* Allure */ = {
 			isa = PBXGroup;
 			children = (
+				6E3EEB633AD0D56EAAAA4DE2,
 				12CBFEB39ECB8E7457A77787 /* API.swift */,
 				5FD21BBDB150D7DB45561D30 /* AllureApp.swift */,
 				19BFBC84FD9B2B92C10227AA /* Models.swift */,
@@ -125,6 +128,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9F754548F18ACD93DBB10F59,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
