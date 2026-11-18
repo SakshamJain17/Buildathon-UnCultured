@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alluré — your personal AI stylist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#f4f2ee; --ink:#111; --mute:#77736b; --line:#d9d6cf; --panel:#ebe8e2;
+          --serif:"Playfair Display","Iowan Old Style",Georgia,serif; --sans:"Inter",-apple-system,system-ui,sans-serif; --pad:clamp(20px,5vw,72px); }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html { scroll-behavior:smooth; }
+  body { background:var(--bg); color:var(--ink); font:16px/1.6 var(--sans); -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+  a { color:inherit; text-decoration:none; } img { display:block; }
+  .progress { position:fixed; top:0; left:0; height:3px; background:var(--ink); width:0; z-index:100; }
+  /* nav */
+  nav { position:fixed; top:0; left:0; right:0; z-index:50; display:flex; align-items:center; justify-content:space-between; padding:18px var(--pad); transition:.3s; }
+  nav.solid { background:#f4f2eee6; backdrop-filter:blur(10px); border-bottom:1px solid var(--line); padding-top:12px; padding-bottom:12px; }
+  .logo { font:600 28px var(--serif); letter-spacing:-.02em; } .logo i { font-weight:400; }
+  nav .links { display:flex; gap:32px; font:600 11px var(--sans); letter-spacing:.16em; text-transform:uppercase; }
+  nav .links a { position:relative; } nav .links a::after { content:""; position:absolute; left:0; bottom:-4px; height:1px; width:0; background:var(--ink); transition:.3s; } nav .links a:hover::after { width:100%; }
+  .btn { display:inline-block; font:600 12px var(--sans); letter-spacing:.14em; text-transform:uppercase; padding:17px 30px; background:var(--ink); color:#fff; border:1px solid var(--ink); transition:.25s; cursor:pointer; position:relative; overflow:hidden; }
+  .btn:hover { transform:translateY(-3px); box-shadow:0 12px 0 -6px #0003; }
+  .btn.ghost { background:transparent; color:var(--ink); } .btn.ghost:hover { background:var(--ink); color:#fff; }
+  .btn.sm { padding:11px 18px; }
+  /* reveal */
+  .reveal { opacity:0; transform:translateY(40px); transition:opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1); transition-delay:var(--d,0s); }
+  .reveal.in { opacity:1; transform:none; }
+  .kicker { font:700 12px var(--sans); letter-spacing:.18em; text-transform:uppercase; color:var(--mute); }
+  .kicker b { font:600 56px/1 var(--serif); letter-spacing:-.03em; color:var(--ink); margin-right:14px; vertical-align:-8px; }
+  h2.big { font:600 clamp(36px,6vw,84px)/1.02 var(--serif); letter-spacing:-.03em; margin-top:18px; max-width:15ch; } h2.big i { font-weight:400; }
+  section { padding:clamp(70px,11vw,150px) var(--pad); position:relative; }
+  hr.rule { border:0; border-top:1px solid var(--ink); margin:0 var(--pad); }
+  /* hero */
+  .hero { min-height:100vh; display:grid; grid-template-columns:1.15fr .85fr; gap:40px; align-items:center; padding-top:130px; overflow:hidden; }
+  .hero h1 { font:600 clamp(48px,9vw,142px)/.94 var(--serif); letter-spacing:-.045em; }
+  .hero h1 .w { display:inline-block; overflow:hidden; vertical-align:bottom; padding-bottom:.08em; } .hero h1 .w span { display:inline-block; transform:translateY(110%); animation:rise 1.1s cubic-bezier(.2,.8,.2,1) forwards; animation-delay:calc(.15s * var(--i)); }
+  .hero h1 em { font-weight:400; }
+  @keyframes rise { to { transform:none; } }
+  .hero p.lead { max-width:44ch; margin:30px 0 36px; color:var(--mute); font-size:18px; opacity:0; animation:fadeup 1s .9s forwards; }
+  .hero .cta { display:flex; gap:12px; flex-wrap:wrap; opacity:0; animation:fadeup 1s 1.1s forwards; }
+  @keyframes fadeup { from { opacity:0; transform:translateY(20px);} to { opacity:1; transform:none; } }
+  .stack { position:relative; height:min(66vh,560px); }
+  .pcard { position:absolute; width:56%; aspect-ratio:3/4; background:var(--panel) center/cover; border:1px solid var(--ink); box-shadow:14px 14px 0 #0000000d; will-change:transform; }
+  .pcard::after { content:attr(data-name); position:absolute; left:0; right:0; bottom:0; background:#fff; border-top:1px solid var(--ink); padding:8px 12px; font:600 15px var(--serif); }
+  .pcard:nth-child(1) { left:0; top:6%; --r:-7deg; animation:float 7s ease-in-out infinite; }
+  .pcard:nth-child(2) { right:0; top:0; --r:5deg; animation:float 8s -2s ease-in-out infinite; z-index:2; }
+  .pcard:nth-child(3) { left:22%; bottom:0; --r:-2deg; animation:float 9s -4s ease-in-out infinite; z-index:3; }
+  @keyframes float { 0%,100% { transform:translateY(0) rotate(var(--r)); } 50% { transform:translateY(-18px) rotate(calc(var(--r) * -.4)); } }
+  .scrollcue { position:absolute; left:var(--pad); bottom:28px; font:700 10px var(--sans); letter-spacing:.2em; text-transform:uppercase; color:var(--mute); display:flex; gap:12px; align-items:center; }
+  .scrollcue::after { content:""; width:1px; height:44px; background:var(--ink); transform-origin:top; animation:cue 2s ease-in-out infinite; }
+  @keyframes cue { 0% { transform:scaleY(0);} 50% { transform:scaleY(1);} 100% { transform:scaleY(1); opacity:0; } }
+  /* marquee */
+  .marquee { border-block:1px solid var(--ink); overflow:hidden; padding:22px 0; background:var(--bg); }
+  .marquee .track { display:flex; gap:56px; width:max-content; animation:slide 40s linear infinite; align-items:center; }
+  .marquee:hover .track { animation-play-state:paused; }
+  .marquee span { font:italic 400 clamp(28px,4vw,52px) var(--serif); white-space:nowrap; }
+  .marquee img { height:88px; width:66px; object-fit:cover; border:1px solid var(--ink); }
+  @keyframes slide { to { transform:translateX(-50%); } }
+  /* steps */
+  .steps { margin-top:70px; border-top:1px solid var(--ink); }
+  .step { display:grid; grid-template-columns:90px 1fr 1fr; gap:32px; align-items:center; padding:48px 0; border-bottom:1px solid var(--line); }
+  .step .n { font:600 54px/1 var(--serif); letter-spacing:-.03em; }
+  .step h3 { font:600 clamp(26px,3vw,40px)/1.1 var(--serif); letter-spacing:-.02em; margin-bottom:10px; } .step p { color:var(--mute); max-width:40ch; }
+  .viz { height:220px; background:var(--panel); border:1px solid var(--line); position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+  /* viz: photos */
+  .v-slots { display:flex; gap:10px; } .v-slots i { width:46px; height:70px; border:1px solid var(--line); background:#fff; transform:scale(.6); opacity:0; }
+  .in .v-slots i { animation:pop .5s cubic-bezier(.2,.9,.3,1.4) forwards; animation-delay:calc(.25s * var(--k)); } .in .v-slots i:nth-child(odd) { background:#cdbfa8; } .in .v-slots i:nth-child(even) { background:#9aa38c; }
+  @keyframes pop { to { transform:none; opacity:1; } }
+  /* viz: palette */
+  .v-pal { display:flex; gap:8px; } .v-pal i { width:38px; height:96px; transform:scaleY(0); transform-origin:bottom; }
+  .in .v-pal i { animation:grow .7s cubic-bezier(.2,.8,.2,1) forwards; animation-delay:calc(.12s * var(--k)); } @keyframes grow { to { transform:none; } }
+  /* viz: swipe */
+  .v-swipe .c { position:absolute; width:110px; height:150px; background:#fff center/cover; border:1px solid var(--ink); animation:swipe 5s ease-in-out infinite; }
+  .v-swipe .t { position:absolute; top:22px; font:700 13px var(--sans); letter-spacing:.2em; padding:3px 10px; border:2px solid; opacity:0; background:#fffd; }
+  .v-swipe .t.l { right:18%; color:#1e7a4c; animation:tl 5s infinite; } .v-swipe .t.r { left:18%; color:#b3261e; animation:tr 5s infinite; } /* LIKE shows on the right where the card exits */
+  @keyframes swipe { 0%,8% { transform:none; } 28%,36% { transform:translateX(150px) rotate(18deg); opacity:0; } 37% { transform:translateX(0) scale(.9); opacity:0; } 46%,54% { transform:none; opacity:1; } 74%,82% { transform:translateX(-150px) rotate(-18deg); opacity:0; } 83% { transform:translateX(0) scale(.9); opacity:0; } 92%,100% { transform:none; opacity:1; } }
+  @keyframes tl { 0%,12% { opacity:0; } 22%,30% { opacity:1; } 36%,100% { opacity:0; } } @keyframes tr { 0%,58% { opacity:0; } 68%,76% { opacity:1; } 82%,100% { opacity:0; } }
+  /* viz: deals */
+  .v-deals { width:78%; display:grid; gap:10px; } .v-deals div { height:18px; background:#d4cfc4; transform:scaleX(0); transform-origin:left; position:relative; }
+  .in .v-deals div { animation:grow .9s cubic-bezier(.2,.8,.2,1) forwards; animation-delay:calc(.15s * var(--k)); } .v-deals div.best { background:var(--ink); }
+  .v-deals div::after { content:attr(data-p); position:absolute; right:8px; top:0; font:600 10px/18px var(--sans); color:#fff; } .v-deals div:not(.best)::after { color:#333; }
+  /* viz: tryon */
+  .v-try { width:100px; height:170px; background:linear-gradient(#cfc7b8,#a79d8a); position:relative; border:1px solid var(--ink); } .v-try::before { content:""; position:absolute; left:24px; top:44px; width:52px; height:84px; background:#6e1f2c; clip-path:polygon(20% 0,80% 0,100% 30%,86% 44%,86% 100%,14% 100%,14% 44%,0 30%); opacity:0; transition:1s .6s; } .in .v-try::before { opacity:1; }
+  .v-try::after { content:""; position:absolute; left:-10%; right:-10%; height:2px; background:#fff; box-shadow:0 0 14px 2px #fff; animation:scan 2.6s ease-in-out infinite; } @keyframes scan { 0%,100% { top:4%; } 50% { top:94%; } }
+  /* colour lab */
+  .lab { background:var(--ink); color:#f4f2ee; } .lab .kicker { color:#a39e92; } .lab .kicker b { color:#f4f2ee; }
+  .lab-grid { display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center; margin-top:50px; }
+  .tones { display:flex; gap:14px; margin:30px 0 8px; } .tones button { padding:14px 22px; border:1px solid #ffffff66; background:transparent; color:#f4f2ee; font:600 11px var(--sans); letter-spacing:.16em; text-transform:uppercase; cursor:pointer; transition:.25s; } .tones button.on { background:#f4f2ee; color:#111; }
+  .lab p { color:#b5b0a4; max-width:42ch; } .lab p.say { color:#f4f2ee; font:italic 400 24px var(--serif); margin-top:22px; min-height:3.2em; }
+  .pal { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; height:340px; } .pal i { display:block; transform-origin:bottom; transition:transform .6s cubic-bezier(.2,.8,.2,1), background .6s; } .pal i.swap { transform:scaleY(.15); }
+  .pal i:nth-child(1) { margin-top:0; } .pal i:nth-child(2) { margin-top:36px; } .pal i:nth-child(3) { margin-top:12px; } .pal i:nth-child(4) { margin-top:60px; } .pal i:nth-child(5) { margin-top:24px; }
+  .avoidline { margin-top:14px; font:600 10px var(--sans); letter-spacing:.16em; text-transform:uppercase; color:#a39e92; }
+  /* features */
+  .feat { display:grid; grid-template-columns:repeat(3,1fr); gap:0; margin-top:70px; border:1px solid var(--ink); }
+  .feat div { padding:34px 28px 40px; border-right:1px solid var(--ink); border-bottom:1px solid var(--ink); transition:.3s; position:relative; }
+  .feat div:nth-child(3n) { border-right:0; } .feat div:nth-last-child(-n+3) { border-bottom:0; }
+  .feat div:hover { background:var(--ink); color:#fff; } .feat div:hover p { color:#c9c4b8; }
+  .feat small { font:700 10px var(--sans); letter-spacing:.18em; text-transform:uppercase; color:var(--mute); } .feat h4 { font:600 26px/1.15 var(--serif); margin:44px 0 10px; letter-spacing:-.01em; } .feat p { color:var(--mute); font-size:14px; }
+  .tag-soon { position:absolute; top:30px; right:24px; border:1px solid currentColor; padding:2px 7px; font:700 9px var(--sans); letter-spacing:.14em; text-transform:uppercase; }
+  /* demo */
+  .demo { display:grid; grid-template-columns:1fr auto; gap:60px; align-items:center; }
+  .phone { width:340px; height:700px; background:#111; border-radius:46px; padding:12px; box-shadow:0 40px 80px -30px #0006; position:relative; }
+  .phone::before { content:""; position:absolute; top:20px; left:50%; width:90px; height:24px; background:#111; border-radius:20px; transform:translateX(-50%); z-index:3; }
+  .phone iframe { width:100%; height:100%; border:0; border-radius:36px; background:var(--bg); }
+  .demo ul { list-style:none; margin:34px 0; display:grid; gap:14px; } .demo li { padding-left:28px; position:relative; color:var(--mute); } .demo li::before { content:"→"; position:absolute; left:0; color:var(--ink); }
+  /* cta */
+  .final { text-align:center; padding-block:clamp(90px,14vw,200px); }
+  .final h2 { font:600 clamp(48px,11vw,170px)/.94 var(--serif); letter-spacing:-.045em; } .final h2 i { font-weight:400; } .final .btn { margin-top:44px; padding:22px 44px; }
+  footer { display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; padding:26px var(--pad); border-top:1px solid var(--ink); font:600 10px var(--sans); letter-spacing:.16em; text-transform:uppercase; color:var(--mute); }
+  @media (max-width:860px) {
+    nav .links { display:none; } .hero { grid-template-columns:1fr; padding-top:110px; } .stack { height:420px; margin-top:50px; } .scrollcue { display:none; }
+    .step { grid-template-columns:1fr; gap:16px; padding:36px 0; } .lab-grid, .demo { grid-template-columns:1fr; gap:36px; } .pal { height:220px; }
+    .feat { grid-template-columns:1fr; } .feat div { border-right:0 !important; border-bottom:1px solid var(--ink) !important; } .feat div:last-child { border-bottom:0 !important; }
+    .demo .phone { margin:0 auto; } .kicker b { font-size:44px; }
+  }
+  @media (prefers-reduced-motion:reduce) { *, *::before, *::after { animation:none !important; transition:none !important; } .reveal { opacity:1; transform:none; } .hero h1 .w span { transform:none; } .hero p.lead, .hero .cta { opacity:1; } }
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<nav id="nav">
+  <a class="logo" href="#top">All<i>uré</i></a>
+  <div class="links"><a href="#how">How it works</a><a href="#colour">Colour</a><a href="#features">Features</a><a href="#demo">Live demo</a></div>
+  <a class="btn sm" href="/app">Open app</a>
+</nav>
+
+<header class="hero" id="top">
+  <div>
+    <div class="kicker" style="margin-bottom:28px"><b>01</b>Personal AI stylist</div>
+    <h1 id="h1">Swipe your way to a wardrobe that's <em>yours.</em></h1>
+    <p class="lead">Upload five outfits you love. Alluré learns your taste and the colours you love, then dresses you for the weather, shows you in it, and helps you find the best price.</p>
+    <div class="cta"><a class="btn" href="/app">Start swiping</a><a class="btn ghost" href="#demo">Watch it work</a></div>
+  </div>
+  <div class="stack" id="stack"></div>
+  <div class="scrollcue">Scroll</div>
+</header>
+
+<div class="marquee"><div class="track" id="marquee"></div></div>
+
+<section id="how">
+  <div class="kicker reveal"><b>02</b>How it works</div>
+  <h2 class="big reveal">Five steps from scrolling to <i>wearing.</i></h2>
+  <div class="steps">
+    <div class="step reveal"><div class="n">i</div><div><h3>Show us your best fits</h3><p>Drop in 3–5 photos of outfits you feel great in. The AI reads your aesthetic, how you dress and what you reach for.</p></div><div class="viz"><div class="v-slots"><i style="--k:1"></i><i style="--k:2"></i><i style="--k:3"></i><i style="--k:4"></i><i style="--k:5"></i></div></div></div>
+    <div class="step reveal"><div class="n">ii</div><div><h3>Get your colour palette</h3><p>You choose your undertone, and it builds a palette to explore, a starting point and never a rule. Every card tells you why it was picked.</p></div><div class="viz"><div class="v-pal"><i style="--k:1;background:#c4683f"></i><i style="--k:2;background:#b88a5a"></i><i style="--k:3;background:#d8a42c"></i><i style="--k:4;background:#2f5d46"></i><i style="--k:5;background:#f1e9d8"></i></div></div></div>
+    <div class="step reveal"><div class="n">iii</div><div><h3>Swipe like you mean it</h3><p>Right to like, left to pass, down to save. Pass on something and it never comes back. Like it and you get more in that spirit.</p></div><div class="viz v-swipe"><div class="t l">LIKE</div><div class="t r">NOPE</div><div class="c" id="swipeCard"></div></div></div>
+    <div class="step reveal"><div class="n">iv</div><div><h3>Best price, whole outfit</h3><p>Tap any piece for its real listed price, compare live offers when shopping search is on, and see the shoes, bag and accessories that finish the look.</p></div><div class="viz"><div class="v-deals"><div style="--k:1;width:96%" data-p="₹1,759"></div><div style="--k:2;width:84%" data-p="₹1,599"></div><div style="--k:3;width:78%" data-p="₹1,449"></div><div class="best" style="--k:4;width:70%" data-p="₹1,359 ✓"></div></div></div></div>
+    <div class="step reveal"><div class="n">v</div><div><h3>See it on you first</h3><p>AI try-on puts the outfit on your own photo before you spend a rupee.</p></div><div class="viz"><div class="v-try"></div></div></div>
+  </div>
+</section>
+
+<section class="lab" id="colour">
+  <div class="kicker reveal"><b>03</b>Colour guide</div>
+  <h2 class="big reveal">The right colour changes <i>everything.</i></h2>
+  <div class="lab-grid">
+    <div class="reveal">
+      <p>Some colours simply feel like you. Pick your undertone and Alluré suggests a starting palette to explore. No colour is off-limits. Try it:</p>
+      <div class="tones" id="tones"></div>
+      <p class="say" id="say"></p>
+    </div>
+    <div class="reveal" style="--d:.15s"><div class="pal" id="pal"><i></i><i></i><i></i><i></i><i></i></div><div class="avoidline" id="avoid"></div></div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="kicker reveal"><b>04</b>Everything a stylist does</div>
+  <h2 class="big reveal">Your stylist, <i>in your pocket.</i></h2>
+  <div class="feat">
+    <div class="reveal"><small>Taste</small><h4>Learns you from five photos</h4><p>Aesthetic, silhouettes, how you layer, what you actually wear.</p></div>
+    <div class="reveal" style="--d:.1s"><small>Discovery</small><h4>A deck that learns</h4><p>Every swipe re-ranks what comes next. Passed items never return.</p></div>
+    <div class="reveal" style="--d:.2s"><small>Colour</small><h4>A palette that starts with you</h4><p>Choose your undertone, get colours to explore, and a reason on every card.</p></div>
+    <div class="reveal"><small>Try-on</small><h4>Wear it before you buy it</h4><p>Your photo, the outfit, one tap. Fewer returns, fewer regrets.</p></div>
+    <div class="reveal" style="--d:.1s"><small>Deals</small><h4>Real prices, honest gaps</h4><p>Listed prices and live offers, with missing details shown, never guessed.</p></div>
+    <div class="reveal" style="--d:.2s"><span class="tag-soon">Next</span><small>Inspiration</small><h4>Dress like your icons</h4><p>Pick who you look up to; get fits inspired by them, tuned to you.</p></div>
+    <div class="reveal"><span class="tag-soon">Next</span><small>Weather</small><h4>Dressed for today</h4><p>Rain, cold or sun: a full outfit that makes sense for the day.</p></div>
+    <div class="reveal" style="--d:.1s"><span class="tag-soon">Next</span><small>Wallet</small><h4>Buys it when the sale drops</h4><p>Save what you want, load the wallet, and Alluré checks out the second the sale goes live.</p></div>
+    <div class="reveal" style="--d:.2s"><small>Privacy</small><h4>Your data stays yours</h4><p>Photos are analysed and not stored. Delete everything with one tap.</p></div>
+  </div>
+</section>
+
+<section id="demo">
+  <div class="kicker reveal"><b>05</b>Live demo</div>
+  <div class="demo" style="margin-top:30px">
+    <div class="reveal">
+      <h2 class="big" style="margin-top:0">It's real. <i>Try it.</i></h2>
+      <ul><li>Enter a name, set your style, and start swiping.</li><li>Drag cards: right like, left pass, down save.</li><li>Tap a card for its price, the full look and try-on.</li><li>Open Today for a weather-aware outfit.</li></ul>
+      <a class="btn" href="/app">Open full screen</a>
+    </div>
+    <div class="phone reveal" style="--d:.15s"><iframe src="/app" title="Alluré app" loading="lazy"></iframe></div>
+  </div>
+</section>
+
+<section class="final">
+  <h2 class="reveal">Dress like <i>you</i> mean it.</h2>
+  <a class="btn reveal" style="--d:.2s" href="/app">Start swiping</a>
+</section>
+<footer><span>Alluré © 2026</span><span>Built at the Road to YC hackathon</span><span>Prices in demo are simulated</span></footer>
+
+<script>
+const $ = (s) => document.querySelector(s);
+// hero headline: split into words that rise in
+(() => { const h = $('#h1'); let i = 0; const wrap = (n) => { [...n.childNodes].forEach(c => { if (c.nodeType === 3) { const f = document.createDocumentFragment(); c.textContent.split(/(\s+)/).forEach(t => { if (!t.trim()) return f.append(' '); const w = document.createElement('span'); w.className = 'w'; w.innerHTML = `<span style="--i:${i++}">${t}</span>`; f.append(w); }); c.replaceWith(f); } else if (c.nodeType === 1) wrap(c); }); }; wrap(h); })();
+// reveal on scroll
+const io = new IntersectionObserver((es) => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .18 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+// nav + progress + parallax
+const prog = $('#progress'), nav = $('#nav'), cards = [];
+addEventListener('scroll', () => { const y = scrollY, max = document.documentElement.scrollHeight - innerHeight; prog.style.width = (y / max * 100) + '%'; nav.classList.toggle('solid', y > 40);
+  cards.forEach(([el, s]) => el.style.translate = `0 ${-y * s}px`); }, { passive: true });
+// products → hero stack, marquee, swipe card
+fetch('/api/products').then(r => r.json()).catch(() => []).then(files => {
+  const items = files.map(f => ({ name: f.split('__')[0], src: '/products/' + encodeURIComponent(f) }));
+  const pick = ['Zip Hoodie A', 'Rust', 'Loose Jeans A'].map(n => items.find(i => i.name.includes(n))).filter(Boolean);
+  const hero = (pick.length === 3 ? pick : items.filter((_, i) => i % 9 === 1).slice(0, 3));
+  const stack = $('#stack'); stack.innerHTML = '';
+  (hero.length ? hero : [{ name: 'Linen Shirt' }, { name: 'Wide Jeans' }, { name: 'Camel Coat' }]).forEach((p, i) => { const d = document.createElement('div'); d.className = 'pcard'; d.dataset.name = p.name; if (p.src) d.style.backgroundImage = `url("${p.src}")`; else d.style.background = ['#c4683f', '#5b7fae', '#b88a5a'][i]; stack.append(d); cards.push([d, [.04, .09, .02][i]]); });
+  const m = $('#marquee'), strip = [];
+  const words = ['Minimal', 'Editorial', 'Yours', 'Colour-matched', 'Swipe', 'Try on'];
+  (items.length ? items.filter((_, i) => i % 3 === 0).slice(0, 14) : []).forEach((it, i) => { strip.push(`<span>${words[i % words.length]}</span><img src="${it.src}" alt="">`); });
+  if (!strip.length) words.forEach(w => strip.push(`<span>${w}</span>`));
+  m.innerHTML = strip.join('') + strip.join('');
+  if (items[3]) $('#swipeCard').style.backgroundImage = `url("${items[3].src}")`;
+});
+// colour lab
+const TONES = [
+  ["Warm", ["#6B7044", "#B85C38", "#F0E6CE", "#B98B61", "#207C7A"], "Earthy, golden tones are a good place to start."],
+  ["Cool", ["#243B61", "#993C68", "#62758B", "#C2DCEB", "#227A60"], "Inky blues, berry and emerald make a crisp palette."],
+  ["Neutral", ["#243B61", "#F1EDE3", "#365C46", "#BC7D84", "#3B3E42"], "A balanced mix: ivory, forest, rose and charcoal."],
+];
+const tones = $("#tones"), pal = [...document.querySelectorAll("#pal i")];
+function setTone(k) { tones.querySelectorAll("button").forEach((b, i) => b.classList.toggle("on", i === k)); const [n, cols, say] = TONES[k];
+  pal.forEach((p, i) => { p.classList.add("swap"); setTimeout(() => { p.style.background = cols[i]; p.classList.remove("swap"); }, 220 + i * 70); });
+  $("#say").textContent = n + " undertone. " + say; $("#avoid").textContent = "A starting palette, not a rule"; }
+TONES.forEach((t, i) => { const b = document.createElement("button"); b.textContent = t[0]; b.onclick = () => setTone(i); tones.append(b); });
+setTone(0);
+</script>
+</body>
+</html>
