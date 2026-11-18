@@ -1,36 +1,231 @@
 // !$*UTF8*$!
-{archiveVersion=1;classes={};objectVersion=56;objects={
-12CBFEB39ECB8E7457A77787 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "API.swift"; sourceTree = "<group>"; };
-4E0F9D679C675784E3C32A49 = {isa = PBXBuildFile; fileRef = 12CBFEB39ECB8E7457A77787; };
-5FD21BBDB150D7DB45561D30 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AllureApp.swift"; sourceTree = "<group>"; };
-CBD5FF825E33D07F08B7CC66 = {isa = PBXBuildFile; fileRef = 5FD21BBDB150D7DB45561D30; };
-19BFBC84FD9B2B92C10227AA = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models.swift"; sourceTree = "<group>"; };
-487C502A5481E87001E8CC43 = {isa = PBXBuildFile; fileRef = 19BFBC84FD9B2B92C10227AA; };
-BE569ABAB7F2EFE0B64ECE8C = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProductDetail.swift"; sourceTree = "<group>"; };
-44318FD73A417671A60B7D73 = {isa = PBXBuildFile; fileRef = BE569ABAB7F2EFE0B64ECE8C; };
-A6D1EABD8211EBDFB4F8CBEC = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Store.swift"; sourceTree = "<group>"; };
-614B4B7697321E24EDE03C80 = {isa = PBXBuildFile; fileRef = A6D1EABD8211EBDFB4F8CBEC; };
-1CD62B3DC3EFA90D427790C8 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StylistProfile.swift"; sourceTree = "<group>"; };
-D15FE28F9218CF32AC84353D = {isa = PBXBuildFile; fileRef = 1CD62B3DC3EFA90D427790C8; };
-92AAB297BDB02D0CA2D8F122 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TodayDiscover.swift"; sourceTree = "<group>"; };
-847F17095A7A3ABE56AD9C18 = {isa = PBXBuildFile; fileRef = 92AAB297BDB02D0CA2D8F122; };
-8199FC6269891AFC6DB800C2 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TryOn.swift"; sourceTree = "<group>"; };
-852811560BB66F3FA27F724E = {isa = PBXBuildFile; fileRef = 8199FC6269891AFC6DB800C2; };
-BC89D4875884BE0C8DE52BD0 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Wardrobe.swift"; sourceTree = "<group>"; };
-548D7F18F2CBD0E0986DBFF6 = {isa = PBXBuildFile; fileRef = BC89D4875884BE0C8DE52BD0; };
-38A007151ABE87CC01A5B6E9 = {isa=PBXFileReference; explicitFileType=wrapper.application; path=Allure.app; sourceTree=BUILT_PRODUCTS_DIR;};
-482182478A3ECD4745BEA917 = {isa=PBXGroup; children=(12CBFEB39ECB8E7457A77787,5FD21BBDB150D7DB45561D30,19BFBC84FD9B2B92C10227AA,BE569ABAB7F2EFE0B64ECE8C,A6D1EABD8211EBDFB4F8CBEC,1CD62B3DC3EFA90D427790C8,92AAB297BDB02D0CA2D8F122,8199FC6269891AFC6DB800C2,BC89D4875884BE0C8DE52BD0,);path=Allure;sourceTree="<group>";};
-FBDC4F23F93125BBEEAE800C = {isa=PBXGroup;children=(38A007151ABE87CC01A5B6E9,);name=Products;sourceTree="<group>";};
-325F10A6957A34D66CB8C0E4 = {isa=PBXGroup;children=(482182478A3ECD4745BEA917,FBDC4F23F93125BBEEAE800C,);sourceTree="<group>";};
-BCE16DD0260827ECF338C787 = {isa=PBXSourcesBuildPhase;buildActionMask=2147483647;files=(4E0F9D679C675784E3C32A49,CBD5FF825E33D07F08B7CC66,487C502A5481E87001E8CC43,44318FD73A417671A60B7D73,614B4B7697321E24EDE03C80,D15FE28F9218CF32AC84353D,847F17095A7A3ABE56AD9C18,852811560BB66F3FA27F724E,548D7F18F2CBD0E0986DBFF6,);runOnlyForDeploymentPostprocessing=0;};
-7561BFB015D8F536760CB671 = {isa=PBXFrameworksBuildPhase;buildActionMask=2147483647;files=();runOnlyForDeploymentPostprocessing=0;};
-0189424A5A60FED329FA868E = {isa=PBXResourcesBuildPhase;buildActionMask=2147483647;files=();runOnlyForDeploymentPostprocessing=0;};
-89E1FD6268CC0F221A2BE178 = {isa=XCBuildConfiguration;name=Debug;buildSettings={SDKROOT=iphoneos;IPHONEOS_DEPLOYMENT_TARGET=26.0;CLANG_ENABLE_MODULES=YES;SWIFT_VERSION=5.0;};};
-7082CC0B6FC1282FCEABD07A = {isa=XCBuildConfiguration;name=Debug;buildSettings={PRODUCT_NAME="$(TARGET_NAME)";PRODUCT_BUNDLE_IDENTIFIER=app.allure.prototype;INFOPLIST_FILE=Allure/Info.plist;GENERATE_INFOPLIST_FILE=NO;TARGETED_DEVICE_FAMILY="1,2";CODE_SIGN_STYLE=Automatic;SWIFT_VERSION=5.0;IPHONEOS_DEPLOYMENT_TARGET=26.0;SWIFT_ACTIVE_COMPILATION_CONDITIONS="DEBUG";SWIFT_OPTIMIZATION_LEVEL="-Onone";};};
-E6DE6C99132752C914FEF632 = {isa=XCBuildConfiguration;name=Release;buildSettings={SDKROOT=iphoneos;IPHONEOS_DEPLOYMENT_TARGET=26.0;CLANG_ENABLE_MODULES=YES;SWIFT_VERSION=5.0;};};
-639A7CA24D39909E713B47F7 = {isa=XCBuildConfiguration;name=Release;buildSettings={PRODUCT_NAME="$(TARGET_NAME)";PRODUCT_BUNDLE_IDENTIFIER=app.allure.prototype;INFOPLIST_FILE=Allure/Info.plist;GENERATE_INFOPLIST_FILE=NO;TARGETED_DEVICE_FAMILY="1,2";CODE_SIGN_STYLE=Automatic;SWIFT_VERSION=5.0;IPHONEOS_DEPLOYMENT_TARGET=26.0;SWIFT_ACTIVE_COMPILATION_CONDITIONS="";SWIFT_OPTIMIZATION_LEVEL="-O";};};
-01DF1D3A7F02866ECA6BB742 = {isa=XCConfigurationList;buildConfigurations=(89E1FD6268CC0F221A2BE178,E6DE6C99132752C914FEF632,);defaultConfigurationIsVisible=0;defaultConfigurationName=Release;};
-8D8B67C81BE4F695571BC034 = {isa=XCConfigurationList;buildConfigurations=(7082CC0B6FC1282FCEABD07A,639A7CA24D39909E713B47F7,);defaultConfigurationIsVisible=0;defaultConfigurationName=Release;};
-0E8A3AD980EC179856012B7E = {isa=PBXNativeTarget;buildConfigurationList=8D8B67C81BE4F695571BC034;buildPhases=(BCE16DD0260827ECF338C787,7561BFB015D8F536760CB671,0189424A5A60FED329FA868E,);buildRules=();dependencies=();name=Allure;productName=Allure;productReference=38A007151ABE87CC01A5B6E9;productType="com.apple.product-type.application";};
-98F54143AB4E86B28C3AFEE0 = {isa=PBXProject;attributes={LastUpgradeCheck=2720;};buildConfigurationList=01DF1D3A7F02866ECA6BB742;compatibilityVersion="Xcode 14.0";developmentRegion=en;hasScannedForEncodings=0;knownRegions=(en,Base);mainGroup=325F10A6957A34D66CB8C0E4;productRefGroup=FBDC4F23F93125BBEEAE800C;projectDirPath="";projectRoot="";targets=(0E8A3AD980EC179856012B7E,);};
-};rootObject=98F54143AB4E86B28C3AFEE0;}
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		44318FD73A417671A60B7D73 /* ProductDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE569ABAB7F2EFE0B64ECE8C /* ProductDetail.swift */; };
+		487C502A5481E87001E8CC43 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19BFBC84FD9B2B92C10227AA /* Models.swift */; };
+		4E0F9D679C675784E3C32A49 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12CBFEB39ECB8E7457A77787 /* API.swift */; };
+		548D7F18F2CBD0E0986DBFF6 /* Wardrobe.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC89D4875884BE0C8DE52BD0 /* Wardrobe.swift */; };
+		614B4B7697321E24EDE03C80 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6D1EABD8211EBDFB4F8CBEC /* Store.swift */; };
+		847F17095A7A3ABE56AD9C18 /* TodayDiscover.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92AAB297BDB02D0CA2D8F122 /* TodayDiscover.swift */; };
+		852811560BB66F3FA27F724E /* TryOn.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8199FC6269891AFC6DB800C2 /* TryOn.swift */; };
+		CBD5FF825E33D07F08B7CC66 /* AllureApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FD21BBDB150D7DB45561D30 /* AllureApp.swift */; };
+		D15FE28F9218CF32AC84353D /* StylistProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CD62B3DC3EFA90D427790C8 /* StylistProfile.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		12CBFEB39ECB8E7457A77787 /* API.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
+		19BFBC84FD9B2B92C10227AA /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		1CD62B3DC3EFA90D427790C8 /* StylistProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StylistProfile.swift; sourceTree = "<group>"; };
+		38A007151ABE87CC01A5B6E9 /* Allure.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = Allure.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5FD21BBDB150D7DB45561D30 /* AllureApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllureApp.swift; sourceTree = "<group>"; };
+		8199FC6269891AFC6DB800C2 /* TryOn.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TryOn.swift; sourceTree = "<group>"; };
+		92AAB297BDB02D0CA2D8F122 /* TodayDiscover.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayDiscover.swift; sourceTree = "<group>"; };
+		A6D1EABD8211EBDFB4F8CBEC /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
+		BC89D4875884BE0C8DE52BD0 /* Wardrobe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wardrobe.swift; sourceTree = "<group>"; };
+		BE569ABAB7F2EFE0B64ECE8C /* ProductDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductDetail.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		7561BFB015D8F536760CB671 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		325F10A6957A34D66CB8C0E4 = {
+			isa = PBXGroup;
+			children = (
+				482182478A3ECD4745BEA917 /* Allure */,
+				FBDC4F23F93125BBEEAE800C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		482182478A3ECD4745BEA917 /* Allure */ = {
+			isa = PBXGroup;
+			children = (
+				12CBFEB39ECB8E7457A77787 /* API.swift */,
+				5FD21BBDB150D7DB45561D30 /* AllureApp.swift */,
+				19BFBC84FD9B2B92C10227AA /* Models.swift */,
+				BE569ABAB7F2EFE0B64ECE8C /* ProductDetail.swift */,
+				A6D1EABD8211EBDFB4F8CBEC /* Store.swift */,
+				1CD62B3DC3EFA90D427790C8 /* StylistProfile.swift */,
+				92AAB297BDB02D0CA2D8F122 /* TodayDiscover.swift */,
+				8199FC6269891AFC6DB800C2 /* TryOn.swift */,
+				BC89D4875884BE0C8DE52BD0 /* Wardrobe.swift */,
+			);
+			path = Allure;
+			sourceTree = "<group>";
+		};
+		FBDC4F23F93125BBEEAE800C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				38A007151ABE87CC01A5B6E9 /* Allure.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0E8A3AD980EC179856012B7E /* Allure */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8D8B67C81BE4F695571BC034 /* Build configuration list for PBXNativeTarget "Allure" */;
+			buildPhases = (
+				BCE16DD0260827ECF338C787 /* Sources */,
+				7561BFB015D8F536760CB671 /* Frameworks */,
+				0189424A5A60FED329FA868E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Allure;
+			productName = Allure;
+			productReference = 38A007151ABE87CC01A5B6E9 /* Allure.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		98F54143AB4E86B28C3AFEE0 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 2720;
+			};
+			buildConfigurationList = 01DF1D3A7F02866ECA6BB742 /* Build configuration list for PBXProject "Allure" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 325F10A6957A34D66CB8C0E4;
+			productRefGroup = FBDC4F23F93125BBEEAE800C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				0E8A3AD980EC179856012B7E /* Allure */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		0189424A5A60FED329FA868E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BCE16DD0260827ECF338C787 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4E0F9D679C675784E3C32A49 /* API.swift in Sources */,
+				CBD5FF825E33D07F08B7CC66 /* AllureApp.swift in Sources */,
+				487C502A5481E87001E8CC43 /* Models.swift in Sources */,
+				44318FD73A417671A60B7D73 /* ProductDetail.swift in Sources */,
+				614B4B7697321E24EDE03C80 /* Store.swift in Sources */,
+				D15FE28F9218CF32AC84353D /* StylistProfile.swift in Sources */,
+				847F17095A7A3ABE56AD9C18 /* TodayDiscover.swift in Sources */,
+				852811560BB66F3FA27F724E /* TryOn.swift in Sources */,
+				548D7F18F2CBD0E0986DBFF6 /* Wardrobe.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		639A7CA24D39909E713B47F7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = C2T8H366Z4;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Allure/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.allure.prototype;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		7082CC0B6FC1282FCEABD07A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = C2T8H366Z4;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Allure/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.allure.prototype;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		89E1FD6268CC0F221A2BE178 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		E6DE6C99132752C914FEF632 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		01DF1D3A7F02866ECA6BB742 /* Build configuration list for PBXProject "Allure" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				89E1FD6268CC0F221A2BE178 /* Debug */,
+				E6DE6C99132752C914FEF632 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8D8B67C81BE4F695571BC034 /* Build configuration list for PBXNativeTarget "Allure" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7082CC0B6FC1282FCEABD07A /* Debug */,
+				639A7CA24D39909E713B47F7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 98F54143AB4E86B28C3AFEE0 /* Project object */;
+}
