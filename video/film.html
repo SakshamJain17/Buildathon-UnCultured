@@ -222,7 +222,7 @@ function scene5(t) {
     const cw = aw - 48, chh = 600, cx0 = ax + 24, cy0 = ay + 100;
     if (cur) appCard(cur, cx0, cy0, cw, chh, 0, 0, 0);
     if (prev && mix < 1) appCard(prev, cx0, cy0, cw, chh, eIn(mix) * 520, eIn(mix) * .4, clamp(mix * 3));
-    [['✕', 0], ['⬇', 1], ['♥', 2]].forEach(([g, i]) => { const bx = ax + aw / 2 + (i - 1) * 110, by = ay + ah - 70; x.fillStyle = i === 2 ? '#000' : '#fff'; x.strokeStyle = '#000'; x.lineWidth = 2; x.beginPath(); x.arc(bx, by, 34, 0, 7); x.fill(); x.stroke(); text(g, bx, by + 1, `600 24px ${SANS}`, i === 2 ? '#fff' : '#000', 'center'); });
+    [['✕', 0], ['⬇', 1], ['♥', 2]].forEach(([g, i]) => { const bx = ax + aw / 2 + (i - 1) * 110, by = ay + ah - 70; { const lg = x.createLinearGradient(bx, by - 34, bx, by + 34); lg.addColorStop(0, 'rgba(255,255,255,.95)'); lg.addColorStop(.5, 'rgba(255,255,255,.55)'); lg.addColorStop(1, 'rgba(255,255,255,.8)'); x.save(); x.shadowColor = 'rgba(0,0,0,.18)'; x.shadowBlur = 18; x.shadowOffsetY = 6; x.fillStyle = lg; x.beginPath(); x.arc(bx, by, 34, 0, 7); x.fill(); x.restore(); x.strokeStyle = 'rgba(255,255,255,.95)'; x.lineWidth = 1.5; x.beginPath(); x.arc(bx, by, 33, 0, 7); x.stroke(); x.strokeStyle = 'rgba(0,0,0,.12)'; x.beginPath(); x.arc(bx, by, 34.5, 0, 7); x.stroke(); x.fillStyle = 'rgba(255,255,255,.9)'; x.beginPath(); x.ellipse(bx - 8, by - 18, 14, 5, -.3, 0, 7); x.fill(); text(g, bx, by + 1, `600 24px ${SANS}`, '#000', 'center'); } });
   }); x.restore();
   // real life: the person wearing the look, swiping in from the left
   const card = (name, cx, tilt, a) => { x.save(); x.globalAlpha = a * fadeIn; x.translate(cx, 590); x.rotate(tilt); x.shadowColor = 'rgba(0,0,0,.2)'; x.shadowBlur = 50; x.shadowOffsetY = 24; x.fillStyle = '#fff'; x.fillRect(-300, -420, 600, 840); x.shadowColor = 'transparent'; cover(ph(name), -292, -412, 584, 824); x.restore(); };
@@ -432,10 +432,12 @@ function scene(t) {
 function cameraEnd(t) {
   x.setTransform(1, 0, 0, 1, 0, 0); x.globalAlpha = 1; x.filter = 'none'; x.fillStyle = '#000'; x.fillRect(0, 0, W, H);
   const pw = 470, phh = 1000, px = W / 2 - pw / 2, py = H / 2 - phh / 2, close = eIO(prog(t, 61.4, 61.9)), camOpen = eOut(prog(t, 61.95, 62.3));
+  x.save(); x.translate(W / 2, H / 2 + Math.sin(t * 1.4) * 10); x.transform(.94 + .06 * Math.cos(t * .8), Math.sin(t * .8) * .035, 0, 1, 0, 0); x.scale(1 + prog(t, 61.4, 63.6) * .08, 1 + prog(t, 61.4, 63.6) * .08); x.translate(-W / 2, -H / 2);
   phone(px, py, pw, phh, (sx, sy, sw, sh) => {
     x.fillStyle = '#000'; x.fillRect(sx, sy - 44, sw, sh + 44);
     if (camOpen > 0) { x.save(); x.beginPath(); x.rect(sx, sy + 60, sw, sh - 300); x.clip(); x.translate(sx + sw, 0); x.scale(-1, 1); x.globalAlpha = camOpen; cover(ph(FINAL_LOOK), 0, sy + 60, sw, sh - 300); x.restore();
       const fk = prog(t, 62.3, 62.7); if (fk > 0 && fk < 1) { const s = lerp(150, 110, eOut(fk)); x.strokeStyle = '#fff'; x.lineWidth = 2; x.strokeRect(sx + sw / 2 - s / 2, sy + 190 - s / 2, s, s); }
+      { x.save(); x.fillStyle = 'rgba(255,255,255,.16)'; x.strokeStyle = 'rgba(255,255,255,.5)'; x.lineWidth = 1.2; x.beginPath(); x.roundRect(sx + 40, sy + sh - 224, sw - 80, 48, 24); x.fill(); x.stroke(); const sg = x.createLinearGradient(0, sy + sh - 224, 0, sy + sh - 176); sg.addColorStop(0, 'rgba(255,255,255,.35)'); sg.addColorStop(.5, 'rgba(255,255,255,0)'); x.fillStyle = sg; x.fill(); x.restore(); }
       text('PHOTO', sx + sw / 2, sy + sh - 200, `600 16px ${SANS}`, '#fff', 'center', 1, 3); text('VIDEO', sx + sw / 2 - 110, sy + sh - 200, `500 16px ${SANS}`, 'rgba(255,255,255,.55)', 'center', 1, 3); text('PORTRAIT', sx + sw / 2 + 120, sy + sh - 200, `500 16px ${SANS}`, 'rgba(255,255,255,.55)', 'center', 1, 3);
       const press = t > 62.95 && t < 63.1 ? .88 : 1; x.strokeStyle = '#fff'; x.lineWidth = 5; x.beginPath(); x.arc(sx + sw / 2, sy + sh - 110, 44, 0, 7); x.stroke(); x.fillStyle = '#fff'; x.beginPath(); x.arc(sx + sw / 2, sy + sh - 110, 36 * press, 0, 7); x.fill();
       x.fillStyle = '#222'; x.beginPath(); x.roundRect(sx + 40, sy + sh - 138, 56, 56, 10); x.fill(); if (t > 63.05) { cover(ph(FINAL_LOOK), sx + 42, sy + sh - 136, 52, 52); } }
@@ -443,6 +445,7 @@ function cameraEnd(t) {
       const cw = lerp(sw, 84, close), chh = lerp(sh, 84, close), cx = lerp(sx + sw / 2, sx + sw / 2, close), cy = lerp(sy + sh / 2, sy + 200, close);
       x.fillStyle = '#fff'; x.beginPath(); x.roundRect(cx - cw / 2, cy - chh / 2, cw, chh, lerp(40, 20, close)); x.fill(); text(close > .7 ? 'A' : 'ALLURé', cx, cy, close > .7 ? `300 44px ${SERIF}` : `200 54px ${SERIF}`, '#000', 'center', 1 - Math.max(0, close - .9) * 10); }
   });
+  x.restore();
   text('today’s fit. approved.', W / 2, 1050, `300 30px ${SERIF}`, '#fff', 'center', prog(t, 62.4, 62.8));
   const fl = prog(t, 62.98, 63.6); if (fl > 0) { x.fillStyle = `rgba(255,255,255,${(1 - fl) * .95})`; x.fillRect(0, 0, W, H); }
 }
@@ -453,7 +456,7 @@ function intro(t) {
   x.setTransform(1, 0, 0, 1, 0, 0); x.globalAlpha = 1; x.filter = 'none'; x.fillStyle = '#000'; x.fillRect(0, 0, W, H);
   const open = eIn(prog(t, 4.4, 5.5)), z = 1 + open * 3.6, appear = eOut(prog(t, 0, .9));
   const pw = 470, phh = 1000, px = W / 2 - pw / 2, py = H / 2 - phh / 2 + (1 - appear) * 120;
-  x.save(); x.translate(W / 2, H / 2); x.scale(z * (.92 + .08 * appear), z * (.92 + .08 * appear)); x.translate(-W / 2, -H / 2); x.globalAlpha = appear;
+  x.save(); x.translate(W / 2, H / 2 + Math.sin(t * 1.6) * 12); { const yaw = Math.cos((1 - appear) * 1.2 + Math.sin(t * .9) * .18); x.transform(yaw, Math.sin(t * .9) * .04, 0, 1, 0, 0); } x.scale(z * (.92 + .08 * appear), z * (.92 + .08 * appear)); x.translate(-W / 2, -H / 2); x.globalAlpha = appear;
   phone(px, py, pw, phh, (sx, sy, sw, sh) => {
     const g = x.createLinearGradient(0, sy - 44, 0, sy + sh); g.addColorStop(0, '#1a1a1a'); g.addColorStop(1, '#000'); x.fillStyle = g; x.fillRect(sx, sy - 44, sw, sh + 44);
     x.strokeStyle = 'rgba(255,255,255,.22)'; x.lineWidth = 1.5; for (let i = 0; i < 70; i++) { const rx = sx + rnd(i) * sw, ry = sy - 44 + ((rnd(i * 3) * sh + t * 900 * (.7 + rnd(i * 7) * .6)) % (sh + 44)); x.beginPath(); x.moveTo(rx, ry); x.lineTo(rx - 4, ry + 26); x.stroke(); }
@@ -489,11 +492,15 @@ function introAudio(ctx, out, T0) {
   { const s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain(); s.buffer = nb; f.type = 'bandpass'; f.Q.value = 1.5; f.frequency.setValueAtTime(300, at(4.3)); f.frequency.exponentialRampToValueAtTime(7000, at(5.4)); g.gain.setValueAtTime(.0001, at(4.3)); g.gain.linearRampToValueAtTime(.5, at(5.3)); g.gain.linearRampToValueAtTime(.0001, at(5.5)); s.connect(f); f.connect(g); g.connect(g0); s.start(at(4.3)); s.stop(at(5.6)); }
 }
 const CUTS = [9.4, 13, 21.6, 37, 51, 58.4];
-function camera(t) { for (const c of CUTS) { const d = t - c; if (d > -.4 && d < 0) { const k = eIn((d + .4) / .4); return { s: 1 + .14 * k, b: 7 * k }; } if (d >= 0 && d < .5) { const k = 1 - eOut(d / .5); return { s: 1 - .07 * k, b: 6 * k }; } } return { s: 1 + .012 * Math.sin(t * .6), b: 0 }; }
-function frame(t) { if (t < INTRO) return intro(t); frameMain(t - INTRO); }
+function camera(t) { for (const c of CUTS) { const d = t - c; if (d > -.4 && d < 0) { const k = eIn((d + .4) / .4); return { s: 1 + .14 * k, b: 7 * k }; } if (d >= 0 && d < .5) { const k = 1 - eOut(d / .5); return { s: 1 - .07 * k, b: 6 * k }; } } return { s: 1.02 + .03 * ((t % 9) / 9) + .01 * Math.sin(t * .6), b: 0 }; }
+function grade(t) { x.setTransform(1, 0, 0, 1, 0, 0); x.filter = 'none'; x.globalAlpha = 1;
+  const v = x.createRadialGradient(W / 2, H / 2, 520, W / 2, H / 2, 1250); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.42)'); x.fillStyle = v; x.fillRect(0, 0, W, H);
+  for (let i = 0; i < 900; i++) { const gx = rnd(i * 7 + Math.floor(t * 30) * 13) * W, gy = rnd(i * 11 + Math.floor(t * 30) * 17) * H; x.fillStyle = i % 2 ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.06)'; x.fillRect(gx, gy, 2, 2); }
+  x.fillStyle = '#000'; x.fillRect(0, 0, W, 64); x.fillRect(0, H - 64, W, 64); }
+function frame(t) { if (t < INTRO) intro(t); else frameMain(t - INTRO); grade(t); }
 function frameMain(t) {
   x.setTransform(1, 0, 0, 1, 0, 0); x.globalAlpha = 1; x.filter = 'none'; x.fillStyle = '#000'; x.fillRect(0, 0, W, H);
-  if (t < 61.4) { const c = camera(t); x.setTransform(c.s, 0, 0, c.s, W / 2 * (1 - c.s), H / 2 * (1 - c.s)); if (c.b > .3) x.filter = `blur(${c.b}px)`; scene(t); x.setTransform(1, 0, 0, 1, 0, 0); x.filter = 'none'; return; }
+  if (t < 61.4) { const c = camera(t); { const rl = Math.sin(t * .35) * .006, dx = Math.sin(t * .27) * 14, dy = Math.cos(t * .31) * 8; x.setTransform(c.s * Math.cos(rl), c.s * Math.sin(rl), -c.s * Math.sin(rl), c.s * Math.cos(rl), W / 2 * (1 - c.s) + dx, H / 2 * (1 - c.s) + dy); } if (c.b > .3) x.filter = `blur(${c.b}px)`; scene(t); x.setTransform(1, 0, 0, 1, 0, 0); x.filter = 'none'; return; }
   x.setTransform(1, 0, 0, 1, 0, 0);
   if (t < 63.6) return cameraEnd(t);
   logo(t);
