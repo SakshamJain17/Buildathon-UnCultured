@@ -33,8 +33,12 @@ async def request_json(method,url,*,retry=True,**kwargs):
     raise ProviderError()
 
 async def gemini(contents,*,schema=None,tools=None):
-    if settings.llm_provider == 'ollama':
+    has_images=any('inlineData' in part for content in contents for part in content.get('parts',[]))
+    provider=settings.vision_provider if has_images else settings.llm_provider
+    if provider == 'ollama':
         return await ollama_generate(contents,schema=schema,tools=tools)
+    if provider != 'gemini':
+        raise ProviderError(message='Unsupported model provider; choose ollama or gemini.')
     if not settings.gemini_api_key or not settings.gemini_model:
         raise ProviderError(message='Configure GEMINI_API_KEY and GEMINI_MODEL for AI analysis and tool calling.')
     model=settings.gemini_model.removeprefix('models/')

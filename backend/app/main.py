@@ -42,7 +42,11 @@ app.add_middleware(CORSMiddleware,allow_origins=settings.origins,allow_credentia
 @app.middleware('http')
 async def request_id(request,call_next):
     request.state.request_id='req_'+uuid.uuid4().hex
-    if int(request.headers.get('content-length','0') or 0)>45*1024*1024:
+    try:
+        content_length=int(request.headers.get('content-length','0') or 0)
+    except ValueError:
+        return error(request,'INVALID_INPUT','Invalid Content-Length header.',400)
+    if content_length>45*1024*1024:
         return JSONResponse({'success':False,'error':{'code':'REQUEST_TOO_LARGE','message':'Request must be at most 45 MB.'},'request_id':request.state.request_id},status_code=413)
     response=await call_next(request)
     response.headers['X-Request-ID']=request.state.request_id
@@ -76,7 +80,7 @@ User=Annotated[dict,Depends(current_user)]
 
 @app.get('/api/v1/health')
 async def health(request:Request):
-    return ok(request,{'status':'ok','providers':{'vision':bool(settings.ollama_vision_model) if settings.llm_provider=='ollama' else bool(settings.gemini_api_key and settings.gemini_model),'agent':bool(settings.ollama_model) if settings.llm_provider=='ollama' else bool(settings.gemini_api_key and settings.gemini_model),'llm_provider':settings.llm_provider,'shopping':bool(settings.serpapi_api_key),'tryon':bool(settings.fashn_api_key),'weather':True},'provider_status_meaning':'configured, not a live connectivity test','catalogue':'labelled demo fixtures plus retrieved live listings'})
+    return ok(request,{'status':'ok','providers':{'vision':bool(settings.ollama_vision_model) if settings.vision_provider=='ollama' else bool(settings.gemini_api_key and settings.gemini_model),'agent':bool(settings.ollama_model) if settings.llm_provider=='ollama' else bool(settings.gemini_api_key and settings.gemini_model),'llm_provider':settings.llm_provider,'shopping':bool(settings.serpapi_api_key),'tryon':bool(settings.fashn_api_key),'weather':True},'provider_status_meaning':'configured, not a live connectivity test','catalogue':'labelled demo fixtures plus retrieved live listings'})
 
 @app.post('/api/v1/sessions',status_code=201)
 async def session(request:Request,body:SessionIn):

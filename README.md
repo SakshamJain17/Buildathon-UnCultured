@@ -126,3 +126,61 @@ _Replace this section with your project README:_
 - **The hardest part:** how we solved it
 - **How to run it:**
 - **Demo / screenshots:**
+
+---
+
+## StyleMatch AI — Your project
+
+**Team:** UnCultured — Saksham Jain, Palakshi Purohit, Aditya Sharma. `team.json` currently includes the supplied, verified SakshamJain17 account; the other members' usernames still need to be recorded.
+
+**Track:** Build for AI Agents (`ai-agents`).
+
+**Problem:** Shopping assistants can describe fashion, but often lack a persistent understanding of someone's taste, local weather, and evidence that two listings represent the same garment variant. StyleMatch gives agents callable fashion tools and gives users explanations grounded in preferences and retrieved data.
+
+**What we built:** A FastAPI backend with session-scoped preferences, five-image style-analysis integration, bounded swipe learning, weather-aware daily outfit suggestions, optional user-selected undertone palettes, real shopping-search integration, conservative offer matching, price arithmetic, and asynchronous virtual try-on integration. A local Ollama agent chooses tools and reads their results. Frontend development is handled separately by the teammate; no website frontend is included yet.
+
+**The hardest part:** Keeping unsupported claims out of recommendations: unknown prices do not pass budgets, different sizes cannot be exact matches, shipping uncertainty stays visible, fictional fixtures are labelled, and the agent's structured tool results accompany its answer.
+
+### Run
+
+Python 3.11+ (tested with 3.12), uv, and optionally a running Ollama server:
+
+```bash
+cd backend
+uv venv --python 3.12 .venv
+uv pip install --python .venv/bin/python -r requirements.txt
+cp .env.example .env
+.venv/bin/uvicorn app.main:app --reload --port 8766
+```
+
+Open http://localhost:8766/docs. Default agent configuration uses local Ollama with `qwen3:8b`; configure a model installed on your machine. Weather and deterministic ranking work independently of LLM credentials. To use the original prompt's port, replace 8766 with 8000 if available.
+
+### Provider configuration
+
+See [model setup](docs/MODEL_SETUP.md). Ollama handles reasoning and optionally photo understanding. Open-Meteo supplies weather. FASHN generates try-on images only when its API credential is configured. SerpApi supplies actual merchant listings only when configured. Gemini is an alternative reasoning/vision provider. No API keys are required simply to start the backend.
+
+### Frontend handoff
+
+[API contract](docs/API_CONTRACT.md) · [UI brief](docs/FRONTEND_BRIEF.md) · [demo guide](docs/DEMO.md)
+
+### Validate
+
+```bash
+cd backend
+.venv/bin/python -m pytest -q
+.venv/bin/python scripts/run_evaluations.py
+.venv/bin/python scripts/check_models.py
+```
+
+Evaluation JSON is written under ignored `backend/runtime/`. Fixture tests and evaluations do not demonstrate live-provider quality.
+
+### Verified during implementation
+
+- 20 automated tests passed: ownership, invalid inputs/images, profile aggregation, swipe adaptation, idempotency, weather recommendations, matching, prices, adapter behaviour, agent iteration limits, try-on lifecycle, deletion and CORS.
+- Actual Open-Meteo geocoding and forecast request succeeded for Gurugram.
+- Actual local Ollama `qwen3:8b` agent called retrieve_style_profile and search_demo_catalogue and completed a two-tool task in approximately 6 seconds on the development Mac. This is one smoke test, not a general latency benchmark.
+- API health, session creation, preference updates and daily weather-styling endpoints succeeded through a running HTTP server.
+
+### Not yet verified / unfinished
+
+No local vision model was installed, and no live Gemini, SerpApi or FASHN call was made. Real five-photo model analysis, merchant discovery and generated try-on images therefore remain unverified. Their API adapters have unit coverage, not live integration evidence. Frontend, photo-based complexion analysis, MCP, streaming, embeddings, distributed workers, production authentication and deployment are not implemented. Outfit completion currently uses preferences and category diversity, not a full compatibility model. Occasion and palette intensity are accepted but not applied. Demo catalogue entries are fictional, unpriced and have no product photos or purchase links. Do not use them as proof of live shopping.
