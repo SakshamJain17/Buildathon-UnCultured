@@ -60,23 +60,31 @@ function photoCard(im, cx, cy, s, rot, alpha = 1, dark = 0) { // a real product 
   x.fillStyle = 'rgba(0,0,0,.25)'; x.fillRect(-w / 2 + 6, -h / 2 + 8, w, h); x.fillStyle = '#fff'; x.fillRect(-w / 2, -h / 2, w, h);
   cover(im, -w / 2 + 6, -h / 2 + 6, w - 12, h - 12); if (dark) { x.fillStyle = `rgba(8,8,10,${dark})`; x.fillRect(-w / 2, -h / 2, w, h); } x.restore(); }
 
-// ---------- Scene 1 (0–9.2 s): clothes thrown from your POV, until the screen is buried in black ----------
-const THROWS = []; (() => { const sched = [[0.4, 1], [1.4, 1], [2.3, 2], [3.1, 4], [3.8, 6], [4.4, 10], [4.9, 16], [5.4, 26], [5.9, 40], [6.35, 60], [6.8, 90], [7.2, 140], [7.6, 220], [7.95, 300]];
-  let n = 0; for (const [t0, k] of sched) for (let i = 0; i < k; i++, n++) {
-    const late = t0 > 5.2, dark = late ? (rnd(n * 3) < .85) : t0 > 4.3 && rnd(n * 5) < .5;
-    THROWS.push({ t0: t0 + rnd(n * 7) * .35, type: TYPES[Math.floor(rnd(n * 11) * TYPES.length)], col: dark ? ['#0b0b0c', '#151517', '#1d1d20', '#26262a'][n % 4] : COLS[n % COLS.length],
-      tx: rnd(n * 13) * W, ty: rnd(n * 17) * H, s: .8 + rnd(n * 19) * (late ? 1.6 : 1.0), r: (rnd(n * 23) - .5) * 2.4, spin: (rnd(n * 29) - .5) * 6 });
-  } })();
+// ---------- Scene 1 (0–9.4 s): the endless inventory, scrolling faster and faster ----------
+const COLSN = 9, TILE_W = 230, TILE_H = 300, GAP = 26;
+function invTile(im, px, py, i) {
+  x.fillStyle = '#ffffff'; x.shadowColor = 'rgba(0,0,0,.10)'; x.shadowBlur = 24; x.shadowOffsetY = 10; x.fillRect(px, py, TILE_W, TILE_H); x.shadowColor = 'transparent';
+  if (im) { const r = Math.min((TILE_W - 30) / im.width, (TILE_H - 70) / im.height), w = im.width * r, h = im.height * r; x.drawImage(im, px + (TILE_W - w) / 2, py + 14 + (TILE_H - 70 - h) / 2, w, h); }
+  text(['₹1,299', '₹2,499', '₹999', '₹3,299', '₹1,799', '₹4,999'][i % 6], px + 16, py + TILE_H - 30, `600 20px ${SERIF}`, INK, 'left');
+  text('NEW', px + TILE_W - 16, py + TILE_H - 30, `700 11px ${SANS}`, '#77736b', 'right', 1, 3);
+}
 function scene1(t) {
   x.fillStyle = BG; x.fillRect(0, 0, W, H);
-  if (t < 1.2) text('another day. another scroll.', W / 2, H / 2, `italic 400 54px ${SERIF}`, '#77736b', 'center', clamp(1 - prog(t, .5, 1.2)));
-  for (const g of THROWS) { const k = prog(t, g.t0, g.t0 + .55); if (k <= 0) continue; const e = eOut(k);
-    // thrown from the camera: starts huge at the bottom centre, flies away and lands
-    const cx = lerp(W / 2 + (g.tx - W / 2) * .1, g.tx, e), cy = lerp(H + 260, g.ty, e) - Math.sin(k * Math.PI) * 140, sc = lerp(5.5, g.s, e);
-    const src = STILL.length ? STILL[THROWS.indexOf(g) % STILL.length] : ALL[THROWS.indexOf(g) % Math.max(1, ALL.length)];
-    x.save(); x.translate(cx, cy); x.scale(1, .55 + .45 * Math.abs(Math.cos((1 - e) * g.spin * 2))); x.translate(-cx, -cy);
-    drawCut(src, cx, cy, 330 * sc, g.r * .6 + g.spin * (1 - e), clamp(k * 4), g.col.startsWith('#0') || g.col.startsWith('#1') || g.col.startsWith('#2') ? .7 : 0); x.restore(); }
-  const dark = prog(t, 8.0, 9.0); if (dark) { x.fillStyle = `rgba(0,0,0,${eIn(dark)})`; x.fillRect(0, 0, W, H); }
+  const pool = STILL.length ? STILL : ALL, speed = 60 + 900 * eIn(prog(t, 2.5, 8.6)) + 40 * t; // px/s, accelerating into a doom-scroll
+  const dist = 60 * t + 900 * Math.pow(prog(t, 2.5, 8.6), 4) * 6.1 * 1.0 * (t > 2.5 ? 1 : 0) * 1.6 + (t > 8.6 ? (t - 8.6) * 1200 : 0);
+  x.save(); x.translate(W / 2, H / 2); x.rotate(-.18); x.transform(1, 0, -.18, 1, 0, 0); x.scale(1.05 + .25 * eIO(prog(t, 0, 9)), 1.05 + .25 * eIO(prog(t, 0, 9))); x.translate(-W / 2, -H / 2);
+  if (t > 7.2) x.filter = `blur(${eIn(prog(t, 7.2, 9.2)) * 10}px)`;
+  const span = TILE_H + GAP, total = COLSN * (TILE_W + GAP);
+  for (let c = -1; c < COLSN + 1; c++) { const dir = c % 2 ? 1 : -1, off = ((dist * (c % 2 ? 1.15 : 1) * dir) % span + span) % span, colX = W / 2 - total / 2 + c * (TILE_W + GAP);
+    for (let r = -2; r < 6; r++) { const py = -200 + r * span + off, k = ((r - Math.floor((dist * (c % 2 ? 1.15 : 1) * dir) / span)) * 7 + c * 13) & 1023; invTile(pool[k % Math.max(1, pool.length)], colX, py, k); } }
+  x.restore(); x.filter = 'none';
+  const g = x.createRadialGradient(W / 2, H / 2, 300, W / 2, H / 2, 1200); g.addColorStop(0, 'rgba(244,242,238,0)'); g.addColorStop(1, 'rgba(244,242,238,.85)'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+  // caption card
+  const ca = prog(t, .6, 1.4) * (1 - prog(t, 6.6, 7.4));
+  if (ca) { x.save(); x.globalAlpha = ca; x.fillStyle = 'rgba(244,242,238,.92)'; x.fillRect(W / 2 - 430, H / 2 - 120, 860, 240); x.strokeStyle = INK; x.lineWidth = 1.5; x.strokeRect(W / 2 - 430, H / 2 - 120, 860, 240); x.restore();
+    const n = Math.floor(1200 + 11280 * eIn(prog(t, .6, 6.6)));
+    text(n.toLocaleString('en-IN'), W / 2, H / 2 - 30, `600 96px ${SERIF}`, INK, 'center', ca); text('new pieces dropped today. you’ll scroll past all of them.', W / 2, H / 2 + 60, `italic 400 32px ${SERIF}`, '#77736b', 'center', ca); }
+  const dark = prog(t, 8.7, 9.4); if (dark) { x.fillStyle = `rgba(0,0,0,${eIn(dark)})`; x.fillRect(0, 0, W, H); }
 }
 // ---------- Scene 2 (9.2–13 s): letters shuffle into STOP SCROLLING ----------
 const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#%&@$*+?!0123456789';
@@ -86,9 +94,9 @@ function scene2(t, ox = 0) {
   const total = x.measureText(words).width; let px = W / 2 - total / 2 + ox;
   for (let i = 0; i < n; i++) { const ch = words[i], wch = x.measureText(ch).width, resolve = 9.8 + i * .13;
     let shown = ch; if (ch !== ' ' && t < resolve) shown = GLYPHS[Math.floor(rnd(i * 31 + Math.floor(t * 24)) * GLYPHS.length)];
-    const a = clamp(prog(t, 9.3 + i * .03, 9.6 + i * .03)), slam = (1 - eBack(prog(t, 9.3 + i * .03, 9.75 + i * .03))) * 220; text(shown, px + wch / 2, H / 2 + slam, `${size}px ${DISPLAY}`, t < resolve ? (i % 2 ? '#FF2BD6' : LIME) : '#f4f2ee', 'center', a); px += wch; }
-  const u = prog(t, 11.4, 12.2); if (u) { x.fillStyle = LIME; x.fillRect(W / 2 - total / 2 + ox, H / 2 + 120, total * eOut(u), 12); }
-  text('you’ve seen 400 outfits today. none of them were you.', W / 2 + ox, H / 2 + 200, `italic 400 40px ${SERIF}`, '#a39e92', 'center', prog(t, 11.8, 12.4));
+    const a = clamp(prog(t, 9.3 + i * .03, 9.6 + i * .03)), slam = (1 - eBack(prog(t, 9.3 + i * .03, 9.75 + i * .03))) * 220; text(shown, px + wch / 2, H / 2 + slam, `${size}px ${DISPLAY}`, t < resolve ? '#6f6b63' : '#f4f2ee', 'center', a); px += wch; }
+  const u = prog(t, 11.4, 12.2); if (u) { x.fillStyle = '#f4f2ee'; x.fillRect(W / 2 - total / 2 + ox, H / 2 + 120, total * eOut(u), 3); }
+  text('12,480 pieces. none of them picked for you.', W / 2 + ox, H / 2 + 200, `italic 400 40px ${SERIF}`, '#a39e92', 'center', prog(t, 11.8, 12.4));
 }
 // ---------- Scene 3/4 (13–21.6 s): push left into five upload blocks → merge → explode → white ----------
 const BLK = { w: 270, h: 360, gap: 34 };
@@ -178,25 +186,39 @@ const SWAPS = (() => { const a = [], push = (t, o) => a.push([t, o]); push(22.6,
 function outfitAt(t) { let cur = null, prev = null, at = 0; for (const [ts, o] of SWAPS) if (t >= ts) { prev = cur; cur = o; at = ts; } return { cur, prev, at }; }
 const LOOK = { w: 560, h: 800 };
 function lookFrame(name, cx, cy = 560, s = 1) { const w = LOOK.w * s, h = LOOK.h * s; x.fillStyle = 'rgba(0,0,0,.08)'; x.fillRect(cx - w / 2 + 16, cy - h / 2 + 18, w, h); x.fillStyle = '#fff'; x.fillRect(cx - w / 2, cy - h / 2, w, h); cover(ph(name), cx - w / 2 + 10, cy - h / 2 + 10, w - 20, h - 20); x.strokeStyle = INK; x.lineWidth = 2; x.strokeRect(cx - w / 2, cy - h / 2, w, h); }
-const WORDS = { "Loose Fit Hoodie A": ["COSY.", "soft launch your weekend"], "Regular Fit Oxford Shirt A": ["SHARP.", "main character, but make it office"], "Aviator Jacket": ["BOLD.", "cold outside, colder fit"],
-  "Brocade Keyhole Dress": ["EXTRA.", "a little dramatic. on purpose."], "Loose Fit Flannel Shirt": ["EASY.", "zero effort, full credit"], "Lightweight Bomber Jacket": ["STREET.", "certified sidewalk runway"],
-  "Satin Maxi Skirt": ["SOFT.", "quiet luxury, loud compliments"], "Balloon Sleeve Satin Dress": ["ICONIC.", "say less"] };
-const QUICK = ["CLEAN.", "LOUD.", "CHILL.", "CRISP.", "FRESH.", "FLUID.", "RAW."];
+// ---------- Scene 5 (21.6–37 s): in the app ↔ in real life, the look progresses with every swipe ----------
+const LINES = { "Loose Fit Hoodie A": "Sunday, sorted.", "Regular Fit Oxford Shirt A": "Monday meeting, handled.", "Aviator Jacket": "Cold outside. Warm inside.",
+  "Brocade Keyhole Dress": "Dinner at eight.", "Loose Fit Flannel Shirt": "Coffee run, zero effort.", "Lightweight Bomber Jacket": "Out with the crew.", "Satin Maxi Skirt": "Gallery opening.", "Balloon Sleeve Satin Dress": "Front row." };
+function phone(px, py, pw, phh, draw) { const r = 54; x.save(); x.shadowColor = 'rgba(0,0,0,.28)'; x.shadowBlur = 60; x.shadowOffsetY = 30; x.fillStyle = '#111';
+  x.beginPath(); x.roundRect(px, py, pw, phh, r); x.fill(); x.shadowColor = 'transparent'; x.beginPath(); x.roundRect(px + 14, py + 14, pw - 28, phh - 28, r - 14); x.clip();
+  x.fillStyle = BG; x.fillRect(px, py, pw, phh); draw(px + 14, py + 14, pw - 28, phh - 28); x.restore();
+  x.fillStyle = '#111'; x.beginPath(); x.roundRect(px + pw / 2 - 60, py + 26, 120, 30, 15); x.fill(); }
+function appCard(name, ax, ay, aw, ah, off, rot, stamp) { x.save(); x.translate(ax + aw / 2 + off, ay + ah / 2); x.rotate(rot); x.translate(-aw / 2, -ah / 2);
+  x.fillStyle = '#fff'; x.strokeStyle = INK; x.lineWidth = 2; x.fillRect(0, 0, aw, ah); x.strokeRect(0, 0, aw, ah); cover(ph(name), 2, 2, aw - 4, ah * .74);
+  x.fillStyle = INK; x.fillRect(0, ah * .74, aw, 2); text(name.replace(/ [AB]$/, ''), 20, ah * .82, `600 24px ${SERIF}`, INK, 'left'); text('H&M · ₹' + (1299 + (name.length * 97) % 2000).toLocaleString('en-IN'), 20, ah * .9, `500 17px ${SANS}`, '#77736b', 'left');
+  if (stamp) { x.save(); x.translate(40, 70); x.rotate(-.2); x.strokeStyle = '#1e7a4c'; x.lineWidth = 4; x.globalAlpha = stamp; x.strokeRect(0, 0, 150, 56); text('LIKE', 75, 28, `700 30px ${SANS}`, '#1e7a4c', 'center', stamp, 6); x.restore(); }
+  x.restore(); }
 function scene5(t) {
-  x.fillStyle = COAL; x.fillRect(0, 0, W, H);
-  const fadeIn = prog(t, 21.6, 22.6); const { cur, prev, at } = outfitAt(t); const fast = t >= 33.6 && t < 36.3, dur = fast ? .09 : .45, mix = eOut(prog(t, at, at + dur));
-  const idx = SWAPS.findIndex((s) => s[0] === at), final = cur === FINAL_LOOK;
-  const [word, tail] = final ? ["THE ONE.", "main character, but make it denim"] : WORDS[cur] || [QUICK[idx % QUICK.length], ""];
-  text("03 — SWIPE THROUGH LOOKS PICKED FOR YOU", 120, 90, `700 20px ${SANS}`, "#8a857a", "left", fadeIn, 6);
-  const slam = (1 - eBack(prog(t, at, at + (fast ? .08 : .4)))) * 160, size = final ? 280 : 330;
-  x.save(); x.letterSpacing = "-6px"; text(word, 120, 470 + slam, `${final ? 160 : 230}px ${DISPLAY}`, final ? LIME : "#f4f2ee", "left", .95 * fadeIn); x.restore();
-  x.save(); x.globalAlpha = fadeIn; x.beginPath(); x.rect(0, 0, W, H); x.clip();
-  const card = (name, cx, tilt, blur) => { x.save(); x.translate(cx, 560); x.rotate(tilt); if (blur) x.filter = `blur(${blur}px)`; x.shadowColor = 'rgba(0,0,0,.55)'; x.shadowBlur = 50; x.shadowOffsetY = 24; x.fillStyle = '#fff'; x.fillRect(-270, -380, 540, 760); x.shadowColor = 'transparent'; cover(ph(name), -262, -372, 524, 744); x.restore(); };
-  if (prev && mix < 1) card(prev, 1340 + eIn(mix) * 1000, mix * .12, fast ? 0 : mix * 10); // old look leaves to the right
-  if (cur) card(cur, prev ? 1340 - (1 - mix) * 1700 : 1340, prev ? -(1 - mix) * .12 : 0, prev && !fast ? (1 - mix) * 10 : 0); // new look swipes in from the left
+  x.fillStyle = BG; x.fillRect(0, 0, W, H);
+  const fadeIn = prog(t, 21.6, 22.6); const { cur, prev, at } = outfitAt(t); const fast = t >= 33.6 && t < 36.3, dur = fast ? .09 : .5, mix = eOut(prog(t, at, at + dur)), final = cur === FINAL_LOOK;
+  text('03', 120, 120, `700 80px ${SERIF}`, INK, 'left', fadeIn); text('IN THE APP', 250, 120, `700 20px ${SANS}`, '#77736b', 'left', fadeIn, 6);
+  text('IN REAL LIFE', 1060, 120, `700 20px ${SANS}`, '#77736b', 'left', fadeIn, 6);
+  // the app: swipe deck in a phone
+  x.save(); x.globalAlpha = fadeIn; phone(250, 170, 440, 860, (ax, ay, aw, ah) => {
+    text('Alluré', ax + 30, ay + 70, `600 30px ${SERIF}`, INK, 'left'); x.fillStyle = INK; x.fillRect(ax + 24, ay + 100, aw - 48, 1.5);
+    const cw = aw - 60, chh = 560, cx0 = ax + 30, cy0 = ay + 130;
+    if (cur) appCard(cur, cx0, cy0, cw, chh, 0, 0, 0);
+    if (prev && mix < 1) appCard(prev, cx0, cy0, cw, chh, eIn(mix) * 520, eIn(mix) * .4, clamp(mix * 3));
+    [['✕', 0], ['⬇', 1], ['♥', 2]].forEach(([g, i]) => { const bx = ax + aw / 2 + (i - 1) * 110, by = ay + ah - 70; x.strokeStyle = INK; x.lineWidth = 2; x.strokeRect(bx - 42, by - 30, 84, 60); text(g, bx, by, `600 26px ${SANS}`, INK, 'center'); });
+  }); x.restore();
+  // real life: the person wearing the look, swiping in from the left
+  const card = (name, cx, tilt, a) => { x.save(); x.globalAlpha = a * fadeIn; x.translate(cx, 590); x.rotate(tilt); x.shadowColor = 'rgba(0,0,0,.2)'; x.shadowBlur = 50; x.shadowOffsetY = 24; x.fillStyle = '#fff'; x.fillRect(-300, -420, 600, 840); x.shadowColor = 'transparent'; cover(ph(name), -292, -412, 584, 824); x.restore(); };
+  x.save(); x.beginPath(); x.rect(760, 150, W - 760, 900); x.clip();
+  if (prev && mix < 1) card(prev, 1360 + eIn(mix) * 900, mix * .08, 1 - mix * .3);
+  if (cur) card(cur, prev ? 1360 - (1 - mix) * 700 : 1360, prev ? -(1 - mix) * .08 : 0, prev ? mix : 1);
   x.restore();
-  if (tail) text(tail, 124, 640, `italic 400 46px ${SERIF}`, final ? "#f4f2ee" : LIME, "left", (final ? prog(t, 36.5, 37) : prog(t, at + .2, at + .5)) * fadeIn);
-  if (!fast) text(String(Math.min(idx + 1, 99)).padStart(2, "0") + " / LOOKS", W - 120, 90, `700 20px ${SANS}`, "#8a857a", "right", fadeIn, 6);
+  if (cur && !fast) { const line = final ? 'Today’s look. Found it.' : LINES[cur] || ''; text(line, 1360, 1050, `italic 400 38px ${SERIF}`, INK, 'center', prog(t, at + .25, at + .6) * fadeIn); }
+  if (fast) text('swipe · swipe · swipe', 1360, 1050, `italic 400 38px ${SERIF}`, '#77736b', 'center', fadeIn);
   const wf = 1 - prog(t, 21.6, 22.4); if (wf) { x.fillStyle = `rgba(255,255,255,${wf})`; x.fillRect(0, 0, W, H); }
 }
 // ---------- 3D cursor ----------
@@ -268,11 +290,79 @@ function scene7(t) {
     x.beginPath(); x.arc(ox + 40 + 480 * dk, 582, 12, 0, 7); x.fill(); text('Packed', ox + 40, 620, `500 20px ${SANS}`, '#77736b', 'left'); text('Home', ox + 520, 620, `500 20px ${SANS}`, '#77736b', 'right');
     text(dk >= 1 ? 'Delivered to your door' : 'Out for delivery…', ox + 40, 690, `italic 400 34px ${SERIF}`, INK, 'left', prog(t, 56.8, 57.2)); }
 }
+// ---------- Wardrobe (58.4–61.4 s): the delivery lands in your wardrobe, doors open, clothes slide out ----------
+function wardrobe(t) {
+  const k = prog(t, 58.4, 58.9); if (!k) return; x.save(); x.globalAlpha = eOut(k);
+  x.fillStyle = BG; x.fillRect(0, 0, W, H);
+  text('05', 120, 120, `700 80px ${SERIF}`, INK, 'left'); text('STRAIGHT INTO YOUR WARDROBE', 250, 120, `700 20px ${SANS}`, '#77736b', 'left', 1, 6);
+  const wx = W / 2 - 430, wy = 190, ww = 860, wh = 820, open = eIO(prog(t, 58.9, 59.8));
+  x.fillStyle = 'rgba(0,0,0,.10)'; x.beginPath(); x.ellipse(W / 2, wy + wh + 14, 520, 26, 0, 0, 7); x.fill();
+  x.fillStyle = '#2a211b'; x.fillRect(wx - 24, wy - 24, ww + 48, wh + 48); // oak-dark carcass
+  const ig = x.createLinearGradient(0, wy, 0, wy + wh); ig.addColorStop(0, '#efe9df'); ig.addColorStop(1, '#d9d1c4'); x.fillStyle = ig; x.fillRect(wx, wy, ww, wh); // lit interior
+  x.fillStyle = '#b9a98f'; x.fillRect(wx + 20, wy + 70, ww - 40, 10); // rail
+  const pool = STILL.length ? STILL : ALL, n = 6;
+  for (let i = 0; i < n; i++) { const out = eOut(prog(t, 59.7 + i * .16, 60.5 + i * .16)), hx = wx + 90 + i * ((ww - 180) / (n - 1));
+    const tx = hx + (hx - W / 2) * .9 * out, ty = wy + 80 + 40 * out, sc = 1 + .55 * out, sw = Math.sin(t * 3 + i) * .04 * (1 - out);
+    x.save(); x.translate(tx, ty); x.rotate(sw + (hx - W / 2) / 2000 * out); x.scale(sc, sc);
+    x.strokeStyle = '#7b6a55'; x.lineWidth = 3; x.beginPath(); x.moveTo(0, -12); x.quadraticCurveTo(10, -24, 0, -30); x.moveTo(-60, 22); x.lineTo(0, 0); x.lineTo(60, 22); x.stroke();
+    const im = pool[(i * 5 + 3) % Math.max(1, pool.length)]; if (im) { const c = cut(im), h = 330, w = c.width * h / c.height; x.shadowColor = 'rgba(0,0,0,.25)'; x.shadowBlur = 20; x.shadowOffsetY = 10; x.drawImage(c, -w / 2, 14, w, h); }
+    x.restore(); }
+  // doors swing open on their hinges (left hinge, right hinge)
+  const door = (hingeX, dir) => { const wD = ww / 2 * Math.cos(open * Math.PI * .46), sh = 1 - open * .5;
+    x.save(); const g = x.createLinearGradient(hingeX, 0, hingeX + dir * wD, 0); g.addColorStop(0, `rgba(58,46,37,1)`); g.addColorStop(1, `rgba(${Math.round(78 * sh)},${Math.round(62 * sh)},${Math.round(50 * sh)},1)`);
+    x.fillStyle = g; x.beginPath(); const skew = 40 * open; x.moveTo(hingeX, wy); x.lineTo(hingeX + dir * wD, wy - skew); x.lineTo(hingeX + dir * wD, wy + wh + skew); x.lineTo(hingeX, wy + wh); x.closePath(); x.fill();
+    x.strokeStyle = 'rgba(255,255,255,.08)'; x.lineWidth = 2; x.stroke(); x.fillStyle = '#c9b58f'; x.fillRect(hingeX + dir * (wD - 34) - 4, wy + wh / 2 - 60, 8, 120); x.restore(); };
+  door(wx, 1); door(wx + ww, -1);
+  text('Delivered. Hung up. Ready.', W / 2, 1060, `italic 400 40px ${SERIF}`, INK, 'center', prog(t, 60.2, 60.7));
+  x.restore();
+}
+// ---------- Soundtrack: synthesised live with Web Audio and recorded into the video ----------
+function buildAudio(ctx, out, T0) {
+  const at = (t) => T0 + t, master = ctx.createGain(); master.gain.value = .9; master.connect(out);
+  const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 4; comp.connect(master);
+  const nb = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate), nd = nb.getChannelData(0); for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+  const rv = ctx.createConvolver(), ir = ctx.createBuffer(2, ctx.sampleRate * 2.6, ctx.sampleRate); for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 3); }
+  rv.buffer = ir; const rvg = ctx.createGain(); rvg.gain.value = .35; rv.connect(rvg); rvg.connect(comp);
+  const env = (g, t, a, peak, d) => { g.gain.setValueAtTime(0.0001, at(t)); g.gain.exponentialRampToValueAtTime(peak, at(t + a)); g.gain.exponentialRampToValueAtTime(0.0001, at(t + a + d)); };
+  const kick = (t, v = .9) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.setValueAtTime(150, at(t)); o.frequency.exponentialRampToValueAtTime(42, at(t + .18)); env(g, t, .004, v, .32); o.connect(g); g.connect(comp); o.start(at(t)); o.stop(at(t + .4)); };
+  const noise = (t, dur, type, f, v, q = 1, toRev = 0) => { const s = ctx.createBufferSource(), fl = ctx.createBiquadFilter(), g = ctx.createGain(); s.buffer = nb; fl.type = type; fl.frequency.value = f; fl.Q.value = q; env(g, t, .002, v, dur); s.connect(fl); fl.connect(g); g.connect(comp); if (toRev) g.connect(rv); s.start(at(t)); s.stop(at(t + dur + .05)); return fl; };
+  const hat = (t, v = .12) => noise(t, .05, 'highpass', 8000, v), snare = (t, v = .35) => { noise(t, .18, 'bandpass', 1900, v, .8, 1); const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.value = 190; env(g, t, .002, v * .6, .1); o.connect(g); g.connect(comp); o.start(at(t)); o.stop(at(t + .15)); };
+  const bass = (t, f, d, v = .28) => { const o = ctx.createOscillator(), fl = ctx.createBiquadFilter(), g = ctx.createGain(); o.type = 'sawtooth'; o.frequency.value = f; fl.type = 'lowpass'; fl.frequency.value = 420; env(g, t, .01, v, d); o.connect(fl); fl.connect(g); g.connect(comp); o.start(at(t)); o.stop(at(t + d + .1)); };
+  const pad = (t, fs, d, v = .07) => fs.forEach((f) => { const o = ctx.createOscillator(), g = ctx.createGain(), fl = ctx.createBiquadFilter(); o.type = 'triangle'; o.frequency.value = f; fl.type = 'lowpass'; fl.frequency.value = 1800; g.gain.setValueAtTime(.0001, at(t)); g.gain.linearRampToValueAtTime(v, at(t + .8)); g.gain.setValueAtTime(v, at(t + d - .8)); g.gain.linearRampToValueAtTime(.0001, at(t + d)); o.connect(fl); fl.connect(g); g.connect(comp); g.connect(rv); o.start(at(t)); o.stop(at(t + d + .1)); });
+  const whoosh = (t, d = .7, v = .5) => { const fl = noise(t, d, 'bandpass', 400, v, 1.5, 1); fl.frequency.setValueAtTime(300, at(t)); fl.frequency.exponentialRampToValueAtTime(5000, at(t + d * .8)); };
+  const click = (t) => { noise(t, .03, 'highpass', 3000, .5); kick(t, .25); };
+  const ding = (t) => [1318.5, 1975.5].forEach((f, i) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.value = f; env(g, t + i * .09, .005, .25, 1.2); o.connect(g); g.connect(comp); g.connect(rv); o.start(at(t + i * .09)); o.stop(at(t + 1.5)); });
+  const impact = (t, v = 1) => { kick(t, v); noise(t, 1.6, 'lowpass', 900, .6 * v, .7, 1); const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.setValueAtTime(70, at(t)); o.frequency.exponentialRampToValueAtTime(30, at(t + 1.5)); env(g, t, .005, .7 * v, 1.6); o.connect(g); g.connect(comp); o.start(at(t)); o.stop(at(t + 1.8)); };
+  const B = .5; // 120 BPM
+  const roots = [55, 55, 49, 49, 41.2, 41.2, 46.25, 49];
+  // 0–9.4: building groove under the scrolling inventory
+  pad(0, [220, 277.2, 329.6], 9.2); for (let t = 0; t < 9.2; t += B / 2) hat(t, .05 + .1 * t / 9);
+  for (let t = 3; t < 9.2; t += B) kick(t, .5 + .4 * (t / 9)); for (let t = 6; t < 9.2; t += B / 4) hat(t, .08);
+  { const fl = noise(7, 2.3, 'bandpass', 300, .35, 2, 1); fl.frequency.exponentialRampToValueAtTime(7000, at(9.2)); }
+  impact(9.45, .9); // STOP SCROLLING
+  for (let i = 0; i < 15; i++) noise(9.8 + i * .13, .04, 'highpass', 5000, .25); // letters locking in
+  whoosh(12.8); // push
+  // 13–61: main groove
+  for (let t = 13.5, bar = 0; t < 61.2; t += B * 4, bar++) { const r = roots[bar % roots.length];
+    for (let b = 0; b < 4; b++) { const tb = t + b * B; if (tb >= 61.2) break; kick(tb, .8); hat(tb + B / 2, .12); if (b % 2) snare(tb, .3); bass(tb, r, B * .9); } }
+  for (let i = 0; i < 5; i++) click(14.6 + i * .55 + .5); // photos dropping into the five blocks
+  { const fl = noise(18, 1.7, 'bandpass', 200, .4, 2, 1); fl.frequency.exponentialRampToValueAtTime(6000, at(19.7)); } impact(19.75, 1); // merge → explode
+  pad(20.2, [440, 554.4, 659.3], 3, .06);
+  SWAPS.forEach(([ts], i) => { if (i === 0) return; if (ts < 33.6 || ts >= 36.3) whoosh(ts - .1, .45, .35); else noise(ts, .03, 'highpass', 4000, .2); });
+  impact(36.3, .6); ding(36.4);
+  click(39.05); whoosh(39.6, .6, .3); [42.4, 42.58, 42.76, 42.94].forEach((t) => noise(t, .05, 'bandpass', 2500, .25)); [45.6, 46.9, 48.2, 49.4].forEach((t) => whoosh(t, .5, .25)); click(50.6);
+  whoosh(50.9, .8, .4); for (let s = 52; s < 55; s++) noise(s, .05, 'bandpass', 1200, .3); ding(55); impact(55, .5); // countdown → SALE LIVE
+  whoosh(56.6, 1.2, .3); whoosh(58.9, 1, .45); [59.7, 59.86, 60.02, 60.18, 60.34, 60.5].forEach((t) => noise(t, .25, 'bandpass', 700, .25)); // wardrobe opens, clothes slide out
+  // 61.4–63.2: tape rewind
+  { const o = ctx.createOscillator(), g = ctx.createGain(), fl = ctx.createBiquadFilter(); o.type = 'sawtooth'; o.frequency.setValueAtTime(900, at(61.4)); o.frequency.exponentialRampToValueAtTime(60, at(63.2)); fl.type = 'lowpass'; fl.frequency.value = 2500;
+    g.gain.setValueAtTime(.18, at(61.4)); g.gain.linearRampToValueAtTime(.0001, at(63.2)); o.connect(fl); fl.connect(g); g.connect(comp); o.start(at(61.4)); o.stop(at(63.3)); noise(61.4, 1.8, 'highpass', 2000, .25); }
+  impact(63.7, 1.1); pad(63.8, [110, 164.8, 220, 277.2], 7.6, .09); ding(66);
+}
 // ---------- Logo ----------
 function logo(t) { x.fillStyle = '#000'; x.fillRect(0, 0, W, H); const a = prog(t, 63.6, 64.8), b = prog(t, 64.2, 65.4), c = prog(t, 65.8, 66.8);
-  x.save(); x.font = `600 230px ${SERIF}`; const w1 = x.measureText('All').width; x.font = `italic 400 230px ${SERIF}`; const w2 = x.measureText('uré').width; x.restore();
+  x.save(); x.font = `600 210px ${SERIF}`; x.letterSpacing = '12px'; const w1 = x.measureText('ALLUR').width; x.letterSpacing = '0px'; const w2 = x.measureText('é').width; x.restore();
   const sx = W / 2 - (w1 + w2) / 2; x.save(); x.filter = `blur(${(1 - eOut(a)) * 24}px)`;
-  text('All', sx, H / 2 - 30, `600 230px ${SERIF}`, '#f4f2ee', 'left', eOut(a)); text('uré', sx + w1, H / 2 - 30 + (1 - eOut(b)) * 40, `italic 400 230px ${SERIF}`, '#f4f2ee', 'left', eOut(b)); x.restore();
+  text('ALLUR', sx, H / 2 - 30, `600 210px ${SERIF}`, '#f4f2ee', 'left', eOut(a), 12); text('é', sx + w1, H / 2 - 30 + (1 - eOut(b)) * 40, `600 210px ${SERIF}`, '#f4f2ee', 'left', eOut(b)); x.restore();
   x.fillStyle = '#f4f2ee'; x.fillRect(W / 2 - 300 * eOut(c), H / 2 + 120, 600 * eOut(c), 2);
   text('FIND YOUR KIND OF STYLE', W / 2, H / 2 + 175, `700 26px ${SANS}`, '#a39e92', 'center', c, 10); const fo = prog(t, 71, 72); if (fo) { x.fillStyle = `rgba(0,0,0,${fo})`; x.fillRect(0, 0, W, H); } }
 // ---------- Master timeline ----------
@@ -283,7 +373,7 @@ function scene(t) {
   if (t < 21.6) { scene4(t); explosion(t); if (t > 20.6) { x.fillStyle = '#fff'; x.fillRect(0, 0, W, H); } return; }
   if (t < 37) return scene5(t);
   if (t < 51) { scene6(t); const k = prog(t, 50.8, 51); if (k) { x.fillStyle = `rgba(244,242,238,${k})`; x.fillRect(0, 0, W, H); } return; }
-  if (t < 61.4) return scene7(t);
+  if (t < 61.4) { scene7(t); wardrobe(t); return; }
 }
 function frame(t) {
   x.setTransform(1, 0, 0, 1, 0, 0); x.globalAlpha = 1; x.filter = 'none';
@@ -297,21 +387,22 @@ function frame(t) {
   logo(t);
 }
 // ---------- playback + recording ----------
-let t0 = null, playing = false;
-function loop(now) { if (!playing) return; if (t0 === null) t0 = now; const t = (now - t0) / 1000; frame(Math.min(t, END)); if (t >= END) { playing = false; onEnd && onEnd(); return; } requestAnimationFrame(loop); }
+let t0 = null, playing = false, actx = null, aT0 = 0;
+function loop(now) { if (!playing) return; if (t0 === null) t0 = now; const t = actx ? Math.max(0, actx.currentTime - aT0) : (now - t0) / 1000; frame(Math.min(t, END)); if (t >= END) { playing = false; onEnd && onEnd(); return; } requestAnimationFrame(loop); }
 let onEnd = null;
-function play() { t0 = null; playing = true; requestAnimationFrame(loop); }
+function play(dest) { actx = actx || new AudioContext(); const out = dest || actx.destination; aT0 = actx.currentTime + .25; buildAudio(actx, out, aT0); t0 = null; playing = true; requestAnimationFrame(loop); }
 const qs = new URLSearchParams(location.search);
 (async () => {
   await loadImages(); try { await Promise.all([document.fonts.load(`600 100px "Playfair Display"`), document.fonts.load(`italic 400 100px "Playfair Display"`), document.fonts.load(`700 20px Inter`)]); } catch {}
   if (qs.has('t')) { frame(+qs.get('t')); return; } // still frame for checking: ?t=42
   frame(0);
   if (qs.has('render')) { // record the canvas in real time and hand the file to the render server
-    const mime = ['video/mp4;codecs=avc1.640028', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm'].find((m) => MediaRecorder.isTypeSupported(m));
-    const rec = new MediaRecorder(cv.captureStream(60), { mimeType: mime, videoBitsPerSecond: 16e6 }), parts = [];
+    actx = new AudioContext(); await actx.resume(); const adest = actx.createMediaStreamDestination();
+    const mime = ['video/mp4;codecs=avc1.640028,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm'].find((m) => MediaRecorder.isTypeSupported(m));
+    const stream = cv.captureStream(60); adest.stream.getAudioTracks().forEach((tr) => stream.addTrack(tr)); const rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 16e6, audioBitsPerSecond: 192000 }), parts = [];
     rec.ondataavailable = (e) => e.data.size && parts.push(e.data);
     rec.onstop = async () => { const blob = new Blob(parts, { type: mime }); await fetch('/out?type=' + encodeURIComponent(mime), { method: 'POST', body: blob }); document.title = 'DONE'; };
-    onEnd = () => setTimeout(() => rec.stop(), 300); rec.start(1000); play();
+    onEnd = () => setTimeout(() => rec.stop(), 300); rec.start(1000); play(adest);
   } else addEventListener('keydown', (e) => { if (e.code === 'Space') play(); });
 })();
 </script></body></html>
