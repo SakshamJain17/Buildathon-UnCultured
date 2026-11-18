@@ -145,6 +145,25 @@ ALLURÉ is a personalised fashion experience centred on individuality, expressio
 
 **The hardest part:** Keeping unsupported claims out of recommendations: unknown prices do not pass budgets, different sizes cannot be exact matches, shipping uncertainty stays visible, fictional fixtures are labelled, and the agent's structured tool results accompany its answer.
 
+### Highlights and honest feedback
+
+**The best things about ALLURÉ**
+- **Swipe, don't search.** Right to like, left to pass, down to save. Every swipe is persisted and re-ranks the feed, and a passed piece never comes back, even in the daily outfit or the agent's searches.
+- **It explains itself.** Every card says *why* it was picked ("Matches your black preference", "Listed as water-resistant"), so recommendations feel personal instead of random.
+- **Dressed for today.** Live Open-Meteo weather turns into a full outfit for your city, with location strictly opt-in, rounded and never stored.
+- **Honest by design.** No invented prices, no fake try-on results, demo items labelled, and missing evidence shown instead of guessed. Judges and users can trust what they see.
+- **Built for agents.** The shopping agent calls real tools (style profile, wardrobe, catalogue, weather, offer comparison) with call and time limits, and returns its trace with the answer.
+- **Private by default.** Photos are analysed and not stored, the wardrobe is per-session, and one tap deletes everything.
+- **Two front doors.** A native SwiftUI app and a web experience (landing page plus a mobile web app, in `landing.html`, `app.html` and `server.js` on the `Aditya` branch) share one backend. A demo catalogue of 58 real H&M India listings (`seed_hm_catalogue.py`) and a launch film (`video/`) complete the demo.
+
+**Feedback: what we'd improve next**
+- **Photo analysis needs a vision model.** Without one, the web app reads only the main colours of your photos on the device. Upload accepts 1 to 5 photos; `backend_accept_1_to_5_images.patch` makes the backend accept the same.
+- **Prices are thin without live search.** Real multi-store comparison needs SerpApi; the demo shows listed prices only.
+- **Try-on needs a FASHN key** to generate real previews.
+- **Outfit pairing is basic.** It uses preferences and category diversity, not colour-pair or silhouette compatibility.
+- **No likes list in the API**, so "Liked" in the web app is session-only.
+- **Wallet, sale alerts and auto-buy are vision, not code.** The film shows them as the roadmap; the backend has no checkout.
+
 ### Run
 
 Python 3.11+ (tested with 3.12), uv, and optionally a running Ollama server:

@@ -86,17 +86,19 @@ function scene1(t) {
     text(n.toLocaleString('en-IN'), W / 2, H / 2 - 30, `200 96px ${SERIF}`, INK, 'center', ca); text('new pieces dropped today. you’ll scroll past all of them.', W / 2, H / 2 + 60, `italic 300 32px ${SERIF}`, '#000000', 'center', ca); }
   const dark = prog(t, 8.7, 9.4); if (dark) { x.fillStyle = `rgba(0,0,0,${eIn(dark)})`; x.fillRect(0, 0, W, H); }
 }
-// ---------- Scene 2 (9.2–13 s): letters shuffle into STOP SCROLLING ----------
+// ---------- Scene 2 (9.4–13 s): the hook ----------
 const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#%&@$*+?!0123456789';
+function hookLine(t, words, cy, size, t0, ox, col) { x.font = `200 ${size}px ${SERIF}`; const total = x.measureText(words).width; let px = W / 2 - total / 2 + ox;
+  for (let i = 0; i < words.length; i++) { const ch = words[i], wch = x.measureText(ch).width, resolve = t0 + .4 + i * .07;
+    let shown = ch; if (ch !== ' ' && t < resolve) shown = GLYPHS[Math.floor(rnd(i * 31 + cy + Math.floor(t * 24)) * GLYPHS.length)];
+    const a = clamp(prog(t, t0 + i * .02, t0 + .25 + i * .02)), slam = (1 - eBack(prog(t, t0 + i * .02, t0 + .45 + i * .02))) * 160;
+    text(shown, px + wch / 2, cy + slam, `200 ${size}px ${SERIF}`, t < resolve ? 'rgba(255,255,255,.35)' : '#fff', 'center', a); px += wch; }
+  return total; }
 function scene2(t, ox = 0) {
   x.fillStyle = '#000'; x.fillRect(ox, 0, W, H);
-  const words = 'STOP SCROLLING.', n = words.length, size = 190; x.font = `200 ${size}px ${SERIF}`;
-  const total = x.measureText(words).width; let px = W / 2 - total / 2 + ox;
-  for (let i = 0; i < n; i++) { const ch = words[i], wch = x.measureText(ch).width, resolve = 9.8 + i * .13;
-    let shown = ch; if (ch !== ' ' && t < resolve) shown = GLYPHS[Math.floor(rnd(i * 31 + Math.floor(t * 24)) * GLYPHS.length)];
-    const a = clamp(prog(t, 9.3 + i * .03, 9.6 + i * .03)), slam = (1 - eBack(prog(t, 9.3 + i * .03, 9.75 + i * .03))) * 220; text(shown, px + wch / 2, H / 2 + slam, `200 ${size}px ${SERIF}`, t < resolve ? '#ffffff' : '#ffffff', 'center', a); px += wch; }
-  const u = prog(t, 11.4, 12.2); if (u) { x.fillStyle = '#ffffff'; x.fillRect(W / 2 - total / 2 + ox, H / 2 + 120, total * eOut(u), 3); }
-  text('12,480 pieces. none of them picked for you.', W / 2 + ox, H / 2 + 200, `italic 300 40px ${SERIF}`, '#ffffff', 'center', prog(t, 11.8, 12.4));
+  const w1 = hookLine(t, 'SCROLL LESS.', H / 2 - 110, 190, 9.5, ox), w2 = hookLine(t, 'SLAY MORE.', H / 2 + 110, 190, 10.6, ox);
+  const u = prog(t, 11.5, 12.1); if (u) { x.fillStyle = '#fff'; x.fillRect(W / 2 - w2 / 2 + ox, H / 2 + 220, w2 * eOut(u), 3); }
+  text('12,480 pieces dropped today. ALLURé finds yours.', W / 2 + ox, H / 2 + 290, `300 34px ${SERIF}`, '#fff', 'center', prog(t, 11.9, 12.4));
 }
 // ---------- Scene 3/4 (13–21.6 s): push left into five upload blocks → merge → explode → white ----------
 const BLK = { w: 270, h: 360, gap: 34 };
@@ -189,10 +191,21 @@ function lookFrame(name, cx, cy = 560, s = 1) { const w = LOOK.w * s, h = LOOK.h
 // ---------- Scene 5 (21.6–37 s): in the app ↔ in real life, the look progresses with every swipe ----------
 const LINES = { "Loose Fit Hoodie A": "Sunday, sorted.", "Regular Fit Oxford Shirt A": "Monday meeting, handled.", "Aviator Jacket": "Cold outside. Warm inside.",
   "Brocade Keyhole Dress": "Dinner at eight.", "Loose Fit Flannel Shirt": "Coffee run, zero effort.", "Lightweight Bomber Jacket": "Out with the crew.", "Satin Maxi Skirt": "Gallery opening.", "Balloon Sleeve Satin Dress": "Front row." };
-function phone(px, py, pw, phh, draw) { const r = 54; x.save(); x.shadowColor = 'rgba(0,0,0,.28)'; x.shadowBlur = 60; x.shadowOffsetY = 30; x.fillStyle = '#111';
-  x.beginPath(); x.roundRect(px, py, pw, phh, r); x.fill(); x.shadowColor = 'transparent'; x.beginPath(); x.roundRect(px + 14, py + 14, pw - 28, phh - 28, r - 14); x.clip();
-  x.fillStyle = BG; x.fillRect(px, py, pw, phh); draw(px + 14, py + 14, pw - 28, phh - 28); x.restore();
-  x.fillStyle = '#111'; x.beginPath(); x.roundRect(px + pw / 2 - 60, py + 26, 120, 30, 15); x.fill(); }
+function phone(px, py, pw, phh, draw) { // iPhone 16 Pro: titanium edge, thin bezel, Dynamic Island, status bar, home indicator
+  const r = 70; x.save();
+  x.shadowColor = 'rgba(0,0,0,.35)'; x.shadowBlur = 70; x.shadowOffsetY = 36; x.fillStyle = '#000'; x.beginPath(); x.roundRect(px, py, pw, phh, r); x.fill(); x.shadowColor = 'transparent';
+  const ti = x.createLinearGradient(px, py, px + pw, py + phh); ti.addColorStop(0, '#8d8d8d'); ti.addColorStop(.25, '#3a3a3a'); ti.addColorStop(.5, '#bdbdbd'); ti.addColorStop(.75, '#2e2e2e'); ti.addColorStop(1, '#9a9a9a');
+  x.strokeStyle = ti; x.lineWidth = 5; x.beginPath(); x.roundRect(px + 2.5, py + 2.5, pw - 5, phh - 5, r - 2); x.stroke();
+  x.fillStyle = '#111'; [[px - 4, py + 190, 5, 46], [px - 4, py + 260, 5, 80], [px - 4, py + 355, 5, 80], [px + pw - 1, py + 280, 5, 120]].forEach(([a, b, c, d]) => { x.beginPath(); x.roundRect(a, b, c, d, 2); x.fill(); });
+  const sx = px + 12, sy = py + 12, sw = pw - 24, sh = phh - 24; x.beginPath(); x.roundRect(sx, sy, sw, sh, r - 12); x.clip();
+  x.fillStyle = '#fff'; x.fillRect(sx, sy, sw, sh); draw(sx, sy + 44, sw, sh - 44);
+  text('9:41', sx + 48, sy + 30, `600 19px ${SANS}`, '#000', 'left');
+  x.fillStyle = '#000'; [0, 1, 2, 3].forEach((i) => x.fillRect(sx + sw - 118 + i * 6, sy + 34 - (i + 1) * 3.4, 4, (i + 1) * 3.4));
+  x.beginPath(); x.arc(sx + sw - 80, sy + 34, 11, Math.PI * 1.25, Math.PI * 1.75); x.lineWidth = 2.5; x.strokeStyle = '#000'; x.stroke(); x.beginPath(); x.arc(sx + sw - 80, sy + 34, 6, Math.PI * 1.25, Math.PI * 1.75); x.stroke();
+  x.strokeStyle = '#000'; x.lineWidth = 1.5; x.beginPath(); x.roundRect(sx + sw - 62, sy + 22, 30, 14, 4); x.stroke(); x.fillRect(sx + sw - 60, sy + 24, 22, 10); x.fillRect(sx + sw - 31, sy + 26, 2, 6);
+  x.fillStyle = '#000'; x.beginPath(); x.roundRect(sx + sw / 2 - 62, sy + 12, 124, 36, 18); x.fill();
+  x.beginPath(); x.roundRect(sx + sw / 2 - 70, sy + sh - 16, 140, 5, 3); x.fill();
+  x.restore(); }
 function appCard(name, ax, ay, aw, ah, off, rot, stamp) { x.save(); x.translate(ax + aw / 2 + off, ay + ah / 2); x.rotate(rot); x.translate(-aw / 2, -ah / 2);
   x.fillStyle = '#fff'; x.shadowColor = 'rgba(0,0,0,.18)'; x.shadowBlur = 30; x.shadowOffsetY = 12; x.beginPath(); x.roundRect(0, 0, aw, ah, 28); x.fill(); x.shadowColor = 'transparent'; x.save(); x.beginPath(); x.roundRect(0, 0, aw, ah * .74, [28, 28, 0, 0]); x.clip(); cover(ph(name), 0, 0, aw, ah * .74); x.restore();
   text(name.replace(/ [AB]$/, ''), 20, ah * .82, `400 24px ${SERIF}`, INK, 'left'); text('H&M · ₹' + (1299 + (name.length * 97) % 2000).toLocaleString('en-IN'), 20, ah * .9, `500 17px ${SANS}`, '#000000', 'left');
@@ -204,9 +217,9 @@ function scene5(t) {
   text('03', 120, 120, `200 80px ${SERIF}`, INK, 'left', fadeIn); text('IN THE APP', 250, 120, `700 20px ${SANS}`, '#000000', 'left', fadeIn, 6);
   text('IN REAL LIFE', 1060, 120, `700 20px ${SANS}`, '#000000', 'left', fadeIn, 6);
   // the app: swipe deck in a phone
-  x.save(); x.globalAlpha = fadeIn; { const sw = Math.sin(t * 1.3) * .035, lift = Math.sin(t * 2) * 10; x.translate(470, 600 + lift); x.transform(1, sw * .6, -.06, 1, 0, 0); x.scale(.98 + .02 * Math.cos(t), 1); x.translate(-470, -600); } phone(250, 170, 440, 860, (ax, ay, aw, ah) => {
+  x.save(); x.globalAlpha = fadeIn; { const sw = Math.sin(t * 1.3) * .035, lift = Math.sin(t * 2) * 10; x.translate(470, 600 + lift); x.transform(1, sw * .6, -.06, 1, 0, 0); x.scale(.98 + .02 * Math.cos(t), 1); x.translate(-470, -600); } phone(270, 150, 420, 900, (ax, ay, aw, ah) => {
     text('Alluré', ax + 30, ay + 70, `400 30px ${SERIF}`, INK, 'left'); x.fillStyle = INK; x.fillRect(ax + 24, ay + 100, aw - 48, 1.5);
-    const cw = aw - 60, chh = 560, cx0 = ax + 30, cy0 = ay + 130;
+    const cw = aw - 48, chh = 600, cx0 = ax + 24, cy0 = ay + 100;
     if (cur) appCard(cur, cx0, cy0, cw, chh, 0, 0, 0);
     if (prev && mix < 1) appCard(prev, cx0, cy0, cw, chh, eIn(mix) * 520, eIn(mix) * .4, clamp(mix * 3));
     [['✕', 0], ['⬇', 1], ['♥', 2]].forEach(([g, i]) => { const bx = ax + aw / 2 + (i - 1) * 110, by = ay + ah - 70; x.fillStyle = i === 2 ? '#000' : '#fff'; x.strokeStyle = '#000'; x.lineWidth = 2; x.beginPath(); x.arc(bx, by, 34, 0, 7); x.fill(); x.stroke(); text(g, bx, by + 1, `600 24px ${SANS}`, i === 2 ? '#fff' : '#000', 'center'); });
@@ -284,9 +297,21 @@ function scene7(t) {
   text(cd, 310, cy + 330, `700 34px ${SANS}`, t < 55 ? '#ffffff' : '#ffffff', 'left', prog(t, 52.2, 52.6), 4);
   x.restore(); // end of the wallet card flip
   if (t > 54.98 && t < 55.25) { x.fillStyle = 'rgba(216,164,44,.35)'; x.fillRect(0, 0, W, H); }
+  // price tracker: the price falls to your target, then the sale buys it
+  const pk = eOut(prog(t, 51.6, 52.3)) * (1 - prog(t, 55.3, 55.6)); if (pk) { const gx = 1120, gy = 300, gw = 560, gh = 470; x.save(); x.globalAlpha = pk; x.fillStyle = '#fff'; x.strokeStyle = '#000'; x.lineWidth = 2; x.beginPath(); x.roundRect(gx, gy, gw, gh, 28); x.fill(); x.stroke();
+    text('PRICE TRACKER', gx + 36, gy + 50, `700 16px ${SANS}`, '#000', 'left', 1, 5); const live = prog(t, 52.2, 55); const price = Math.round(lerp(3498, 2449, eIO(live)));
+    text('₹' + price.toLocaleString('en-IN'), gx + 36, gy + 120, `200 72px ${SERIF}`, '#000', 'left'); text('▼ ' + Math.round((1 - price / 3498) * 100) + '%', gx + gw - 36, gy + 120, `600 26px ${SANS}`, '#000', 'right');
+    const ty = gy + 400; x.setLineDash([8, 8]); x.strokeStyle = '#000'; x.lineWidth = 1.5; x.beginPath(); x.moveTo(gx + 36, ty); x.lineTo(gx + gw - 36, ty); x.stroke(); x.setLineDash([]); text('your target ₹2,449', gx + gw - 36, ty - 18, `500 16px ${SANS}`, '#000', 'right');
+    const pts = 40; x.lineWidth = 4; x.beginPath(); for (let i = 0; i <= pts * live; i++) { const u = i / pts, px2 = gx + 36 + u * (gw - 72), py2 = lerp(gy + 190, ty, eIO(u)) + Math.sin(u * 19) * 18 * (1 - u); i ? x.lineTo(px2, py2) : x.moveTo(px2, py2); } x.stroke();
+    const u2 = live, dx = gx + 36 + u2 * (gw - 72), dy = lerp(gy + 190, ty, eIO(u2)) + Math.sin(u2 * 19) * 18 * (1 - u2); x.beginPath(); x.arc(dx, dy, 10, 0, 7); x.fill();
+    if (t > 54.95) text('TARGET HIT', gx + 36, gy + 170, `700 18px ${SANS}`, '#000', 'left', 1, 5); x.restore(); }
   // order card
-  const ok = eOut(prog(t, 55.5, 56.1)); if (ok) { const ox = lerp(W, 1120, ok); x.fillStyle = '#fff'; x.strokeStyle = INK; x.lineWidth = 2; x.fillRect(ox, 300, 560, 470); x.strokeRect(ox, 300, 560, 470);
-    text('✓  BOUGHT IN 0.4 s', ox + 40, 350, `700 20px ${SANS}`, '#000000', 'left', 1, 4); text('Rib-knit top, loose jeans', ox + 40, 410, `400 40px ${SERIF}`, INK, 'left');
+  const ok = eOut(prog(t, 55.5, 56.1));
+  // cha-ching: dollar signs burst out of the purchase
+  const bk = prog(t, 55.4, 57.4); if (bk > 0 && bk < 1) for (let i = 0; i < 46; i++) { const a = -Math.PI / 2 + (rnd(i * 5) - .5) * 2.6, sp = 500 + rnd(i * 9) * 900, d = eOut(bk) * sp, gx2 = 1400 + Math.cos(a) * d, gy2 = 540 + Math.sin(a) * d + 900 * bk * bk;
+    text(i % 3 ? '$' : '₹', gx2, gy2, `${200 + (i % 3) * 100} ${40 + rnd(i * 13) * 70}px ${SERIF}`, '#000', 'center', 1 - bk); }
+  if (ok) { const ox = lerp(W, 1120, ok); x.fillStyle = '#fff'; x.strokeStyle = INK; x.lineWidth = 2; x.fillRect(ox, 300, 560, 470); x.strokeRect(ox, 300, 560, 470);
+    text('CHA-CHING ✓  BOUGHT IN 0.4 s', ox + 40, 350, `700 20px ${SANS}`, '#000000', 'left', 1, 4); text('Rib-knit top, loose jeans', ox + 40, 410, `400 40px ${SERIF}`, INK, 'left');
     text('Sale price ₹2,449  ·  saved ₹1,049', ox + 40, 465, `500 24px ${SANS}`, '#000000', 'left');
     const dk = eIO(prog(t, 56.6, 59.6)); x.fillStyle = '#000000'; x.fillRect(ox + 40, 580, 480, 4); x.fillStyle = INK; x.fillRect(ox + 40, 580, 480 * dk, 4);
     x.beginPath(); x.arc(ox + 40 + 480 * dk, 582, 12, 0, 7); x.fill(); text('Packed', ox + 40, 620, `500 20px ${SANS}`, '#000000', 'left'); text('Home', ox + 520, 620, `500 20px ${SANS}`, '#000000', 'right');
@@ -320,45 +345,52 @@ function wardrobe(t) {
 }
 // ---------- Soundtrack: synthesised live with Web Audio and recorded into the video ----------
 function buildAudio(ctx, out, T0) {
-  const at = (t) => T0 + t, master = ctx.createGain(); master.gain.value = .9; master.connect(out);
-  const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 4; comp.connect(master);
+  const at = (t) => T0 + t, master = ctx.createGain(); master.gain.value = .85; master.connect(out);
+  const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 5; comp.attack.value = .003; comp.release.value = .12; comp.connect(master);
   const nb = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate), nd = nb.getChannelData(0); for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
-  const rv = ctx.createConvolver(), ir = ctx.createBuffer(2, ctx.sampleRate * 2.6, ctx.sampleRate); for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 3); }
-  rv.buffer = ir; const rvg = ctx.createGain(); rvg.gain.value = .35; rv.connect(rvg); rvg.connect(comp);
+  const rv = ctx.createConvolver(), ir = ctx.createBuffer(2, ctx.sampleRate * 2.2, ctx.sampleRate); for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 3); }
+  rv.buffer = ir; const rvg = ctx.createGain(); rvg.gain.value = .3; rv.connect(rvg); rvg.connect(comp);
   const env = (g, t, a, peak, d) => { g.gain.setValueAtTime(0.0001, at(t)); g.gain.exponentialRampToValueAtTime(peak, at(t + a)); g.gain.exponentialRampToValueAtTime(0.0001, at(t + a + d)); };
-  const kick = (t, v = .9) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.setValueAtTime(150, at(t)); o.frequency.exponentialRampToValueAtTime(42, at(t + .18)); env(g, t, .004, v, .32); o.connect(g); g.connect(comp); o.start(at(t)); o.stop(at(t + .4)); };
-  const noise = (t, dur, type, f, v, q = 1, toRev = 0) => { const s = ctx.createBufferSource(), fl = ctx.createBiquadFilter(), g = ctx.createGain(); s.buffer = nb; fl.type = type; fl.frequency.value = f; fl.Q.value = q; env(g, t, .002, v, dur); s.connect(fl); fl.connect(g); g.connect(comp); if (toRev) g.connect(rv); s.start(at(t)); s.stop(at(t + dur + .05)); return fl; };
-  const hat = (t, v = .12) => noise(t, .05, 'highpass', 8000, v), snare = (t, v = .35) => { noise(t, .18, 'bandpass', 1900, v, .8, 1); const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.value = 190; env(g, t, .002, v * .6, .1); o.connect(g); g.connect(comp); o.start(at(t)); o.stop(at(t + .15)); };
-  const bass = (t, f, d, v = .28) => { const o = ctx.createOscillator(), fl = ctx.createBiquadFilter(), g = ctx.createGain(); o.type = 'sawtooth'; o.frequency.value = f; fl.type = 'lowpass'; fl.frequency.value = 420; env(g, t, .01, v, d); o.connect(fl); fl.connect(g); g.connect(comp); o.start(at(t)); o.stop(at(t + d + .1)); };
-  const pad = (t, fs, d, v = .07) => fs.forEach((f) => { const o = ctx.createOscillator(), g = ctx.createGain(), fl = ctx.createBiquadFilter(); o.type = 'triangle'; o.frequency.value = f; fl.type = 'lowpass'; fl.frequency.value = 1800; g.gain.setValueAtTime(.0001, at(t)); g.gain.linearRampToValueAtTime(v, at(t + .8)); g.gain.setValueAtTime(v, at(t + d - .8)); g.gain.linearRampToValueAtTime(.0001, at(t + d)); o.connect(fl); fl.connect(g); g.connect(comp); g.connect(rv); o.start(at(t)); o.stop(at(t + d + .1)); });
-  const whoosh = (t, d = .7, v = .5) => { const fl = noise(t, d, 'bandpass', 400, v, 1.5, 1); fl.frequency.setValueAtTime(300, at(t)); fl.frequency.exponentialRampToValueAtTime(5000, at(t + d * .8)); };
-  const click = (t) => { noise(t, .03, 'highpass', 3000, .5); kick(t, .25); };
-  const ding = (t) => [1318.5, 1975.5].forEach((f, i) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.value = f; env(g, t + i * .09, .005, .25, 1.2); o.connect(g); g.connect(comp); g.connect(rv); o.start(at(t + i * .09)); o.stop(at(t + 1.5)); });
-  const impact = (t, v = 1) => { kick(t, v); noise(t, 1.6, 'lowpass', 900, .6 * v, .7, 1); const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.setValueAtTime(70, at(t)); o.frequency.exponentialRampToValueAtTime(30, at(t + 1.5)); env(g, t, .005, .7 * v, 1.6); o.connect(g); g.connect(comp); o.start(at(t)); o.stop(at(t + 1.8)); };
-  const B = .5; // 120 BPM
-  const roots = [55, 55, 49, 49, 41.2, 41.2, 46.25, 49];
-  // 0–9.4: building groove under the scrolling inventory
-  pad(0, [220, 277.2, 329.6], 9.2); for (let t = 0; t < 9.2; t += B / 2) hat(t, .05 + .1 * t / 9);
-  for (let t = 3; t < 9.2; t += B) kick(t, .5 + .4 * (t / 9)); for (let t = 6; t < 9.2; t += B / 4) hat(t, .08);
-  { const fl = noise(7, 2.3, 'bandpass', 300, .35, 2, 1); fl.frequency.exponentialRampToValueAtTime(7000, at(9.2)); }
-  impact(9.45, .9); // STOP SCROLLING
-  for (let i = 0; i < 15; i++) noise(9.8 + i * .13, .04, 'highpass', 5000, .25); // letters locking in
-  whoosh(12.8); // push
-  // 13–61: main groove
-  for (let t = 13.5, bar = 0; t < 61.2; t += B * 4, bar++) { const r = roots[bar % roots.length];
-    for (let b = 0; b < 4; b++) { const tb = t + b * B; if (tb >= 61.2) break; kick(tb, .8); hat(tb + B / 2, .12); if (b % 2) snare(tb, .3); bass(tb, r, B * .9); } }
-  for (let i = 0; i < 5; i++) click(14.6 + i * .55 + .5); // photos dropping into the five blocks
-  { const fl = noise(18, 1.7, 'bandpass', 200, .4, 2, 1); fl.frequency.exponentialRampToValueAtTime(6000, at(19.7)); } impact(19.75, 1); // merge → explode
-  pad(20.2, [440, 554.4, 659.3], 3, .06);
-  SWAPS.forEach(([ts], i) => { if (i === 0) return; if (ts < 33.6 || ts >= 36.3) whoosh(ts - .1, .45, .35); else noise(ts, .03, 'highpass', 4000, .2); });
-  impact(36.3, .6); ding(36.4);
-  click(39.05); whoosh(39.6, .6, .3); [42.4, 42.58, 42.76, 42.94].forEach((t) => noise(t, .05, 'bandpass', 2500, .25)); [45.6, 46.9, 48.2, 49.4].forEach((t) => whoosh(t, .5, .25)); click(50.6);
-  whoosh(50.9, .8, .4); for (let s = 52; s < 55; s++) noise(s, .05, 'bandpass', 1200, .3); ding(55); impact(55, .5); // countdown → SALE LIVE
-  whoosh(56.6, 1.2, .3); whoosh(58.9, 1, .45); [59.7, 59.86, 60.02, 60.18, 60.34, 60.5].forEach((t) => noise(t, .25, 'bandpass', 700, .25)); // wardrobe opens, clothes slide out
-  // 61.4–63.2: tape rewind
+  const kick = (t, v = 1) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.setValueAtTime(160, at(t)); o.frequency.exponentialRampToValueAtTime(45, at(t + .12)); env(g, t, .003, v, .28); o.connect(g); g.connect(comp); o.start(at(t)); o.stop(at(t + .35)); noise(t, .01, 'highpass', 3000, .25 * v); };
+  function noise(t, dur, type, f, v, q = 1, toRev = 0) { const s = ctx.createBufferSource(), fl = ctx.createBiquadFilter(), g = ctx.createGain(); s.buffer = nb; fl.type = type; fl.frequency.value = f; fl.Q.value = q; env(g, t, .002, v, dur); s.connect(fl); fl.connect(g); g.connect(comp); if (toRev) g.connect(rv); s.start(at(t), Math.random()); s.stop(at(t + dur + .05)); return fl; }
+  const hat = (t, v = .1) => noise(t, .04, 'highpass', 9000, v), ohat = (t, v = .14) => noise(t, .16, 'highpass', 7000, v);
+  const clap = (t, v = .45) => { [0, .012, .024].forEach((d) => noise(t + d, .09, 'bandpass', 1500, v, 1.2, 1)); };
+  const note = (t, f, d, type, v, cut, toRev = 0) => { const o = ctx.createOscillator(), fl = ctx.createBiquadFilter(), g = ctx.createGain(); o.type = type; o.frequency.value = f; fl.type = 'lowpass'; fl.frequency.value = cut; env(g, t, .005, v, d); o.connect(fl); fl.connect(g); g.connect(comp); if (toRev) g.connect(rv); o.start(at(t)); o.stop(at(t + d + .1)); };
+  const stab = (t, fs, v = .07) => fs.forEach((f) => { note(t, f, .18, 'sawtooth', v, 2600, 1); note(t, f * 1.006, .18, 'sawtooth', v * .7, 2600); });
+  const whoosh = (t, d = .6, v = .45) => { const fl = noise(t, d, 'bandpass', 400, v, 1.5, 1); fl.frequency.setValueAtTime(300, at(t)); fl.frequency.exponentialRampToValueAtTime(6000, at(t + d * .8)); };
+  const riser = (t0, t1, v = .35) => { const fl = noise(t0, t1 - t0, 'bandpass', 250, v, 2, 1); fl.frequency.exponentialRampToValueAtTime(8000, at(t1)); };
+  const impact = (t, v = 1) => { kick(t, v); noise(t, 1.4, 'lowpass', 1000, .55 * v, .7, 1); note(t, 55, 1.2, 'sine', .6 * v, 400); };
+  const click = (t) => { noise(t, .025, 'highpass', 3500, .5); };
+  const chaching = (t) => { // register: drawer slam + bell + coins
+    noise(t, .08, 'bandpass', 900, .6); kick(t, .4);
+    [2093, 2637, 3136, 4186].forEach((f, i) => note(t + .09 + i * .015, f, 1.1, 'sine', .16, 9000, 1));
+    for (let i = 0; i < 14; i++) note(t + .12 + i * .045 + Math.random() * .02, 3000 + Math.random() * 2500, .12, 'triangle', .07, 12000, 1); };
+  const B = 60 / 128, CH = [[220, 261.6, 329.6], [174.6, 220, 261.6], [196, 246.9, 293.7], [164.8, 207.7, 246.9]], RT = [55, 43.65, 49, 41.2];
+  const ARP = [440, 523.3, 659.3, 880, 659.3, 523.3, 440, 659.3];
+  // intro 0–9.4: hats, arp and a filtered kick building under the scroll
+  for (let t = 0, i = 0; t < 9.2; t += B / 2, i++) { hat(t, .05 + .08 * t / 9); note(t, ARP[i % 8] * (t > 4.6 ? 1 : .5), .12, 'square', .03 + .03 * t / 9, 1200 + 400 * t, 1); }
+  for (let t = 1.85; t < 9.2; t += B) kick(t, .45 + .45 * t / 9); for (let t = 7.4; t < 9.2; t += B / 4) noise(t, .03, 'bandpass', 2000, .2); riser(6.8, 9.35);
+  impact(9.45, 1); for (let i = 0; i < 20; i++) noise(9.7 + i * .09, .03, 'highpass', 5000, .22);
+  // 9.4–13: half-time hook groove
+  for (let t = 10.2; t < 12.9; t += B * 2) { kick(t, .8); clap(t + B, .35); } riser(11.6, 13);
+  // 13–61.2: full upbeat house groove
+  for (let t = 13, bar = 0; t < 61.2; t += B * 4, bar++) { const ch = CH[bar % 4], r = RT[bar % 4];
+    for (let b = 0; b < 4; b++) { const tb = t + b * B; if (tb >= 61.2) break;
+      kick(tb, .95); ohat(tb + B / 2, .13); hat(tb + B / 4, .06); hat(tb + 3 * B / 4, .06); if (b % 2) clap(tb);
+      note(tb + B / 2, r * 2, B * .45, 'sawtooth', .22, 600); note(tb + B / 2, r, B * .45, 'sine', .3, 300); // offbeat pumping bass
+      if (b === 1 || b === 3) stab(tb + B * .75, ch, .05); }
+    if (bar % 2 === 1) for (let i = 0; i < 8; i++) note(t + i * B / 2, ARP[(i + bar) % 8] * 1, .11, 'square', .035, 3000, 1); }
+  for (let i = 0; i < 5; i++) click(15.1 + i * .55); riser(18, 19.7, .4); impact(19.75, 1.1);
+  SWAPS.forEach(([ts], i) => { if (i === 0) return; if (ts < 33.6 || ts >= 36.3) whoosh(ts - .1, .4, .3); else noise(ts, .025, 'highpass', 4500, .18); });
+  impact(36.3, .7); [1318.5, 1975.5].forEach((f, i) => note(36.4 + i * .08, f, .9, 'sine', .2, 9000, 1));
+  click(39.05); whoosh(39.6, .5, .28); [42.4, 42.58, 42.76, 42.94].forEach((t) => noise(t, .05, 'bandpass', 2600, .22)); [45.6, 46.9, 48.2, 49.4].forEach((t) => whoosh(t, .45, .22)); click(50.6);
+  whoosh(50.9, .7, .35); for (let t = 52.3; t < 55; t += .5) note(t, 1760, .05, 'sine', .12, 9000); // price tracker ticks
+  riser(53.8, 55, .3); chaching(55.4); impact(55, .5); whoosh(56.6, 1, .25);
+  whoosh(58.9, .9, .4); [59.7, 59.86, 60.02, 60.18, 60.34, 60.5].forEach((t) => noise(t, .2, 'bandpass', 800, .22));
   { const o = ctx.createOscillator(), g = ctx.createGain(), fl = ctx.createBiquadFilter(); o.type = 'sawtooth'; o.frequency.setValueAtTime(900, at(61.4)); o.frequency.exponentialRampToValueAtTime(60, at(63.2)); fl.type = 'lowpass'; fl.frequency.value = 2500;
-    g.gain.setValueAtTime(.18, at(61.4)); g.gain.linearRampToValueAtTime(.0001, at(63.2)); o.connect(fl); fl.connect(g); g.connect(comp); o.start(at(61.4)); o.stop(at(63.3)); noise(61.4, 1.8, 'highpass', 2000, .25); }
-  impact(63.7, 1.1); pad(63.8, [110, 164.8, 220, 277.2], 7.6, .09); ding(66);
+    g.gain.setValueAtTime(.18, at(61.4)); g.gain.linearRampToValueAtTime(.0001, at(63.2)); o.connect(fl); fl.connect(g); g.connect(comp); o.start(at(61.4)); o.stop(at(63.3)); noise(61.4, 1.8, 'highpass', 2000, .22); }
+  impact(63.7, 1.2); CH[0].concat([110]).forEach((f) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'triangle'; o.frequency.value = f; g.gain.setValueAtTime(.0001, at(63.8)); g.gain.linearRampToValueAtTime(.06, at(64.6)); g.gain.linearRampToValueAtTime(.0001, at(71.5)); o.connect(g); g.connect(comp); g.connect(rv); o.start(at(63.8)); o.stop(at(71.6)); });
+  for (let t = 64.4, i = 0; t < 70; t += B / 2, i++) note(t, ARP[i % 8] * 2, .1, 'sine', .04, 6000, 1);
 }
 // ---------- Logo ----------
 function logo(t) { x.fillStyle = '#000'; x.fillRect(0, 0, W, H); const a = prog(t, 63.6, 64.8), b = prog(t, 64.2, 65.4), c = prog(t, 65.8, 66.8);
