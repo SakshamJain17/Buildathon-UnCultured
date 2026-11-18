@@ -1,13 +1,13 @@
 <!doctype html>
 <html><head><meta charset="utf-8"><title>Alluré — film</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
 <style>html,body{margin:0;background:#000;overflow:hidden}canvas{display:block;width:100vw;height:56.25vw;max-height:100vh;max-width:177.78vh;margin:auto}#hint{position:fixed;bottom:8px;left:8px;color:#888;font:12px sans-serif}</style>
 </head><body><canvas id="c" width="1920" height="1080"></canvas><div id="hint">Space: play / restart</div>
 <script>
 // Alluré — 72 s motion film. Everything is a pure function of time t, so it renders identically every take.
 const W = 1920, H = 1080, END = 72, cv = document.getElementById('c'), x = cv.getContext('2d');
 const SERIF = '"Playfair Display", Georgia, serif', SANS = 'Inter, -apple-system, Helvetica, sans-serif';
-const BG = '#f4f2ee', INK = '#111';
+const BG = '#f4f2ee', INK = '#111', DISPLAY = '"Archivo Black", Impact, sans-serif', LIME = '#B8FF00', COAL = '#0A0A0A';
 const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v)), lerp = (a, b, k) => a + (b - a) * k;
 const prog = (t, a, b) => clamp((t - a) / (b - a));
 const eOut = (k) => 1 - Math.pow(1 - k, 3), eIn = (k) => k * k * k, eIO = (k) => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
@@ -37,13 +37,26 @@ function text(str, px, py, font, col, align = 'center', alpha = 1, spacing = 0) 
   x.save(); x.globalAlpha = alpha; x.font = font; x.fillStyle = col; x.textAlign = align; x.textBaseline = 'middle';
   if (spacing) x.letterSpacing = spacing + 'px'; x.fillText(str, px, py); x.restore();
 }
-const IMG = []; // product photos for the upload scene
+const IMG = [], PH = {}, ALL = []; // real H&M product photos
+const ph = (name) => PH[name] || ALL[0];
 async function loadImages() {
   let files = []; try { files = await fetch('/api/products').then((r) => r.json()); } catch {}
-  const pick = ['Zip Hoodie A', 'Brocade Keyhole Dress', 'Regular Fit Oxford Shirt A', 'Loose Jeans A', 'Lightweight Bomber Jacket'];
-  const chosen = pick.map((p) => files.find((f) => f.startsWith(p))).filter(Boolean);
-  await Promise.all(chosen.slice(0, 5).map((f, i) => new Promise((res) => { const im = new Image(); im.onload = () => { IMG[i] = im; res(); }; im.onerror = res; im.src = '/products/' + encodeURIComponent(f); })));
+  await Promise.all(files.map((f) => new Promise((res) => { const im = new Image(); im.onload = () => { PH[f.split('__')[0]] = im; ALL.push(im); res(); }; im.onerror = res; im.src = '/products/' + encodeURIComponent(f); })));
+  ['Zip Hoodie A', 'Brocade Keyhole Dress', 'Regular Fit Oxford Shirt A', 'Loose Jeans A', 'Lightweight Bomber Jacket'].forEach((n, i) => IMG[i] = PH[n]);
 }
+const CUT = new Map();
+function cut(im) { if (!im) return null; if (CUT.has(im)) return CUT.get(im); const s = Math.min(1, 900 / im.height), c = document.createElement("canvas"); c.width = Math.round(im.width * s); c.height = Math.round(im.height * s);
+  const g = c.getContext("2d", { willReadFrequently: true }); g.drawImage(im, 0, 0, c.width, c.height); const d = g.getImageData(0, 0, c.width, c.height), p = d.data, w = c.width, hh = c.height;
+  let br = 0, bg = 0, bb = 0, n = 0; for (const [sx, sy] of [[2, 2], [w - 3, 2], [2, hh - 3], [w - 3, hh - 3], [w >> 1, 2], [2, hh >> 1], [w - 3, hh >> 1]]) { const i = (sy * w + sx) * 4; br += p[i]; bg += p[i + 1]; bb += p[i + 2]; n++; } br /= n; bg /= n; bb /= n;
+  for (let i = 0; i < p.length; i += 4) { const dd = Math.abs(p[i] - br) + Math.abs(p[i + 1] - bg) + Math.abs(p[i + 2] - bb); const lum = (p[i] + p[i + 1] + p[i + 2]) / 3, lifted = lum > 200 && Math.max(p[i], p[i + 1], p[i + 2]) - Math.min(p[i], p[i + 1], p[i + 2]) < 14; p[i + 3] = lifted ? 0 : Math.round(255 * clamp((dd - 34) / 46)); }
+  g.putImageData(d, 0, 0); CUT.set(im, c); return c; }
+function drawCut(im, cx, cy, hgt, rot = 0, alpha = 1, dark = 0) { const c = cut(im); if (!c) return; const s = hgt / c.height; x.save(); x.globalAlpha = alpha; x.translate(cx, cy); x.rotate(rot);
+  if (dark) x.filter = `brightness(${1 - dark})`; x.shadowColor = "rgba(0,0,0,.35)"; x.shadowBlur = 30; x.shadowOffsetY = 14; x.drawImage(c, -c.width * s / 2, -hgt / 2, c.width * s, hgt); x.restore(); }
+function cover(im, bx, by, bw, bh) { if (!im) { x.fillStyle = '#ddd'; x.fillRect(bx, by, bw, bh); return; } const r = Math.max(bw / im.width, bh / im.height), w = im.width * r, h = im.height * r; x.save(); x.beginPath(); x.rect(bx, by, bw, bh); x.clip(); x.drawImage(im, bx + (bw - w) / 2, by + (bh - h) / 2, w, h); x.restore(); }
+function photoCard(im, cx, cy, s, rot, alpha = 1, dark = 0) { // a real product photo, polaroid-style
+  const w = 150, h = 200; x.save(); x.globalAlpha = alpha; x.translate(cx, cy); x.rotate(rot); x.scale(s, s);
+  x.fillStyle = 'rgba(0,0,0,.25)'; x.fillRect(-w / 2 + 6, -h / 2 + 8, w, h); x.fillStyle = '#fff'; x.fillRect(-w / 2, -h / 2, w, h);
+  cover(im, -w / 2 + 6, -h / 2 + 6, w - 12, h - 12); if (dark) { x.fillStyle = `rgba(8,8,10,${dark})`; x.fillRect(-w / 2, -h / 2, w, h); } x.restore(); }
 
 // ---------- Scene 1 (0–9.2 s): clothes thrown from your POV, until the screen is buried in black ----------
 const THROWS = []; (() => { const sched = [[0.4, 1], [1.4, 1], [2.3, 2], [3.1, 4], [3.8, 6], [4.4, 10], [4.9, 16], [5.4, 26], [5.9, 40], [6.35, 60], [6.8, 90], [7.2, 140], [7.6, 220], [7.95, 300]];
@@ -58,19 +71,20 @@ function scene1(t) {
   for (const g of THROWS) { const k = prog(t, g.t0, g.t0 + .55); if (k <= 0) continue; const e = eOut(k);
     // thrown from the camera: starts huge at the bottom centre, flies away and lands
     const cx = lerp(W / 2 + (g.tx - W / 2) * .1, g.tx, e), cy = lerp(H + 260, g.ty, e) - Math.sin(k * Math.PI) * 140, sc = lerp(5.5, g.s, e);
-    garment(g.type, g.col, cx, cy, sc, g.r + g.spin * (1 - e), clamp(k * 4)); }
+    drawCut(ALL[THROWS.indexOf(g) % Math.max(1, ALL.length)], cx, cy, 300 * sc, g.r * .6 + g.spin * (1 - e), clamp(k * 4), g.col.startsWith('#0') || g.col.startsWith('#1') || g.col.startsWith('#2') ? .75 : 0); }
   const dark = prog(t, 8.0, 9.0); if (dark) { x.fillStyle = `rgba(0,0,0,${eIn(dark)})`; x.fillRect(0, 0, W, H); }
 }
 // ---------- Scene 2 (9.2–13 s): letters shuffle into STOP SCROLLING ----------
 const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ#%&@$*+?!0123456789';
 function scene2(t, ox = 0) {
   x.fillStyle = '#000'; x.fillRect(ox, 0, W, H);
-  const words = 'STOP SCROLLING.', n = words.length, size = 150; x.font = `700 ${size}px ${SERIF}`;
+  const words = 'STOP SCROLLING.', n = words.length, size = 190; x.font = `${size}px ${DISPLAY}`;
   const total = x.measureText(words).width; let px = W / 2 - total / 2 + ox;
   for (let i = 0; i < n; i++) { const ch = words[i], wch = x.measureText(ch).width, resolve = 9.8 + i * .13;
     let shown = ch; if (ch !== ' ' && t < resolve) shown = GLYPHS[Math.floor(rnd(i * 31 + Math.floor(t * 24)) * GLYPHS.length)];
-    const a = clamp(prog(t, 9.3 + i * .03, 9.6 + i * .03)); text(shown, px + wch / 2, H / 2, `700 ${size}px ${SERIF}`, t < resolve ? '#8a857a' : '#f4f2ee', 'center', a); px += wch; }
-  const u = prog(t, 11.4, 12.2); if (u) { x.fillStyle = '#f4f2ee'; x.fillRect(W / 2 - total / 2 + ox, H / 2 + 100, total * eOut(u), 4); }
+    const a = clamp(prog(t, 9.3 + i * .03, 9.6 + i * .03)), slam = (1 - eBack(prog(t, 9.3 + i * .03, 9.75 + i * .03))) * 220; text(shown, px + wch / 2, H / 2 + slam, `${size}px ${DISPLAY}`, t < resolve ? (i % 2 ? '#FF2BD6' : LIME) : '#f4f2ee', 'center', a); px += wch; }
+  const u = prog(t, 11.4, 12.2); if (u) { x.fillStyle = LIME; x.fillRect(W / 2 - total / 2 + ox, H / 2 + 120, total * eOut(u), 12); }
+  text('you’ve seen 400 outfits today. none of them were you.', W / 2 + ox, H / 2 + 200, `italic 400 40px ${SERIF}`, '#a39e92', 'center', prog(t, 11.8, 12.4));
 }
 // ---------- Scene 3/4 (13–21.6 s): push left into five upload blocks → merge → explode → white ----------
 const BLK = { w: 270, h: 360, gap: 34 };
@@ -152,16 +166,32 @@ function avatar(cx, outA, outB, mix, extra = {}) { // outB slides in from the le
   if (extra.bag) { x.save(); x.globalAlpha = extra.bag; garment('bag', '#b88a5a', cx + 175, 720, .62, -.06); x.restore(); }
 }
 // ---------- Scene 5 (21.6–40 s): outfit swaps, 2 s → 1 s → rapid shuffle → stops on the look ----------
-const SWAPS = (() => { const a = [], push = (t, o) => a.push([t, o]); push(22.6, OUTFITS[0]); push(24.6, OUTFITS[1]); push(26.6, OUTFITS[2]); push(28.6, OUTFITS[3]);
-  for (let i = 0; i < 4; i++) push(29.6 + i, OUTFITS[(4 + i) % OUTFITS.length]); let t = 33.6; let i = 0; while (t < 36.2) { push(t, OUTFITS[i++ % OUTFITS.length]); t += .11; } push(36.3, FINAL); return a; })();
+const LOOKS = ['Loose Fit Hoodie A', 'Regular Fit Oxford Shirt A', 'Aviator Jacket', 'Brocade Keyhole Dress', 'Loose Fit Flannel Shirt', 'Lightweight Bomber Jacket', 'Satin Maxi Skirt',
+  'Balloon Sleeve Satin Dress', 'Regular Fit Corduroy Shirt A', 'Stand Collar Puffer Jacket', 'Loose Fit Sweatshirt B', 'Midi Skirt', 'Zip Hoodie B', 'Bow Collar A-line Dress', 'Nylon Windbreaker'];
+const FINAL_LOOK = 'Lace Trim Rib Top A', FINAL_NAME = 'Rib-knit top · loose jeans';
+const SWAPS = (() => { const a = [], push = (t, o) => a.push([t, o]); push(22.6, LOOKS[0]); push(24.6, LOOKS[1]); push(26.6, LOOKS[2]); push(28.6, LOOKS[3]);
+  for (let i = 0; i < 4; i++) push(29.6 + i, LOOKS[4 + i]); let t = 33.6, i = 0; while (t < 36.2) { push(t, LOOKS[i++ % LOOKS.length]); t += .11; } push(36.3, FINAL_LOOK); return a; })();
 function outfitAt(t) { let cur = null, prev = null, at = 0; for (const [ts, o] of SWAPS) if (t >= ts) { prev = cur; cur = o; at = ts; } return { cur, prev, at }; }
+const LOOK = { w: 560, h: 800 };
+function lookFrame(name, cx, cy = 560, s = 1) { const w = LOOK.w * s, h = LOOK.h * s; x.fillStyle = 'rgba(0,0,0,.08)'; x.fillRect(cx - w / 2 + 16, cy - h / 2 + 18, w, h); x.fillStyle = '#fff'; x.fillRect(cx - w / 2, cy - h / 2, w, h); cover(ph(name), cx - w / 2 + 10, cy - h / 2 + 10, w - 20, h - 20); x.strokeStyle = INK; x.lineWidth = 2; x.strokeRect(cx - w / 2, cy - h / 2, w, h); }
+const WORDS = { "Loose Fit Hoodie A": ["COSY.", "soft launch your weekend"], "Regular Fit Oxford Shirt A": ["SHARP.", "main character, but make it office"], "Aviator Jacket": ["BOLD.", "cold outside, colder fit"],
+  "Brocade Keyhole Dress": ["EXTRA.", "a little dramatic. on purpose."], "Loose Fit Flannel Shirt": ["EASY.", "zero effort, full credit"], "Lightweight Bomber Jacket": ["STREET.", "certified sidewalk runway"],
+  "Satin Maxi Skirt": ["SOFT.", "quiet luxury, loud compliments"], "Balloon Sleeve Satin Dress": ["ICONIC.", "say less"] };
+const QUICK = ["CLEAN.", "LOUD.", "CHILL.", "CRISP.", "FRESH.", "FLUID.", "RAW."];
 function scene5(t) {
-  x.fillStyle = BG; x.fillRect(0, 0, W, H);
-  const fadeIn = prog(t, 21.6, 22.6); const { cur, prev, at } = outfitAt(t); const dur = t >= 33.6 && t < 36.3 ? .09 : .42, mix = eOut(prog(t, at, at + dur));
-  text('03', 160, 150, `700 90px ${SERIF}`, INK, 'left', fadeIn); text('SWIPE THROUGH LOOKS PICKED FOR YOU', 300, 150, `700 22px ${SANS}`, '#77736b', 'left', fadeIn, 5);
-  x.save(); x.globalAlpha = fadeIn; avatar(960, prev, cur, prev ? mix : 1); x.restore();
-  if (cur) { const final = cur === FINAL, a = final ? prog(t, 36.4, 37) : 1; text(cur.name, 1380, 820, `italic 400 ${final ? 40 : 34}px ${SERIF}`, INK, 'left', a * fadeIn);
-    text(final ? 'THE ONE' : String(SWAPS.findIndex((s) => s[1] === cur) + 1).padStart(2, '0'), 1380, 770, `700 18px ${SANS}`, '#77736b', 'left', a * fadeIn, 5); }
+  x.fillStyle = COAL; x.fillRect(0, 0, W, H);
+  const fadeIn = prog(t, 21.6, 22.6); const { cur, prev, at } = outfitAt(t); const fast = t >= 33.6 && t < 36.3, dur = fast ? .09 : .45, mix = eOut(prog(t, at, at + dur));
+  const idx = SWAPS.findIndex((s) => s[0] === at), final = cur === FINAL_LOOK;
+  const [word, tail] = final ? ["THE ONE.", "main character, but make it denim"] : WORDS[cur] || [QUICK[idx % QUICK.length], ""];
+  text("03 — SWIPE THROUGH LOOKS PICKED FOR YOU", 120, 90, `700 20px ${SANS}`, "#8a857a", "left", fadeIn, 6);
+  const slam = (1 - eBack(prog(t, at, at + (fast ? .08 : .4)))) * 160, size = final ? 280 : 330;
+  x.save(); x.letterSpacing = "-6px"; text(word, W / 2, 470 + slam, `${size}px ${DISPLAY}`, final ? LIME : "#f4f2ee", "center", .95 * fadeIn); x.restore();
+  x.save(); x.globalAlpha = fadeIn; x.beginPath(); x.rect(0, 0, W, H); x.clip();
+  if (prev && mix < 1) drawCut(ph(prev), 960 + mix * 1400, 600, 900); // old look exits right
+  if (cur) drawCut(ph(cur), prev ? 960 - (1 - mix) * 1400 : 960, 600, 900); // new look enters from the left
+  x.restore();
+  if (tail) text(tail, W / 2, 1010, `italic 400 46px ${SERIF}`, final ? "#f4f2ee" : LIME, "center", (final ? prog(t, 36.5, 37) : prog(t, at + .2, at + .5)) * fadeIn);
+  if (!fast) text(String(Math.min(idx + 1, 99)).padStart(2, "0") + " / LOOKS", W - 120, 90, `700 20px ${SANS}`, "#8a857a", "right", fadeIn, 6);
   const wf = 1 - prog(t, 21.6, 22.4); if (wf) { x.fillStyle = `rgba(255,255,255,${wf})`; x.fillRect(0, 0, W, H); }
 }
 // ---------- 3D cursor ----------
@@ -181,18 +211,22 @@ function scene6(t) {
   if (wIdx === 1) { x.strokeStyle = 'rgba(70,90,120,.35)'; x.lineWidth = 2; for (let i = 0; i < 140; i++) { const rx = (rnd(i) * W + t * 300) % W, ry = (rnd(i * 3) * H + t * 1600) % H; x.beginPath(); x.moveTo(rx, ry); x.lineTo(rx - 10, ry + 40); x.stroke(); } }
   if (wIdx === 2) { x.fillStyle = 'rgba(255,255,255,.9)'; for (let i = 0; i < 120; i++) { const sx = (rnd(i) * W + Math.sin(t + i) * 30) % W, sy = (rnd(i * 5) * H + t * 120) % H; x.beginPath(); x.arc(sx, sy, 3 + rnd(i * 9) * 3, 0, 7); x.fill(); } }
   if (wIdx === 0 && t > 44) { const sun = prog(t, 44, 44.6); x.fillStyle = `rgba(216,164,44,${.25 * sun})`; x.beginPath(); x.arc(cx + 330, 230, 120, 0, 7); x.fill(); }
-  const layer = wIdx === 1 ? { top: 'jacket', tc: '#22304f' } : wIdx === 2 ? { top: 'hoodie', tc: '#3a3b40' } : wIdx === 3 ? { top: 'jacket', tc: '#111' } : null;
   const acc = prog(t, 42.4, 43.4);
-  avatar(cx, null, FINAL, 1, { glasses: (wIdx === 0 || wIdx === 3) ? prog(t, 43.0, 43.5) : 0, cap: wIdx === 2 ? 1 : 0, bag: acc, shoes: '#f5f5f2', layer, layerA: layer ? 1 : 0 });
+  drawCut(ph(FINAL_LOOK), cx, 560, 880);
+  // weather layer: the piece Alluré adds on top for the conditions
+  const layerName = wIdx === 1 ? 'Nylon Windbreaker' : wIdx === 2 ? 'Loose Fit Hoodie A' : wIdx === 3 ? 'Aviator Jacket' : null, layerLabel = ['', '+ FOR RAIN', '+ FOR THE COLD', '+ FOR NIGHT'][wIdx];
+  if (layerName) { const lk = eBack(prog(t, [0, 45.6, 46.9, 48.2][wIdx], [0, 45.6, 46.9, 48.2][wIdx] + .35)); x.save(); x.translate(cx - 330, 360); x.scale(lk, lk); x.rotate(-.06);
+    x.fillStyle = '#fff'; x.fillRect(-110, -140, 220, 280); cover(ph(layerName), -102, -132, 204, 230); x.strokeStyle = INK; x.lineWidth = 2; x.strokeRect(-110, -140, 220, 280); x.restore();
+    text(layerLabel, cx - 330, 520, `700 16px ${SANS}`, night ? '#f4f2ee' : INK, 'center', lk, 4); }
   // details panel
   const pk = eOut(prog(t, 40.0, 40.9)), px = lerp(W + 40, 1060, pk), ink = night ? '#f4f2ee' : INK, mute = night ? '#a39e92' : '#77736b';
   if (pk > 0) { x.save(); x.fillStyle = night ? '#16161a' : '#fff'; x.strokeStyle = ink; x.lineWidth = 2; x.fillRect(px, 140, 720, 800); x.strokeRect(px, 140, 720, 800);
-    text('THE LOOK', px + 50, 200, `700 18px ${SANS}`, mute, 'left', 1, 6); text('White tee, loose jeans', px + 50, 262, `600 46px ${SERIF}`, ink, 'left');
-    const rows = [['Heavyweight cotton tee', '₹799'], ['Loose straight jeans', '₹1,999']]; rows.forEach(([n, p], i) => { const ry = 350 + i * 70, a = prog(t, 40.5 + i * .2, 40.9 + i * .2);
+    text('THE LOOK', px + 50, 200, `700 18px ${SANS}`, mute, 'left', 1, 6); text('Rib-knit top, loose jeans', px + 50, 262, `600 46px ${SERIF}`, ink, 'left');
+    const rows = [['Lace-trimmed rib-knit top · H&M', '₹999'], ['Loose jeans · H&M', '₹2,499']]; rows.forEach(([n, p], i) => { const ry = 350 + i * 70, a = prog(t, 40.5 + i * .2, 40.9 + i * .2);
       text(n, px + 50, ry, `500 28px ${SANS}`, ink, 'left', a); text(p, px + 670, ry, `600 30px ${SERIF}`, ink, 'right', a); x.globalAlpha = a; x.fillStyle = night ? '#333' : '#e4e0d8'; x.fillRect(px + 50, ry + 32, 620, 2); x.globalAlpha = 1; });
     text('PAIRED FOR YOU', px + 50, 520, `700 18px ${SANS}`, mute, 'left', acc, 6);
-    [['shoes', '#f5f5f2', 'Sneakers'], ['sunglasses', '#111', 'Shades'], ['bag', '#b88a5a', 'Tote'], ['cap', '#22304f', 'Cap']].forEach(([ty, c, n], i) => { const a = eBack(prog(t, 42.4 + i * .18, 42.9 + i * .18)); if (a <= 0) return;
-      const bx = px + 110 + i * 160; x.save(); x.globalAlpha = clamp(a); x.fillStyle = night ? '#222' : '#f4f2ee'; x.fillRect(bx - 60, 560, 120, 120); garment(ty, c, bx, 620, .42 * a, 0); x.restore(); text(n, bx, 700, `500 18px ${SANS}`, mute, 'center', clamp(a)); });
+    [['Chelsea Boots A', 'Boots'], ['Aviator Sunglasses', 'Shades'], ['Crossbody Bag', 'Bag'], ['Cotton Twill Cap', 'Cap']].forEach(([n, l], i) => { const a = eBack(prog(t, 42.4 + i * .18, 42.9 + i * .18)); if (a <= 0) return;
+      const bx = px + 110 + i * 160; x.save(); x.globalAlpha = clamp(a); x.translate(bx, 620); x.scale(a, a); cover(ph(n), -60, -60, 120, 120); x.strokeStyle = night ? '#444' : '#d9d6cf'; x.lineWidth = 1.5; x.strokeRect(-60, -60, 120, 120); x.restore(); text(l, bx, 700, `500 18px ${SANS}`, mute, 'center', clamp(a)); });
     text('STYLED FOR', px + 50, 770, `700 18px ${SANS}`, mute, 'left', prog(t, 44.6, 45), 6);
     WEATHER.forEach(([n], i) => { const bx = px + 50 + i * 160, on = i === wIdx && t > 45.3; x.globalAlpha = prog(t, 44.7 + i * .08, 45.1 + i * .08); x.fillStyle = on ? ink : 'transparent'; x.strokeStyle = ink; x.lineWidth = 1.5; x.fillRect(bx, 795, 145, 46); x.strokeRect(bx, 795, 145, 46); x.globalAlpha = 1;
       text(n, bx + 72, 818, `700 15px ${SANS}`, on ? (night ? '#111' : '#fff') : ink, 'center', prog(t, 44.7 + i * .08, 45.1 + i * .08), 3); });
@@ -214,7 +248,7 @@ function scene7(t) {
   text('04', 160, 150, `700 90px ${SERIF}`, INK, 'left', k); text('SAVE IT. WE BUY IT THE SECOND THE SALE DROPS.', 300, 150, `700 22px ${SANS}`, '#77736b', 'left', k, 5);
   const cy = lerp(H + 300, 300, k); x.fillStyle = '#111'; x.fillRect(260, cy, 760, 470);
   text('ALLURÉ WALLET', 310, cy + 60, `700 18px ${SANS}`, '#a39e92', 'left', 1, 6);
-  const bought = t > 55.4, bal = bought ? lerp(12500, 10260, eOut(prog(t, 55.4, 56.2))) : 12500;
+  const bought = t > 55.4, bal = bought ? lerp(12500, 10051, eOut(prog(t, 55.4, 56.2))) : 12500;
   text('₹' + Math.round(bal).toLocaleString('en-IN'), 310, cy + 160, `600 110px ${SERIF}`, '#f4f2ee', 'left');
   text('A', 960, cy + 400, `italic 400 260px ${SERIF}`, 'rgba(255,255,255,.06)', 'center');
   text('Watching: Black Friday Sale', 310, cy + 270, `500 26px ${SANS}`, '#d8d3c8', 'left');
@@ -223,8 +257,8 @@ function scene7(t) {
   if (t > 54.98 && t < 55.25) { x.fillStyle = 'rgba(216,164,44,.35)'; x.fillRect(0, 0, W, H); }
   // order card
   const ok = eOut(prog(t, 55.5, 56.1)); if (ok) { const ox = lerp(W, 1120, ok); x.fillStyle = '#fff'; x.strokeStyle = INK; x.lineWidth = 2; x.fillRect(ox, 300, 560, 470); x.strokeRect(ox, 300, 560, 470);
-    text('✓  BOUGHT IN 0.4 s', ox + 40, 350, `700 20px ${SANS}`, '#1e7a4c', 'left', 1, 4); text('White tee, loose jeans', ox + 40, 410, `600 40px ${SERIF}`, INK, 'left');
-    text('Sale price ₹2,240  ·  saved ₹558', ox + 40, 465, `500 24px ${SANS}`, '#77736b', 'left');
+    text('✓  BOUGHT IN 0.4 s', ox + 40, 350, `700 20px ${SANS}`, '#1e7a4c', 'left', 1, 4); text('Rib-knit top, loose jeans', ox + 40, 410, `600 40px ${SERIF}`, INK, 'left');
+    text('Sale price ₹2,449  ·  saved ₹1,049', ox + 40, 465, `500 24px ${SANS}`, '#77736b', 'left');
     const dk = eIO(prog(t, 56.6, 59.6)); x.fillStyle = '#e4e0d8'; x.fillRect(ox + 40, 580, 480, 4); x.fillStyle = INK; x.fillRect(ox + 40, 580, 480 * dk, 4);
     x.beginPath(); x.arc(ox + 40 + 480 * dk, 582, 12, 0, 7); x.fill(); text('Packed', ox + 40, 620, `500 20px ${SANS}`, '#77736b', 'left'); text('Home', ox + 520, 620, `500 20px ${SANS}`, '#77736b', 'right');
     text(dk >= 1 ? 'Delivered to your door' : 'Out for delivery…', ox + 40, 690, `italic 400 34px ${SERIF}`, INK, 'left', prog(t, 56.8, 57.2)); }
