@@ -308,8 +308,20 @@ function scene7(t) {
   // order card
   const ok = eOut(prog(t, 55.5, 56.1));
   // cha-ching: dollar signs burst out of the purchase
-  const bk = prog(t, 55.4, 57.4); if (bk > 0 && bk < 1) for (let i = 0; i < 46; i++) { const a = -Math.PI / 2 + (rnd(i * 5) - .5) * 2.6, sp = 500 + rnd(i * 9) * 900, d = eOut(bk) * sp, gx2 = 1400 + Math.cos(a) * d, gy2 = 540 + Math.sin(a) * d + 900 * bk * bk;
-    text(i % 3 ? '$' : '₹', gx2, gy2, `${200 + (i % 3) * 100} ${40 + rnd(i * 13) * 70}px ${SERIF}`, '#000', 'center', 1 - bk); }
+  const bk = prog(t, 55.4, 57.4); if (bk > 0 && bk < 1) for (let i = 0; i < 64; i++) { const a = -Math.PI / 2 + (rnd(i * 5) - .5) * 2.6, sp = 500 + rnd(i * 9) * 900, d = eOut(bk) * sp, gx2 = 1400 + Math.cos(a) * d, gy2 = 540 + Math.sin(a) * d + 900 * bk * bk;
+    { const sz = 56 + rnd(i * 13) * 90, rot = (rnd(i * 17) - .5) * .7 + bk * (rnd(i * 19) - .5) * 4, pop = eBack(clamp(bk * 6)); x.save(); x.globalAlpha = 1 - bk * bk; x.translate(gx2, gy2); x.rotate(rot); x.scale(pop, pop);
+      if (i % 4 === 0) { // flying banknote
+        const bw = sz * 2.1, bh = sz * 1.0, gb = x.createLinearGradient(-bw / 2, -bh / 2, bw / 2, bh / 2); gb.addColorStop(0, '#7dffa0'); gb.addColorStop(.5, '#1fbf55'); gb.addColorStop(1, '#0b7a33');
+        x.shadowColor = 'rgba(0,220,90,.7)'; x.shadowBlur = 28; x.fillStyle = gb; x.beginPath(); x.roundRect(-bw / 2, -bh / 2, bw, bh, 8); x.fill(); x.shadowColor = 'transparent';
+        x.strokeStyle = 'rgba(255,255,255,.85)'; x.lineWidth = 2; x.strokeRect(-bw / 2 + 7, -bh / 2 + 7, bw - 14, bh - 14); x.beginPath(); x.arc(0, 0, bh * .32, 0, 7); x.stroke();
+        x.font = `800 ${bh * .45}px ${SANS}`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillStyle = '#fff'; x.fillText('$', 0, 2);
+      } else { // glossy green dollar sign
+        x.font = `900 ${sz}px ${SANS}`; x.textAlign = 'center'; x.textBaseline = 'middle'; const gr = x.createLinearGradient(0, -sz / 2, 0, sz / 2); gr.addColorStop(0, '#c8ffb0'); gr.addColorStop(.45, '#2ee66b'); gr.addColorStop(1, '#08913a');
+        x.shadowColor = 'rgba(0,255,100,.85)'; x.shadowBlur = 34; x.fillStyle = gr; x.fillText('$', 0, 0); x.shadowColor = 'transparent'; x.lineWidth = Math.max(2, sz / 22); x.strokeStyle = '#ffffff'; x.strokeText('$', 0, 0);
+        x.globalAlpha *= .9; x.fillStyle = '#fff'; x.beginPath(); x.ellipse(-sz * .12, -sz * .22, sz * .05, sz * .12, -.5, 0, 7); x.fill(); }
+      x.restore(); }
+  }
+
   if (ok) { const ox = lerp(W, 1120, ok); x.fillStyle = '#fff'; x.strokeStyle = INK; x.lineWidth = 2; x.fillRect(ox, 300, 560, 470); x.strokeRect(ox, 300, 560, 470);
     text('CHA-CHING ✓  BOUGHT IN 0.4 s', ox + 40, 350, `700 20px ${SANS}`, '#000000', 'left', 1, 4); text('Rib-knit top, loose jeans', ox + 40, 410, `400 40px ${SERIF}`, INK, 'left');
     text('Sale price ₹2,449  ·  saved ₹1,049', ox + 40, 465, `500 24px ${SANS}`, '#000000', 'left');
