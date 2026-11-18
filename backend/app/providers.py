@@ -92,6 +92,7 @@ async def ollama_generate(contents,*,schema=None,tools=None):
             message['tool_calls']=[{'type':'function','function':{'name':f['name'],'arguments':f.get('args',{})}} for f in functions]
         messages.append(message)
     payload={'model':model,'messages':messages,'stream':False,'think':False,'options':{'temperature':0.2,'num_ctx':8192}}
+    if has_images: payload.pop('think',None)
     if schema: payload['format']=schema
     if tools: payload['tools']=[{'type':'function','function':f} for f in tools]
     # Operator-configured URL only, never accepted from API request bodies.

@@ -118,7 +118,8 @@ async def location_search(request:Request,user:User,q:str=Query(min_length=2,max
 @app.post('/api/v1/stylist/daily')
 async def daily(request:Request,body:DailyIn,user:User):
     forecast=await intelligence.weather(body.location.latitude,body.location.longitude)
-    return ok(request,intelligence.daily_style(user['name'],personal.context(user),forecast,body.occasion))
+    with db.connect() as conn: wardrobe=[json.loads(r[0]) for r in conn.execute('SELECT data FROM wardrobe WHERE user_id=?',(user['id'],))]
+    return ok(request,intelligence.daily_style(user['name'],personal.context(user),forecast,body.occasion,wardrobe))
 
 @app.post('/api/v1/style/analyze')
 async def analyze(request:Request,user:User,images:Annotated[list[UploadFile],File()]):
@@ -294,3 +295,38 @@ async def wardrobe_outfits(request:Request,user:User):
         match=next((x for x in ranked if x['product'].get('category')==category),None)
         if match: selected.append(match)
     return ok(request,{'items':selected,'notice':'Based on your selected wardrobe attributes; garment vision and full colour compatibility are not applied.'})
+
+
+@app.get('/api/v1/catalogue')
+async def catalogue(request:Request):
+    items=[p for p in db.products() if p.get('source')=='reference_catalogue']
+    return ok(request,{'products':items,'notice':'User-supplied H&M reference image catalogue. No affiliation, live price or availability is claimed.'})
+
+@app.get('/api/v1/me/insights')
+async def insights(request:Request,user:User):
+    with db.connect() as conn:
+        counts={row[0]:row[1] for row in conn.execute('SELECT action,count(*) FROM swipes WHERE user_id=? GROUP BY action',(user['id'],))}
+        wardrobe_count=conn.execute('SELECT count(*) FROM wardrobe WHERE user_id=?',(user['id'],)).fetchone()[0]
+    p=json.loads(user['preferences'])
+    strongest=sorted(p.get('learned',{}).items(),key=lambda x:-x[1])[:6]
+    return ok(request,{'interactions':counts,'wardrobe_count':wardrobe_count,'strongest_signals':[{'feature':k,'weight':v} for k,v in strongest],'inspirations':p.get('inspirations',[]),'confidence':None})
+
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
+ASSETS=Path(__file__).resolve().parents[1]/'runtime/assets'
+ASSETS.mkdir(parents=True,exist_ok=True)
+app.mount('/assets',StaticFiles(directory=str(ASSETS)),name='reference-assets')
+
+from .schemas import AvatarDesign
+@app.post('/api/v1/stylist/avatar')
+async def avatar(request:Request,user:User):
+    p=personal.context(user)
+    prompt=('Design an abstract illustrated fashion mannequin outfit from these clothing preferences. Return four harmonious six-digit hex colours, a silhouette, and a short explanation. '
+        'Do not infer appearance, skin, ethnicity, gender or likeness. This is a stylised fashion figure, not a photograph or fit simulation. Preferences: '+json.dumps({k:v for k,v in p.items() if not k.startswith('_')}))
+    result=await gemini([{'role':'user','parts':[{'text':prompt}]}],schema=AvatarDesign.model_json_schema())
+    try: design=AvatarDesign.model_validate_json(''.join(x.get('text','') for x in result.get('parts',[])))
+    except (ValueError,ValidationError):raise ProviderError('INVALID_MODEL_OUTPUT','Avatar design was invalid. Please try again.',502)
+    width={'relaxed':75,'tailored':58,'oversized':90}[design.silhouette]
+    # Only schema-validated colour strings and a bounded integer enter the SVG. No model SVG/code is executed.
+    svg=f'''<svg xmlns="http://www.w3.org/2000/svg" width="440" height="640" viewBox="0 0 440 640"><rect width="440" height="640" fill="{design.backdrop_color}"/><ellipse cx="220" cy="595" rx="95" ry="12" fill="#000000" opacity=".08"/><path d="M181 130Q177 75 220 70Q264 75 259 130L245 173H195Z" fill="#D9D3C7"/><path d="M195 157L195 186H245V157" fill="#D9D3C7"/><path d="M{220-width} 185L195 174Q220 192 245 174L{220+width} 185L{230+width} 340L{208+width} 346L{205+width} 260L{205+width} 375H{235-width}V260L{232-width} 346L{210-width} 340Z" fill="{design.top_color}"/><path d="M{235-width} 370H{205+width}L285 566H231L220 435L208 566H153Z" fill="{design.bottom_color}"/><path d="M153 558H208V586H133Q130 567 153 558M231 558H285L308 578V586H231Z" fill="{design.shoe_color}"/><path d="M180 105Q180 67 220 65Q260 67 261 105L247 89Q221 106 190 94Z" fill="#393A36"/><path d="M220 206V358" stroke="#FFFFFF" stroke-width="1" opacity=".2"/><text x="220" y="625" text-anchor="middle" font-family="Georgia" font-size="9" letter-spacing="4" fill="#333333">ALLURÉ / STYLE STUDY</text></svg>'''
+    return ok(request,{'svg':svg,'explanation':design.explanation,'method':'local_or_hosted_llm_design_with_safe_vector_rendering','notice':'AI-styled illustration, not a personal likeness or physical-fit preview.'})

@@ -42,7 +42,9 @@ def connect():
 def initialize():
     with connect() as db:
         db.executescript(SCHEMA)
-        for product in seed_products():
+        catalogue_path=Path(__file__).parent/'data/reference_catalogue.json'
+        references=json.loads(catalogue_path.read_text()) if catalogue_path.exists() and settings.reference_catalogue_enabled else []
+        for product in seed_products()+references:
             db.execute('INSERT OR IGNORE INTO products VALUES (?,?)', (product['id'], json.dumps(product)))
 
 def seed_products():
@@ -63,7 +65,10 @@ def seed_products():
 
 def products():
     with connect() as db:
-        return [json.loads(row['data']) for row in db.execute('SELECT data FROM products')]
+        items=[json.loads(row['data']) for row in db.execute('SELECT data FROM products')]
+        if any(p.get('source')=='reference_catalogue' for p in items):
+            return [p for p in items if p.get('source')!='demo_catalogue']
+        return items
 
 def save_products(items):
     with connect() as db:

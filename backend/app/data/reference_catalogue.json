@@ -1,0 +1,1933 @@
+[
+  {
+    "id": "ref_050e6f713bcc8c99",
+    "title": "Regular Fit Oxford Shirt A",
+    "brand": "H&M",
+    "category": "tops",
+    "colors": [
+      "brown"
+    ],
+    "aesthetics": [
+      "smart_casual",
+      "minimalist"
+    ],
+    "fits": [
+      "regular"
+    ],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_050e6f713bcc8c99.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/31/73/31739c9891c6103512e90b89b7b427dec2bfe2c0.jpg?imwidth=800",
+    "reference_price": 1799,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#5b2432",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_741b512f27843f99",
+    "title": "Regular Fit Corduroy Shirt A",
+    "brand": "H&M",
+    "category": "tops",
+    "colors": [
+      "black"
+    ],
+    "aesthetics": [
+      "smart_casual",
+      "minimalist"
+    ],
+    "fits": [
+      "regular"
+    ],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_741b512f27843f99.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/d5/f7/d5f777e17f1d5f3945011e4e819449e3053554d4.jpg?imwidth=800",
+    "reference_price": 1999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#1a2026",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_bf1808d6809e5ad4",
+    "title": "Relaxed Motif Oxford Shirt",
+    "brand": "H&M",
+    "category": "tops",
+    "colors": [
+      "red"
+    ],
+    "aesthetics": [
+      "smart_casual",
+      "minimalist"
+    ],
+    "fits": [
+      "relaxed"
+    ],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_bf1808d6809e5ad4.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/39/2a/392a8837be49a0752c1737358ffecb330f807f34.jpg?imwidth=800",
+    "reference_price": 1499,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#ab0125",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_b621a3b4e9eb064d",
+    "title": "Regular Fit Oxford Shirt B",
+    "brand": "H&M",
+    "category": "tops",
+    "colors": [
+      "white"
+    ],
+    "aesthetics": [
+      "smart_casual",
+      "minimalist"
+    ],
+    "fits": [
+      "regular"
+    ],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_b621a3b4e9eb064d.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/3e/96/3e96fe2879706433dfb4fad614056d6a10a96caa.jpg?imwidth=800",
+    "reference_price": 1799,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#d5d6d7",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_a408fec68ea8e579",
+    "title": "Loose Fit Flannel Shirt",
+    "brand": "H&M",
+    "category": "tops",
+    "colors": [
+      "black"
+    ],
+    "aesthetics": [
+      "smart_casual",
+      "minimalist"
+    ],
+    "fits": [
+      "relaxed"
+    ],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_a408fec68ea8e579.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/25/52/25525739e9a44926f6cde293ab870fceec8c274b.jpg?imwidth=800",
+    "reference_price": 2299,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#1c1e1f",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_b9dcebc1013101c6",
+    "title": "Regular Fit Oxford Shirt C",
+    "brand": "H&M",
+    "category": "tops",
+    "colors": [
+      "black"
+    ],
+    "aesthetics": [
+      "smart_casual",
+      "minimalist"
+    ],
+    "fits": [
+      "regular"
+    ],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_b9dcebc1013101c6.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/8d/9e/8d9e24829696c5ee5b73cd330d9a6f168c1abf06.jpg?imwidth=800",
+    "reference_price": 1799,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#161a1d",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_8216720ea2c41110",
+    "title": "Regular Fit Corduroy Shirt B",
+    "brand": "H&M",
+    "category": "tops",
+    "colors": [
+      "brown"
+    ],
+    "aesthetics": [
+      "smart_casual",
+      "minimalist"
+    ],
+    "fits": [
+      "regular"
+    ],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_8216720ea2c41110.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/4a/ab/4aabcd55fa73aed631a45ee74778c818e70d78ec.jpg?imwidth=800",
+    "reference_price": 1999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#85524f",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_55dbcd172cd94480",
+    "title": "Loose Fit Sweatshirt A",
+    "brand": "H&M",
+    "category": "tops",
+    "colors": [
+      "black"
+    ],
+    "aesthetics": [
+      "streetwear",
+      "casual"
+    ],
+    "fits": [
+      "relaxed"
+    ],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_55dbcd172cd94480.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/b0/7e/b07e11b69eada9f82e8312e3803ec017149cc02c.jpg?imwidth=800",
+    "reference_price": 999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#3d1c23",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_44200c7b445c7731",
+    "title": "Loose Fit Hoodie A",
+    "brand": "H&M",
+    "category": "tops",
+    "colors": [
+      "navy"
+    ],
+    "aesthetics": [
+      "streetwear",
+      "casual"
+    ],
+    "fits": [
+      "relaxed"
+    ],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_44200c7b445c7731.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/87/a9/87a948945e8541c19e45c87372ac289d506fcf84.jpg?imwidth=800",
+    "reference_price": 1499,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#452b2e",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_af5c5f37c915af9a",
+    "title": "Loose Fit Sweatshirt B",
+    "brand": "H&M",
+    "category": "tops",
+    "colors": [
+      "black"
+    ],
+    "aesthetics": [
+      "streetwear",
+      "casual"
+    ],
+    "fits": [
+      "relaxed"
+    ],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_af5c5f37c915af9a.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/70/ef/70ef9a42c196b9cc587986bb18c36880abd374fe.jpg?imwidth=800",
+    "reference_price": 999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#171b1e",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_71a52d8ccb0a74bf",
+    "title": "Loose Fit Hoodie B",
+    "brand": "H&M",
+    "category": "tops",
+    "colors": [
+      "black"
+    ],
+    "aesthetics": [
+      "streetwear",
+      "casual"
+    ],
+    "fits": [
+      "relaxed"
+    ],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_71a52d8ccb0a74bf.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/87/d2/87d2343b95dc263aea489f1e0ebe0fc64566181a.jpg?imwidth=800",
+    "reference_price": 1499,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#171c1f",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_79f7ce03cf9f4765",
+    "title": "Zip Hoodie A",
+    "brand": "H&M",
+    "category": "tops",
+    "colors": [
+      "black"
+    ],
+    "aesthetics": [
+      "streetwear",
+      "casual"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_79f7ce03cf9f4765.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/f4/1a/f41a43aca655f56ceffcd9ad3d0cfecc9188adf6.jpg?imwidth=800",
+    "reference_price": 1499,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#18191b",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_48fc29d7bc246099",
+    "title": "Zip Hoodie B",
+    "brand": "H&M",
+    "category": "tops",
+    "colors": [
+      "grey"
+    ],
+    "aesthetics": [
+      "streetwear",
+      "casual"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_48fc29d7bc246099.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/a9/45/a9458b1360141c8db0fed49d77d0f863a7fbc0a9.jpg?imwidth=800",
+    "reference_price": 1499,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#8d7c72",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_b85f9eca43a8a810",
+    "title": "Loose Fit Sweatshirt C",
+    "brand": "H&M",
+    "category": "tops",
+    "colors": [
+      "grey"
+    ],
+    "aesthetics": [
+      "streetwear",
+      "casual"
+    ],
+    "fits": [
+      "relaxed"
+    ],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_b85f9eca43a8a810.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/1d/34/1d348ad5a1887410dc77c6bef22ab692f364fd75.jpg?imwidth=800",
+    "reference_price": 999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#a28772",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_cd389f451ba6924b",
+    "title": "Lightweight Puffer Jacket",
+    "brand": "H&M",
+    "category": "tops",
+    "colors": [
+      "white"
+    ],
+    "aesthetics": [
+      "contemporary"
+    ],
+    "fits": [],
+    "weather_tags": [
+      "cold"
+    ],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_cd389f451ba6924b.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/9d/f3/9df3a710210e7d8bf93ecde3e8bf6fc2a32ee08d.jpg?imwidth=800",
+    "reference_price": 2999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#cacfd3",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_c98719c8c4845b9c",
+    "title": "Nylon Windbreaker",
+    "brand": "H&M",
+    "category": "tops",
+    "colors": [
+      "black"
+    ],
+    "aesthetics": [
+      "contemporary"
+    ],
+    "fits": [],
+    "weather_tags": [
+      "mild"
+    ],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_c98719c8c4845b9c.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/4d/d3/4dd3c9514ae37488f58eb0d48c57cca9022b9b25.jpg?imwidth=800",
+    "reference_price": 2999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#21242a",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_f063a64b5a057a01",
+    "title": "Lightweight Bomber Jacket",
+    "brand": "H&M",
+    "category": "tops",
+    "colors": [
+      "black"
+    ],
+    "aesthetics": [
+      "contemporary"
+    ],
+    "fits": [],
+    "weather_tags": [
+      "mild"
+    ],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_f063a64b5a057a01.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/0f/74/0f74112fa852da71dc69533b192b38024ecb4ff9.jpg?imwidth=800",
+    "reference_price": 2599,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#242c2e",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_69a8e50f3a4c37de",
+    "title": "Aviator Jacket",
+    "brand": "H&M",
+    "category": "tops",
+    "colors": [
+      "navy"
+    ],
+    "aesthetics": [
+      "contemporary"
+    ],
+    "fits": [],
+    "weather_tags": [
+      "cold"
+    ],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_69a8e50f3a4c37de.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/02/28/0228dd4ca099486b69f0bba1a3021df0c3986f8d.jpg?imwidth=800",
+    "reference_price": 6999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#35312e",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_7f82d5412cf440ad",
+    "title": "Stand Collar Puffer Jacket",
+    "brand": "H&M",
+    "category": "tops",
+    "colors": [
+      "white"
+    ],
+    "aesthetics": [
+      "contemporary"
+    ],
+    "fits": [],
+    "weather_tags": [
+      "cold"
+    ],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_7f82d5412cf440ad.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/9f/94/9f947bb41df56cd7ad2a4652f63399e18744eded.jpg?imwidth=800",
+    "reference_price": 2999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#eaecf0",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_1165c7d44d0f12ea",
+    "title": "Coated Jacket",
+    "brand": "H&M",
+    "category": "tops",
+    "colors": [
+      "black"
+    ],
+    "aesthetics": [
+      "contemporary"
+    ],
+    "fits": [],
+    "weather_tags": [
+      "mild"
+    ],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_1165c7d44d0f12ea.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/0e/c4/0ec493b2a4a31125b8764405123e8d0a555257aa.jpg?imwidth=800",
+    "reference_price": 4999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#222225",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_c197bba59f76b4be",
+    "title": "Loose Sweatpants A",
+    "brand": "H&M",
+    "category": "bottoms",
+    "colors": [
+      "black"
+    ],
+    "aesthetics": [
+      "casual"
+    ],
+    "fits": [
+      "relaxed"
+    ],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_c197bba59f76b4be.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/9d/cb/9dcb3b8d7613acc483d147045d7bd3f049704bbf.jpg?imwidth=800",
+    "reference_price": 1999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#19181a",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_691b8e4cf7a67f9b",
+    "title": "Loose Sweatpants B",
+    "brand": "H&M",
+    "category": "bottoms",
+    "colors": [
+      "white"
+    ],
+    "aesthetics": [
+      "casual"
+    ],
+    "fits": [
+      "relaxed"
+    ],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_691b8e4cf7a67f9b.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/d0/a8/d0a8cc841f0a95e8477f659a403c343557ba0ff1.jpg?imwidth=800",
+    "reference_price": 1999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#f3f8fb",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_4f0fd46fd59d7b07",
+    "title": "Relaxed Sweatpants A",
+    "brand": "H&M",
+    "category": "bottoms",
+    "colors": [
+      "black"
+    ],
+    "aesthetics": [
+      "casual"
+    ],
+    "fits": [
+      "relaxed"
+    ],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_4f0fd46fd59d7b07.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/f8/ff/f8ffe97438e836db782241a13b40ad41dd00c531.jpg?imwidth=800",
+    "reference_price": 1499,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#1b2023",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_0d0410c340ff0653",
+    "title": "Relaxed Interlock Sweatpants",
+    "brand": "H&M",
+    "category": "bottoms",
+    "colors": [
+      "black"
+    ],
+    "aesthetics": [
+      "casual"
+    ],
+    "fits": [
+      "relaxed"
+    ],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_0d0410c340ff0653.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/fd/dc/fddc0c2d0401115b0893806ba2d6d453d64fbf39.jpg?imwidth=800",
+    "reference_price": 1999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#181b1e",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_205f1e9ce816cb25",
+    "title": "Relaxed Sweatpants B",
+    "brand": "H&M",
+    "category": "bottoms",
+    "colors": [
+      "black"
+    ],
+    "aesthetics": [
+      "casual"
+    ],
+    "fits": [
+      "relaxed"
+    ],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_205f1e9ce816cb25.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/2c/57/2c57deb9b93d0e88bf527f9f9a34378924fbbcf8.jpg?imwidth=800",
+    "reference_price": 1499,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#2b2222",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_f8ed3becb467d2f3",
+    "title": "Loose Straight Jeans A",
+    "brand": "H&M",
+    "category": "bottoms",
+    "colors": [
+      "black"
+    ],
+    "aesthetics": [
+      "casual"
+    ],
+    "fits": [
+      "relaxed"
+    ],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_f8ed3becb467d2f3.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/ab/97/ab9736464110b25f1b90ca6028a6cae3272b9e33.jpg?imwidth=800",
+    "reference_price": 1999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#1d2124",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_db22deae6cda0525",
+    "title": "Loose Jeans A",
+    "brand": "H&M",
+    "category": "bottoms",
+    "colors": [
+      "navy"
+    ],
+    "aesthetics": [
+      "casual"
+    ],
+    "fits": [
+      "relaxed"
+    ],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_db22deae6cda0525.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/ee/3e/ee3e327724f842844c37c205426bd26c3a492f9c.jpg?imwidth=800",
+    "reference_price": 2499,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#2e2f30",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_9d4b3874f67fbd53",
+    "title": "Loose Jeans B",
+    "brand": "H&M",
+    "category": "bottoms",
+    "colors": [
+      "navy"
+    ],
+    "aesthetics": [
+      "casual"
+    ],
+    "fits": [
+      "relaxed"
+    ],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_9d4b3874f67fbd53.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/df/39/df3974d46c35910e0ec577707a4f6a2e4314460d.jpg?imwidth=800",
+    "reference_price": 2499,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#343c46",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_eb0b325eb2666025",
+    "title": "Relaxed Jeans",
+    "brand": "H&M",
+    "category": "bottoms",
+    "colors": [
+      "black"
+    ],
+    "aesthetics": [
+      "casual"
+    ],
+    "fits": [
+      "relaxed"
+    ],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_eb0b325eb2666025.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/0d/4f/0d4fc3272697a2b8f364181c76e1b8e313d20368.jpg?imwidth=800",
+    "reference_price": 1999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#1d1e25",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_72d7f4ce8bc47804",
+    "title": "Regular Jeans",
+    "brand": "H&M",
+    "category": "bottoms",
+    "colors": [
+      "navy"
+    ],
+    "aesthetics": [
+      "casual"
+    ],
+    "fits": [
+      "regular"
+    ],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_72d7f4ce8bc47804.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/8c/a3/8ca33ace134a38aa1b964263b4ab5ad3dc67f0e0.jpg?imwidth=800",
+    "reference_price": 2499,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#3e444f",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_86244a249a0f5db2",
+    "title": "Draped Halterneck Dress",
+    "brand": "H&M",
+    "category": "one-pieces",
+    "colors": [
+      "white"
+    ],
+    "aesthetics": [
+      "contemporary"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_86244a249a0f5db2.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/d0/bd/d0bd507b15fc08ae41cf6107cb9e8b79a3ee29da.jpg?imwidth=800",
+    "reference_price": 999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#f2f3f5",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_54be1c4c539acc5c",
+    "title": "Brocade Keyhole Dress",
+    "brand": "H&M",
+    "category": "one-pieces",
+    "colors": [
+      "grey"
+    ],
+    "aesthetics": [
+      "contemporary"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_54be1c4c539acc5c.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/8f/fc/8ffc4bf7a8a1e625fde6131d0aca8f9711d16b40.jpg?imwidth=800",
+    "reference_price": 2999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#908e80",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_f2a9c49cc1e24237",
+    "title": "Sequined Dress A",
+    "brand": "H&M",
+    "category": "one-pieces",
+    "colors": [
+      "black"
+    ],
+    "aesthetics": [
+      "contemporary"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_f2a9c49cc1e24237.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/e2/5e/e25ee29fa955b28d12164c9ee3d231c9ef992a32.jpg?imwidth=800",
+    "reference_price": 2799,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#040303",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_e771d976513de289",
+    "title": "Balloon Sleeve Satin Dress",
+    "brand": "H&M",
+    "category": "one-pieces",
+    "colors": [
+      "black"
+    ],
+    "aesthetics": [
+      "contemporary"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_e771d976513de289.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/44/6c/446ccc25732a238e4854583d48e8b6bc80de9b0f.jpg?imwidth=800",
+    "reference_price": 2799,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#0a0910",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_7af624e3888abf3c",
+    "title": "Bow Collar A-line Dress",
+    "brand": "H&M",
+    "category": "one-pieces",
+    "colors": [
+      "brown"
+    ],
+    "aesthetics": [
+      "contemporary"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_7af624e3888abf3c.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/a3/c8/a3c892edff25577f94e3ee42eb32936c397c85a9.jpg?imwidth=800",
+    "reference_price": 2299,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#6f502a",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_a8d99b026aa8e762",
+    "title": "Metal Detail Draped Dress",
+    "brand": "H&M",
+    "category": "one-pieces",
+    "colors": [
+      "black"
+    ],
+    "aesthetics": [
+      "contemporary"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_a8d99b026aa8e762.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/05/8e/058ed40a66d7e0ffaeb38ca3bd0d069e8dbfc680.jpg?imwidth=800",
+    "reference_price": 1499,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#1f1d24",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_483772428c7446e8",
+    "title": "Satin Maxi Skirt",
+    "brand": "H&M",
+    "category": "bottoms",
+    "colors": [
+      "navy"
+    ],
+    "aesthetics": [
+      "contemporary"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_483772428c7446e8.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/9f/27/9f274219a7596bcc4f21e1903db962248e912078.jpg?imwidth=800",
+    "reference_price": 1499,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#483333",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_a7b6124906f491e0",
+    "title": "Coated Skirt",
+    "brand": "H&M",
+    "category": "bottoms",
+    "colors": [
+      "white"
+    ],
+    "aesthetics": [
+      "contemporary"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_a7b6124906f491e0.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/00/cd/00cdc4de8fd16368e085043515dbe9a9dc0b58db.jpg?imwidth=800",
+    "reference_price": 1499,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#cacccf",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_261942830d3806a5",
+    "title": "Mini Skirt",
+    "brand": "H&M",
+    "category": "bottoms",
+    "colors": [
+      "black"
+    ],
+    "aesthetics": [
+      "contemporary"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_261942830d3806a5.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/98/a0/98a0511d5befde33f54681c7a276a31e286cb3fd.jpg?imwidth=800",
+    "reference_price": 1499,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#171c1d",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_9e9a1a707c0a9697",
+    "title": "Midi Skirt",
+    "brand": "H&M",
+    "category": "bottoms",
+    "colors": [
+      "black"
+    ],
+    "aesthetics": [
+      "contemporary"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_9e9a1a707c0a9697.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/84/0e/840ed34811d3565bb0c97379154fc1c75d22101d.jpg?imwidth=800",
+    "reference_price": 1999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#0f1614",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_423136ff1d66037f",
+    "title": "Lace Trim Rib Top A",
+    "brand": "H&M",
+    "category": "tops",
+    "colors": [
+      "grey"
+    ],
+    "aesthetics": [
+      "minimalist",
+      "casual"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_423136ff1d66037f.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/ee/73/ee73de25e9c1798e668b374fd330f270f7eb612e.jpg?imwidth=800",
+    "reference_price": 999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#657177",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_6c77f8521c1aa350",
+    "title": "Lace Trim Rib Top B",
+    "brand": "H&M",
+    "category": "tops",
+    "colors": [
+      "brown"
+    ],
+    "aesthetics": [
+      "minimalist",
+      "casual"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_6c77f8521c1aa350.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/27/de/27de8dfa15a3adddfe53dbe190233c3b4682352c.jpg?imwidth=800",
+    "reference_price": 999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#6b4c41",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_161a6b97a490d320",
+    "title": "Long Sleeve Cotton Top A",
+    "brand": "H&M",
+    "category": "tops",
+    "colors": [
+      "grey"
+    ],
+    "aesthetics": [
+      "minimalist",
+      "casual"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_161a6b97a490d320.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/66/13/6613b28541bd22a7fd08bd53e540e25154114161.jpg?imwidth=800",
+    "reference_price": 999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#836865",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_dc2aac9e596b4552",
+    "title": "Long Sleeve Cotton Top B",
+    "brand": "H&M",
+    "category": "tops",
+    "colors": [
+      "brown"
+    ],
+    "aesthetics": [
+      "minimalist",
+      "casual"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_dc2aac9e596b4552.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/f8/04/f804beec1607a4db2f40f3de1605f7e14f99acd2.jpg?imwidth=800",
+    "reference_price": 999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#4d413e",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_53dca7dcad4ae24b",
+    "title": "Long Sleeve Cotton Top C",
+    "brand": "H&M",
+    "category": "tops",
+    "colors": [
+      "red"
+    ],
+    "aesthetics": [
+      "minimalist",
+      "casual"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_53dca7dcad4ae24b.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/68/57/68574d3f01b389ea367e08c7710ff2485cd14a72.jpg?imwidth=800",
+    "reference_price": 799,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#c01831",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_322547149f90dcc5",
+    "title": "Chelsea Boots A",
+    "brand": "H&M",
+    "category": "footwear",
+    "colors": [
+      "white"
+    ],
+    "aesthetics": [
+      "contemporary"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_322547149f90dcc5.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/ea/24/ea241f65f52c616ad4e0f3a757a4976d1f5ebb7a.jpg?imwidth=800",
+    "reference_price": 2999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#f9f9f9",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_b34434fcdd257490",
+    "title": "Chelsea Boots B",
+    "brand": "H&M",
+    "category": "footwear",
+    "colors": [
+      "white"
+    ],
+    "aesthetics": [
+      "contemporary"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_b34434fcdd257490.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/7a/5d/7a5daa89197f672226b9340380c0ae997adfe057.jpg?imwidth=800",
+    "reference_price": 2999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#f9f9f9",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_d88ef54db763e713",
+    "title": "Ankle Boots",
+    "brand": "H&M",
+    "category": "footwear",
+    "colors": [
+      "white"
+    ],
+    "aesthetics": [
+      "contemporary"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_d88ef54db763e713.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/f7/c2/f7c2989f5752df269a530747c83968fd09ce5ec5.jpg?imwidth=800",
+    "reference_price": 5499,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#f9f9f9",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_a333d2f835d2c667",
+    "title": "Slide Sandals",
+    "brand": "H&M",
+    "category": "footwear",
+    "colors": [
+      "black"
+    ],
+    "aesthetics": [
+      "contemporary"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_a333d2f835d2c667.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/e9/f7/e9f7fe5daeb0df5fb16d21fa7175294588890a1d.jpg?imwidth=800",
+    "reference_price": 2999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#272729",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_0c93ac6af5e07e4b",
+    "title": "Nylon Crossbody Bag",
+    "brand": "H&M",
+    "category": "accessories",
+    "colors": [
+      "white"
+    ],
+    "aesthetics": [
+      "minimalist"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_0c93ac6af5e07e4b.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/00/c1/00c1ee49dc676db23f0854655b02bd7c420c36f2.jpg?imwidth=800",
+    "reference_price": 1499,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#f9f9f9",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_59a12b25e63c1592",
+    "title": "Tote Bag",
+    "brand": "H&M",
+    "category": "accessories",
+    "colors": [
+      "white"
+    ],
+    "aesthetics": [
+      "minimalist"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_59a12b25e63c1592.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/77/74/77741b589ef99ff42d7dc6d98e3dd6568c436bb3.jpg?imwidth=800",
+    "reference_price": 2299,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#f9f9f9",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_14e4650eb3e40c05",
+    "title": "Coated Pouch",
+    "brand": "H&M",
+    "category": "accessories",
+    "colors": [
+      "white"
+    ],
+    "aesthetics": [
+      "minimalist"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_14e4650eb3e40c05.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/b2/f3/b2f39ff9311f5a8272f3e59df4fe21444ba71917.jpg?imwidth=800",
+    "reference_price": 1499,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#f9f9f9",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_e4c139efd3c7f5f8",
+    "title": "Crossbody Bag",
+    "brand": "H&M",
+    "category": "accessories",
+    "colors": [
+      "white"
+    ],
+    "aesthetics": [
+      "minimalist"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_e4c139efd3c7f5f8.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/dd/a8/dda8704e8d786e3fc8209e387a7e30931008fe38.jpg?imwidth=800",
+    "reference_price": 1999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#f9f9f9",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_610b388e42af2b64",
+    "title": "Motif Cotton Twill Cap",
+    "brand": "H&M",
+    "category": "accessories",
+    "colors": [
+      "black"
+    ],
+    "aesthetics": [
+      "streetwear"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_610b388e42af2b64.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/55/37/553794c4352200b78ed4598b1084469331efdb7f.jpg?imwidth=800",
+    "reference_price": 999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#151922",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_07f327b9a1064232",
+    "title": "Cotton Twill Cap",
+    "brand": "H&M",
+    "category": "accessories",
+    "colors": [
+      "black"
+    ],
+    "aesthetics": [
+      "streetwear"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_07f327b9a1064232.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/19/2d/192d108ef8a8f9368a4a712b411c09804a5a92fd.jpg?imwidth=800",
+    "reference_price": 999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#2d2c2d",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_b1560387c3aee4f7",
+    "title": "Aviator Sunglasses",
+    "brand": "H&M",
+    "category": "accessories",
+    "colors": [
+      "white"
+    ],
+    "aesthetics": [
+      "contemporary"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_b1560387c3aee4f7.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/fd/bc/fdbc6939d5fa56f4e329657244ba659a221fe6b9.jpg?imwidth=800",
+    "reference_price": 999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#f9f9f9",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_aef1ad44be412084",
+    "title": "Premium Sunglasses A",
+    "brand": "H&M",
+    "category": "accessories",
+    "colors": [
+      "white"
+    ],
+    "aesthetics": [
+      "contemporary"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_aef1ad44be412084.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/bb/bd/bbbd9ed41c4945c32745015e6535628d7ce1fb62.jpg?imwidth=800",
+    "reference_price": 1499,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#f9f9f9",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  },
+  {
+    "id": "ref_933febdfcd856deb",
+    "title": "Rectangular Sunglasses",
+    "brand": "H&M",
+    "category": "accessories",
+    "colors": [
+      "white"
+    ],
+    "aesthetics": [
+      "contemporary"
+    ],
+    "fits": [],
+    "weather_tags": [],
+    "functional_tags": [],
+    "price": null,
+    "currency": "INR",
+    "image_url": "/assets/products/ref_933febdfcd856deb.jpg",
+    "merchant_url": null,
+    "merchant": null,
+    "size": null,
+    "model_number": null,
+    "gtin": null,
+    "shipping_cost": null,
+    "source": "reference_catalogue",
+    "is_demo": true,
+    "observed_at": null,
+    "image_source": "https://image.hm.com/assets/hm/ce/c7/cec706172719a3c81c577fe41c1c9c205d962ca0.jpg?imwidth=800",
+    "reference_price": 999,
+    "metadata_source": "User-provided manifest; aesthetic tags are title/category heuristics, not verified merchant attributes.",
+    "estimated_color_hex": "#f9f9f9",
+    "color_method": "Approximate central-image colour; lighting, skin, and background can affect it."
+  }
+]

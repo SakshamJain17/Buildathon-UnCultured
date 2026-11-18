@@ -3,6 +3,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file='.env', extra='ignore')
+    reference_catalogue_enabled: bool = True
     database_path: str = 'runtime/stylematch.sqlite3'
     cors_origins: str = 'http://localhost:3000,http://localhost:5173'
     llm_provider: str = 'ollama'

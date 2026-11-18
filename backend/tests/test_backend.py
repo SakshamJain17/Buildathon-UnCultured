@@ -8,6 +8,7 @@ from app.config import settings
 @pytest.fixture
 def client(tmp_path,monkeypatch):
     monkeypatch.setattr(settings,'database_path',str(tmp_path/'test.sqlite3'))
+    monkeypatch.setattr(settings,'reference_catalogue_enabled',False)
     monkeypatch.setattr(settings,'llm_provider','gemini')
     monkeypatch.setattr(settings,'vision_provider','gemini')
     for key in ('gemini_api_key','gemini_model','fashn_api_key','serpapi_api_key'): monkeypatch.setattr(settings,key,'')

@@ -70,6 +70,7 @@ class OutfitIn(Strict):
 class AgentIn(Strict):
     message: str = Field(min_length=2,max_length=2000)
     location: Location | None = None
+    previous_run_id: str | None = Field(default=None,max_length=100)
 
 class VisionImage(Strict):
     aesthetics: list[str]
@@ -98,3 +99,11 @@ class HairIn(Strict):
     length: Literal['short','medium','long'] = 'medium'
     texture: Literal['straight','wavy','curly','coily','unsure'] = 'unsure'
     goal: str = Field(default='low-maintenance everyday styling',max_length=400)
+
+class AvatarDesign(Strict):
+    top_color: str = Field(pattern=r'^#[0-9A-Fa-f]{6}$')
+    bottom_color: str = Field(pattern=r'^#[0-9A-Fa-f]{6}$')
+    shoe_color: str = Field(pattern=r'^#[0-9A-Fa-f]{6}$')
+    backdrop_color: str = Field(pattern=r'^#[0-9A-Fa-f]{6}$')
+    silhouette: Literal['relaxed','tailored','oversized']
+    explanation: str = Field(min_length=1,max_length=500)

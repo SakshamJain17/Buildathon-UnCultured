@@ -52,7 +52,7 @@ def rank(preferences,items,weather_tags=(),budget=None,excluded=()):
         if p['id'] in excluded: continue
         ceiling=budget or preferences.get('budget')
         if ceiling and (p.get('price') is None or p['price']>ceiling): continue
-        score=0.0; reasons=[]
+        score=(0.25 if p.get('image_url') else 0)+(0.6 if p.get('source')=='your_wardrobe' else 0); reasons=[]
         for f in features(p):
             if f in desired:
                 score+=desired[f]; reasons.append('Matches your '+f.split(':',1)[1]+' preference')
@@ -79,8 +79,8 @@ def adapt(preferences,product,action):
     result['learned']=learned
     return result
 
-def daily_style(name,preferences,forecast,occasion='everyday'):
-    ranking=rank(preferences,db.products(),forecast['tags'])
+def daily_style(name,preferences,forecast,occasion='everyday',wardrobe=()):
+    ranking=rank(preferences,list(wardrobe)+db.products(),forecast['tags'])
     outfit=[]
     for category in ('tops','bottoms','footwear'):
         candidate=next((x for x in ranking if x['product'].get('category')==category),None)
@@ -99,8 +99,8 @@ def daily_style(name,preferences,forecast,occasion='everyday'):
     if not suggestions: suggestions=['Try a comfortable layer you can adjust through the day.']
     return {'greeting':f'Hey {name}, {opening}. '+suggestions[0]+" Make it your own—you’ll look fab.",
         'weather':forecast,'occasion':occasion,'styling_notes':suggestions,'outfit':outfit,
-        'mode':'rules_based','warnings':['Demo catalogue items are fictional examples, not purchasable listings.'] if any(x['product'].get('is_demo') for x in outfit) else [],
-        'occasion_applied':False,'location_stored':False}
+        'mode':'rules_based','warnings':['Reference catalogue images illustrate style; prices and availability are unverified.'] if any(x['product'].get('is_demo') for x in outfit) else [],
+        'occasion_applied':False,'location_stored':False,'wardrobe_considered':bool(wardrobe)}
 
 async def search(body:SearchIn):
     if not settings.serpapi_api_key:
