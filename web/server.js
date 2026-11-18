@@ -4,7 +4,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const root=__dirname;
 const backend=new URL(process.env.ALLURE_BACKEND || 'http://127.0.0.1:8766');
-const files={'/':'index.html','/app':'app.html','/styles.css':'styles.css','/app.js':'app.js','/landing.js':'landing.js'};
+const files={'/':'index.html','/app':'app.html','/story':'story.html','/film':'film.html','/styles.css':'styles.css','/app.js':'app.js','/landing.js':'landing.js'};
 http.createServer((req,res)=>{
   const url=new URL(req.url,'http://localhost');
   if(url.pathname.startsWith('/api/v1/') || url.pathname.startsWith('/assets/')) {
