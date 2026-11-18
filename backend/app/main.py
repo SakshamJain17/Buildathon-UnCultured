@@ -298,7 +298,7 @@ async def insights(request:Request,user:User):
     strongest=sorted(p.get('learned',{}).items(),key=lambda x:-x[1])[:6]
     with db.connect() as conn:
         activity=[{'action':r['action'],'created_at':r['created_at'],'title':json.loads(r['data'])['title']} for r in conn.execute('SELECT s.action,s.created_at,p.data FROM swipes s JOIN products p ON p.id=s.product_id WHERE s.user_id=? ORDER BY s.created_at DESC LIMIT 12',(user['id'],))]
-    return ok(request,{'interactions':counts,'wardrobe_count':wardrobe_count,'strongest_signals':[{'feature':k,'weight':v} for k,v in strongest],'inspirations':p.get('inspirations',[]),'recent_activity':activity,'confidence':None})
+    return ok(request,{'interactions':counts,'saved_count':personal.progress(user)['saved'],'wardrobe_count':wardrobe_count,'strongest_signals':[{'feature':k,'weight':v} for k,v in strongest],'inspirations':p.get('inspirations',[]),'recent_activity':activity,'confidence':None})
 
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path

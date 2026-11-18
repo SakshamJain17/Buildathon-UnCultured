@@ -99,16 +99,14 @@ struct DiscoverView: View {
                 VStack(alignment:.leading,spacing:22) {
                     HStack {Text("Your next favourite.").font(.system(size:31,design:.serif));Spacer();Button {today=true} label:{Image(systemName:"cloud.sun")}.accessibilityLabel("Weather and your daily outfit")}
                     if let item=store.feed.first {
-                        VStack(alignment:.leading,spacing:16) {
-                            ProductArtwork(product:item.product,height:340)
-                            HStack {Text(item.product.title).font(.system(size:27,design:.serif)); Spacer()}
+                        VStack(alignment:.leading,spacing:10) {
+                            ProductArtwork(product:item.product,height:260)
+                            HStack {Text(item.product.title).font(.system(size:24,design:.serif)); Spacer()}
                             Text(item.product.priceText).font(.caption).foregroundStyle(.secondary)
-                            Text("Tap to explore why it’s in your edit").font(.system(size:10)).foregroundStyle(.secondary)
-                            if item.product.isDemo == true {Label(item.product.source == "reference_catalogue" ? "Reference photography · unverified offer" : "Fictional catalogue example",systemImage:"info.circle").font(.caption)}
                         }.padding(12).background(.white,in:RoundedRectangle(cornerRadius:18)).overlay {RoundedRectangle(cornerRadius:18).stroke(Color.gray.opacity(0.15))}
                         .onTapGesture {selected=item.product}
                         .offset(x:reduceMotion ? 0 : drag).rotationEffect(.degrees(reduceMotion ? 0 : Double(drag/25)))
-                        .gesture(DragGesture().onChanged {drag=$0.translation.width}.onEnded { value in
+                        .highPriorityGesture(DragGesture().onChanged {drag=$0.translation.width}.onEnded { value in
                             let action=value.translation.height > 100 && abs(value.translation.width)<80 ? "save" : value.translation.width < -80 ? "dislike" : value.translation.width > 80 ? "like" : nil
                             withAnimation(reduceMotion ? nil : .snappy) {drag=0}
                             if let action {Task {await store.swipe(item.product,action:action)}}
@@ -127,7 +125,6 @@ struct DiscoverView: View {
                     ForEach(results) {p in VStack(alignment:.leading) {ProductRow(product:p); if let url=p.merchantUrl,let link=URL(string:url) {Link("View listing",destination:link).font(.caption)}; Button("Dismiss this item") {Task {await store.swipe(p,action:"dislike"); if store.error == nil {results.removeAll{$0.id==p.id}}}}.font(.caption)} }
                 }.padding(24)
             }.background(Theme.paper).navigationTitle("ALLURÉ").navigationBarTitleDisplayMode(.inline)
-            .toolbar {ToolbarItem(placement:.topBarTrailing) {Button("Saved",systemImage:"bookmark") {showSaved=true}}}
             .sheet(isPresented:$showSaved) {NavigationStack {List(store.saved) {ProductRow(product:$0)}.navigationTitle("Saved for later").toolbar {Button("Done") {showSaved=false}}}}
             .sheet(item:$selected) {ProductDetailView(product:$0)}
             .sheet(isPresented:$today) {TodayView()}
@@ -136,7 +133,7 @@ struct DiscoverView: View {
         }
     }
     func actionButton(_ title:String,symbol:String,action:String,product:Product) -> some View {
-        Button {Task {await store.swipe(product,action:action)}} label: {VStack(spacing:8) {Image(systemName:symbol).font(.title2).frame(width:60,height:60).background(.white,in:Circle()); Text(title).font(.caption)}}.disabled(store.busy).accessibilityLabel(title+" "+product.title)
+        Button {Task {await store.swipe(product,action:action)}} label: {VStack(spacing:8) {Image(systemName:symbol).font(.title2).frame(width:52,height:52).background(.white,in:Circle()); Text(title).font(.caption)}}.disabled(store.busy).accessibilityLabel(title+" "+product.title)
     }
     func liveSearch() async {await store.perform {let value:ProductList=try await store.api.request("/products/search",method:"POST",body:["query":query]); results=value.products}}
 }

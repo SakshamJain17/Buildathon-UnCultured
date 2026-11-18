@@ -58,4 +58,5 @@ def progress(user):
     with db.connect() as conn:
         counts={r[0]:r[1] for r in conn.execute('SELECT action,count(*) FROM swipes WHERE user_id=? GROUP BY action',(user['id'],))}
         wardrobe_count=conn.execute('SELECT count(*) FROM wardrobe WHERE user_id=?',(user['id'],)).fetchone()[0]
-    return {'likes':counts.get('like',0),'saved':counts.get('save',0),'dismissed':counts.get('dislike',0),'wardrobe_count':wardrobe_count}
+        saved_items=[json.loads(r[0]) for r in conn.execute("SELECT DISTINCT p.data FROM products p JOIN swipes s ON s.product_id=p.id WHERE s.user_id=? AND s.action='save'",(user['id'],))]
+    return {'likes':counts.get('like',0),'saved':len(visible(context(user),saved_items)),'save_actions':counts.get('save',0),'dismissed':counts.get('dislike',0),'wardrobe_count':wardrobe_count}

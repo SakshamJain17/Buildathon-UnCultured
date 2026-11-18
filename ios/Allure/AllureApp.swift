@@ -41,7 +41,8 @@ struct RootView: View {
         .task {
             if store.authenticated {await store.perform {try await store.refresh()}}
             #if DEBUG
-            if ProcessInfo.processInfo.arguments.contains("--allure-sample") && store.authenticated {await store.loadSample();store.showWalkthrough=false}
+            if ProcessInfo.processInfo.arguments.contains("--allure-ready") && !store.authenticated {await store.connect(name:"Style explorer",endpoint:store.endpoint)}
+            if (ProcessInfo.processInfo.arguments.contains("--allure-sample") || ProcessInfo.processInfo.arguments.contains("--allure-ready")) && store.authenticated {await store.loadSample();store.showWalkthrough=false}
             #endif
             try? await Task.sleep(for:.milliseconds(850))
             withAnimation(.easeOut(duration:0.4)) {launching=false}

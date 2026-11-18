@@ -327,3 +327,9 @@ def test_agent_requests_photo_feature_without_generating(client,auth,monkeypatch
     data=client.post('/api/v1/agent/shop',headers=auth,json={'message':'Open try-on for this piece','selected_product_id':'neutral-shirt'}).json()['data']
     assert data['ui_actions'][0]['feature']=='tryon'
     with db.connect() as conn:assert conn.execute('SELECT count(*) FROM jobs').fetchone()[0]==0
+
+def test_saved_progress_matches_unique_visible_collection(client,auth):
+    for _ in range(2):client.post('/api/v1/swipes',headers=auth,json={'product_id':'neutral-shirt','action':'save'})
+    assert client.get('/api/v1/me/insights',headers=auth).json()['data']['saved_count']==1
+    client.post('/api/v1/swipes',headers=auth,json={'product_id':'neutral-shirt','action':'dislike'})
+    assert client.get('/api/v1/me/insights',headers=auth).json()['data']['saved_count']==0

@@ -131,69 +131,63 @@ _Replace this section with your project README:_
 
 ## ALLURÉ — Find your kind of style.
 
-**Team:** UnCultured — Saksham Jain, Palakshi Purohit, Aditya Sharma. `team.json` currently includes the supplied, verified SakshamJain17 account; the other members' usernames still need to be recorded.
+**Team:** UnCultured — Saksham Jain, Palakshi Purohit, Aditya Sharma. `team.json` includes the supplied SakshamJain17 account; the other members’ usernames still need to be recorded.
 
 **Track:** Build for AI Agents (`ai-agents`).
 
-ALLURÉ is a personalised fashion experience centred on individuality, expression and personal style. Inspired by the French word *allure*—charm, appeal and the distinctive way someone carries themselves—the brand reflects a belief that fashion is a way to express who you are. Our vision is to use AI to understand individual aesthetics, preferences and colour choices, helping people discover fashion that resonates with them.
+**Problem:** Fashion assistants can describe clothes but often lack persistent taste, wardrobe context and reliable product evidence. ALLURÉ gives a personal stylist structured tools to understand preferences, act on feedback and help users find their own style.
 
-*ALLURÉ isn’t just about finding your next outfit; it’s about finding your kind of style.*
+**What we built:** A split-film editorial website, a simplified monochrome photographic swipe app, a native SwiftUI iPhone prototype, and a shared FastAPI backend. The single Ollama-powered stylist can retrieve context and perform explicit app actions such as saving a piece or changing preferences. Local vision handles clothing-reference analysis and garment-label suggestions. Daily weather and private wardrobe data inform the experience.
 
-**Problem:** Shopping assistants can describe fashion, but often lack a persistent understanding of someone's taste, local weather, and evidence that two listings represent the same garment variant. ALLURÉ gives agents callable fashion tools and gives users explanations grounded in preferences and retrieved data.
+**Hardest part:** Making the assistant actually use tools and persist changes while keeping claims grounded: dislikes remain excluded by best-available identity, unknown prices do not pass budgets, exact matches require variant evidence, and reference imagery is never presented as verified merchant offers.
 
-**What we built:** A FastAPI backend with session-scoped preferences, five-image style-analysis integration, bounded swipe learning, weather-aware daily outfit suggestions, optional user-selected undertone palettes, real shopping-search integration, conservative offer matching, price arithmetic, and asynchronous virtual try-on integration. A local Ollama agent chooses tools and reads their results. A native SwiftUI iOS 26+ prototype is included under ios/. Website development is handled separately by the teammate.
-
-**The hardest part:** Keeping unsupported claims out of recommendations: unknown prices do not pass budgets, different sizes cannot be exact matches, shipping uncertainty stays visible, fictional fixtures are labelled, and the agent's structured tool results accompany its answer.
-
-### Run
-
-Python 3.11+ (tested with 3.12), uv, and optionally a running Ollama server:
+### Start
 
 ```bash
 cd backend
 uv venv --python 3.12 .venv
 uv pip install --python .venv/bin/python -r requirements.txt
 cp .env.example .env
-.venv/bin/uvicorn app.main:app --reload --port 8766
+.venv/bin/python scripts/fetch_reference_images.py
+.venv/bin/python scripts/enrich_reference_colours.py
+.venv/bin/python scripts/make_films.py  # ffmpeg required
+.venv/bin/uvicorn app.main:app --port 8766
 ```
 
-Open http://localhost:8766/docs. Default agent configuration uses local Ollama with `qwen3:8b`; configure a model installed on your machine. Weather and deterministic ranking work independently of LLM credentials. To use the original prompt's port, replace 8766 with 8000 if available.
+In another terminal, from repository root:
 
-### Provider configuration
+```bash
+PORT=8790 node web/server.js
+```
 
-See [model setup](docs/MODEL_SETUP.md). Ollama handles reasoning and optionally photo understanding. Open-Meteo supplies weather. FASHN generates try-on images only when its API credential is configured. SerpApi supplies actual merchant listings only when configured. Gemini is an alternative reasoning/vision provider. No API keys are required simply to start the backend.
+Open http://localhost:8790. API schemas: http://localhost:8766/docs. Native app: open ios/Allure.xcodeproj in Xcode and run on an installed iPhone simulator.
 
-### Frontend handoff
+### Models and keys
 
-[API contract](docs/API_CONTRACT.md) · [UI brief](docs/FRONTEND_BRIEF.md) · [demo guide](docs/DEMO.md)
+Local demo: Ollama qwen3:8b for reasoning/actions and gemma3:4b for images; zero API keys. Set OLLAMA_VISION_MODEL=gemma3:4b in backend/.env after downloading it. Live shopping needs SERPAPI_API_KEY; real personal-photo try-on needs FASHN_API_KEY. Neither was supplied, so those features explicitly report unavailable and remain unverified live. Gemini is an optional configured alternative, not required by the local demo.
 
-### Validate
+### Verification
+
+32 backend tests pass. Actual local text/vision calls, a five-image analysis, hairstyle suggestions, model-designed vector avatar, multi-tool agent run, follow-up conversation, live weather and wardrobe persistence were rehearsed. A real browser conversation saved a selected piece and reflected its persisted saved count. Native compilation and Swift API decoding succeeded. The simulator is running; real iOS 26 runtime execution and device signing were not tested.
 
 ```bash
 cd backend
 .venv/bin/python -m pytest -q
-.venv/bin/python scripts/run_evaluations.py
-.venv/bin/python scripts/check_models.py
+.venv/bin/python scripts/rehearse_live_demo.py
 ```
 
-Evaluation JSON is written under ignored `backend/runtime/`. Fixture tests and evaluations do not demonstrate live-provider quality.
+Live rehearsal writes non-secret results to ignored runtime/live-integration-results.json. Fixture metrics are not live quality benchmarks.
 
-### Verified during implementation
+### Demo and handoff
 
-- 20 automated tests passed: ownership, invalid inputs/images, profile aggregation, swipe adaptation, idempotency, weather recommendations, matching, prices, adapter behaviour, agent iteration limits, try-on lifecycle, deletion and CORS.
-- Actual Open-Meteo geocoding and forecast request succeeded for Gurugram.
-- Actual local Ollama `qwen3:8b` agent called retrieve_style_profile and search_demo_catalogue and completed a two-tool task in approximately 6 seconds on the development Mac. This is one smoke test, not a general latency benchmark.
-- API health, session creation, preference updates and daily weather-styling endpoints succeeded through a running HTTP server.
+- [Five-minute demo walkthrough](docs/DEMO.md)
+- [PRD wiring, keys, verification and unfinished requirements](docs/PRD_STATUS.md)
+- [Backend blueprint and flowcharts](docs/BACKEND_BLUEPRINT.md)
+- [API contract](docs/API_CONTRACT.md)
+- [Website setup](web/README.md) · [iPhone setup](ios/README.md) · [Mac DMG launcher](macos/README.md)
 
-### Not yet verified / unfinished
+### Honest limits
 
-No local vision model was installed, and no live Gemini, SerpApi or FASHN call was made. Real five-photo model analysis, merchant discovery and generated try-on images therefore remain unverified. Their API adapters have unit coverage, not live integration evidence. The website frontend, photo-based complexion analysis, MCP, streaming, embeddings, distributed workers, production authentication and deployment are not implemented. Outfit completion currently uses preferences and category diversity, not a full compatibility model. Occasion and palette intensity are accepted but not applied. Demo catalogue entries are fictional, unpriced and have no product photos or purchase links. Do not use them as proof of live shopping.
+Reference photos come from the supplied H&M manifest; no affiliation, live price, quality rating or stock is claimed. Sample wardrobe and interactions are explicitly labelled. The avatar is an AI-styled vector illustration, not a generated personal likeness or physical-fit simulation. Palette advice is a curated heuristic from user-selected undertone; no complexion or sensitive-trait inference. Outfit compatibility is an initial attribute/category engine, not a validated fashion model.
 
-
-### Native iPhone prototype
-
-Open [ios/Allure.xcodeproj](ios/Allure.xcodeproj) in Xcode and press Command+R with an iPhone simulator selected. See [iOS setup](ios/README.md). Native SwiftUI build succeeded using the installed iOS 27.2 simulator SDK, targeting iOS 26+. The actual iOS 26 runtime is not installed. Production Swift API decoding was verified against the running backend, including live weather and durable dismissal. UI interaction automation was unavailable due to desktop-control permissions.
-
-Added backend capabilities: private photo-backed wardrobe, simple owned-item outfits, explicit creator inspiration tags, hairstyle suggestions from user-entered choices, and persistent dislike filtering across catalogue feeds/daily outfits/agent search. There are now 23 passing backend tests.
-
-[Full backend flowchart and frontend blueprint](docs/BACKEND_BLUEPRINT.md)
+No production account recovery/cross-device login, background notifications, live celebrity feeds, precise fit prediction, MCP, embeddings, distributed workers or permanent hosting is implemented. The public tunnel depends on the development Mac and local services remaining online. The DMG is an ad-hoc development WebKit launcher, not an iPhone installer or notarized Mac release.

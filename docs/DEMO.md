@@ -1,17 +1,35 @@
-# Reproducible backend demo
+# ALLURÉ — five-minute working demo
 
-Run the server on port 8766 and open /docs. All operations after creating a session require its bearer token in the Authorization header (use the actual header parameter exposed by each endpoint).
+## Prepare
 
-1. GET /api/v1/health: inspect configured providers. These flags do not prove connectivity.
-2. POST /api/v1/sessions with name Saksham. Keep the returned token private.
-3. PUT /api/v1/me/preferences with minimalist aesthetic, beige/olive preferred colours and relaxed silhouette.
-4. GET /api/v1/recommendations?include_seen=true. These are explicitly labelled fictional catalogue items if no live search has populated the database.
-5. POST /api/v1/swipes several times on a chosen product; inspect preference weights and ranking changes. Real frontend interactions should represent real feedback; repeated swipes here demonstrate the update algorithm.
-6. GET /api/v1/locations/search?q=Gurugram. Select returned coordinates. POST /api/v1/stylist/daily with those coordinates. Read the actual forecast; do not claim it is raining when it is dry. A rain path is covered by a fixture test, not a fake live forecast.
-7. With local Ollama running, POST /api/v1/agent/shop: “Retrieve my style profile and search the fictional demo catalogue for minimalist shirts. Label the examples and don't invent prices.” Inspect trace and answer. Compare this structured result with a general assistant lacking the tools.
-8. Once a vision model is configured, upload five valid outfit reference images to /style/analyze. Without one, show the unavailable state honestly.
-9. Once SerpApi is configured, search actual listings. Exact price comparison may be impossible without strong identifiers and known variants; show missing evidence instead of inventing it.
-10. Once FASHN is configured, POST /tryon with authorised person and garment images and consent=true. Use an Idempotency-Key. Poll /tryon/{job_id} every 3 seconds until completed/failed. No generated image exists before a real provider response.
-11. POST /style/palette with selected undertone and consent=true for optional subjective palette exploration. This is not photo analysis.
+1. Keep Ollama, the FastAPI backend (:8766), frontend server (:8790) and public tunnel running.
+2. Open the landing page. Both split-screen films should play independently. Use Pause films to demonstrate motion control.
+3. Select either side, then “Explore with a reference profile.” This creates a real session and adds clearly labelled sample data. It is not fake AI inference.
+4. Walk through the five guided steps, or use You > Guided walkthrough to replay them.
 
-All personalisation used in the demo belongs to the session; one user's token cannot retrieve another user's jobs or profile. Delete the demo session using DELETE /me afterwards.
+## Demonstrate
+
+1. **Discover:** one photographic card. Right/Like, left/Dismiss, down/Save. Reopen the app with the same session: disliked identities stay excluded.
+2. **One bot, real actions:** “Save this piece and tell me how many I have saved.” Inspect the tool trace and the Saved collection. Then: “Change my preferred colours to black and white.” Inspect You > Your style and the fresh feed.
+3. **Wardrobe:** six explicitly labelled sample garments. Add an authorised photo, ask vision to suggest labels, review, and save. Ask the bot to build an outfit from the wardrobe.
+4. **Weather:** choose Gurugram or another city in the weather chip. Show the actual forecast, never pretend dry weather is rain. Rain behaviour is separately fixture-tested.
+5. **Vision:** upload exactly five permitted outfit reference images. The local gemma3:4b model returns structured clothing attributes. There is no skin/ethnicity/health inference.
+6. **AI style study:** ask the bot to open the avatar feature. It generates an illustrated fashion figure from model-chosen clothing colours, not a personal likeness.
+7. **Progress:** show actual persisted likes, saves, dismissals and wardrobe counts. Sample interactions are illustrative. Progress is feature use, not AI confidence.
+8. **Optional integrations:** show try-on or live shopping. If the keys are absent, demonstrate the explicit unavailable state honestly. Do not claim generated outputs or merchant offers exist.
+
+## Key explanation for judges
+
+Ollama chooses and executes validated tools. Ranking and exact price arithmetic remain deterministic. The agent reads a persistent style/wardrobe context, performs user-requested app mutations, and returns source-backed results and an observable trace. No automatic checkout tool exists.
+
+The catalogue contains reference photography supplied in the design brief. Prices, quality ratings, stock and shipping are not fabricated. Reference images are not merchant verification.
+
+## Repeatable checks
+
+```bash
+cd backend
+.venv/bin/python -m pytest -q
+.venv/bin/python scripts/rehearse_live_demo.py
+```
+
+The live rehearsal creates and deletes its own disposable test session. It uses only supplied reference photos, never unrelated personal photos. Requires downloaded reference images plus configured local models. Results are saved under ignored runtime/.

@@ -61,7 +61,7 @@ struct ProfileView:View {
         Section {
             Text(store.name).font(.system(size:33,design:.serif))
             Text("Your style passport.").font(.subheadline).foregroundStyle(.secondary)
-            HStack {stat("Likes",store.insights?.interactions["like"] ?? 0);Spacer();stat("Saved",store.insights?.interactions["save"] ?? 0);Spacer();stat("Passed",store.insights?.interactions["dislike"] ?? 0);Spacer();stat("Pieces",store.insights?.wardrobeCount ?? 0)}.padding(.vertical,8)
+            HStack {stat("Likes",store.insights?.interactions["like"] ?? 0);Spacer();stat("Saved",store.insights?.savedCount ?? store.insights?.interactions["save"] ?? 0);Spacer();stat("Passed",store.insights?.interactions["dislike"] ?? 0);Spacer();stat("Pieces",store.insights?.wardrobeCount ?? 0)}.padding(.vertical,8)
         }
         Section {
             DisclosureGroup("Your style") {

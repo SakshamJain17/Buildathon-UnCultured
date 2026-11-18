@@ -39,5 +39,5 @@ struct GarmentLabels:Decodable {let title:String;let category:String;let colors:
 struct GarmentAnalysisResult:Decodable {let suggestedLabels:GarmentLabels}
 
 enum AppTab:Hashable {case discover,wardrobe,saved,profile}
-struct Insights:Decodable {let interactions:[String:Int];let wardrobeCount:Int}
+struct Insights:Decodable {let interactions:[String:Int];let wardrobeCount:Int;let savedCount:Int?}
 struct UIAction:Decodable {let type:String;let feature:String?;let productId:String?;let action:String?}

@@ -110,3 +110,12 @@ Generate a TypeScript request-schema client when ready, e.g. `npx openapi-typesc
 ## Native app additions
 
 See [BACKEND_BLUEPRINT.md](BACKEND_BLUEPRINT.md) sections 7–8 for wardrobe, inspiration and hairstyle endpoints. GET /wardrobe/{item_id}/image returns private authenticated JPEG bytes rather than a JSON envelope. Disliked item identities are filtered even when include_seen=true.
+
+
+## Action assistant and demo additions
+
+POST /agent/shop additionally accepts previous_run_id (same-user follow-up) and selected_product_id (current card context). Response includes ui_actions. `type=refresh` requires refetching profile/feed/saved/progress; `type=open_feature` opens the named screen/input flow. It does not mean a generation was submitted.
+
+POST /demo/seed adds labelled sample wardrobe and interactions once, without deleting a personal wardrobe. GET /me/insights returns counts, strongest feature signals and recent_activity. POST /wardrobe/analyze accepts one image and returns suggested_labels plus requires_user_review=true; it does not save the image. POST /stylist/avatar returns safe SVG and an explanation; it is an illustrated style study.
+
+See [PRD_STATUS.md](PRD_STATUS.md) for exact provider wiring and current limitations.

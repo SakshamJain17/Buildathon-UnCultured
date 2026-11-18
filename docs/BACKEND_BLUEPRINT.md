@@ -1,3 +1,5 @@
+> **Current wiring and verification:** see [PRD_STATUS.md](PRD_STATUS.md). It supersedes older scope notes below. The latest product has a single action-taking bot and a simplified four-destination interface.
+
 # ALLURÉ — Backend blueprint for app and website
 
 **Shared backend:** FastAPI, Python 3.12. **Local base:** http://127.0.0.1:8766. **API prefix:** /api/v1. **Request schemas:** /docs and /openapi.json. **Clients:** native SwiftUI iOS 26+ and an independently built website. Both use the same API; neither receives model-provider credentials.
@@ -140,7 +142,7 @@ flowchart TD
     OWNED --> RESULT[Return wardrobe outfit]
 ```
 
-**Current distinction:** /stylist/daily ranks the shared catalogue, while /wardrobe/outfits ranks only owned garments. Automatic weather-aware mixing of private wardrobe and live shopping is not implemented. Wardrobe images have a separate authenticated GET endpoint; do not expose them as public URLs. Wardrobe labels are manually entered in the current app.
+**Current distinction:** /stylist/daily ranks the shared catalogue, while /wardrobe/outfits ranks only owned garments. Daily styling now considers private wardrobe labels and shared catalogue references together; it does not infer weather resistance, precise fit or live shopping availability. Wardrobe images have a separate authenticated GET endpoint; do not expose them as public URLs. Wardrobe labels are manually entered in the current app.
 
 Daily greetings are deterministic copy grounded in forecast data. Hair advice is model-generated. Keep those descriptions accurate. Daily precipitation probability is not an hourly guarantee that it will rain.
 

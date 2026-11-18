@@ -52,7 +52,7 @@ VISION_PROVIDER=ollama
 OLLAMA_VISION_MODEL=<exact-installed-model-name>
 ```
 
-Run `.venv/bin/python scripts/check_models.py` from backend to inspect capabilities. The vision model must handle images and return schema-conforming JSON. Five images can need substantial RAM and time; test using real reference photos. No vision model was downloaded automatically.
+Run `.venv/bin/python scripts/check_models.py` from backend to inspect capabilities. The vision model must handle images and return schema-conforming JSON. Five images can need substantial RAM and time; test using real reference photos. The development Mac now has gemma3:4b installed and configured. Other machines must download a suitable vision model themselves.
 
 ## 4. Mix local reasoning with hosted vision
 
@@ -86,3 +86,6 @@ Frontend uses NEXT_PUBLIC_API_BASE_URL=http://localhost:8766, creates a session 
 ## Current limits
 
 Demo sessions are not verified user accounts; there is no global distributed rate limiter or production deployment. Try-on inputs are transient memory only; a restart before obtaining the provider ID fails the job and requires re-upload. Submitted provider IDs persist and resume polling after restart. Merchant image downloading, photo-derived skin-tone estimation, streaming agent events, MCP, embeddings, and provider fallback chains are not implemented.
+
+
+Current verified wiring, app actions and key requirements: [PRD_STATUS.md](PRD_STATUS.md).
