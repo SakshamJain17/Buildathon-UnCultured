@@ -51,6 +51,10 @@ struct AddGarmentView:View {
     @State private var category="tops"
     @State private var color="neutral"
     @State private var uploading=false
+    @State private var analysing=false
+    @State private var labelNote=""
+    @State private var aesthetics=""
+    @State private var fit=""
     var body:some View {
         NavigationStack {
             Form {
@@ -58,6 +62,11 @@ struct AddGarmentView:View {
                     PhotosPicker(selection:$selection,matching:.images) {Label(data == nil ? "Choose a photo" : "Change photo",systemImage:"photo")}
                     if let data,let image=UIImage(data:data) {Image(uiImage:image).resizable().scaledToFit().frame(maxHeight:220)}
                     Text("Only the photo you select is accessible. Adding it uploads a private copy to your backend.").font(.caption).foregroundStyle(.secondary)
+                }
+                Section("AI-assisted labels") {
+                    Button(analysing ? "Reading this garment…" : "Let AI suggest labels",systemImage:"sparkles") {Task {await suggest()}}.disabled(data == nil || analysing || uploading)
+                    if !labelNote.isEmpty {Text(labelNote).font(.caption).foregroundStyle(.secondary)}
+                    Text("Sends only this selected photo to your configured vision model. Review suggestions before adding.").font(.caption).foregroundStyle(.secondary)
                 }
                 Section("About the piece") {
                     TextField("e.g. My olive overshirt",text:$title)
@@ -68,8 +77,12 @@ struct AddGarmentView:View {
             }.navigationTitle("A piece of you").navigationBarTitleDisplayMode(.inline).toolbar {ToolbarItem(placement:.cancellationAction) {Button("Cancel") {dismiss()}.disabled(uploading)}}
         }.onChange(of:selection) {_,item in Task {do {if let raw=try await item?.loadTransferable(type:Data.self) {data=try normalisedPhoto(raw)}} catch {store.error=error.localizedDescription}}}
     }
+    func suggest() async {
+        guard let data else {return};analysing=true;defer{analysing=false}
+        do {let result:GarmentAnalysisResult=try await store.api.upload("/wardrobe/analyze",fields:[:],files:[UploadedFile(field:"image",data:data)]);let labels=result.suggestedLabels;title=labels.title;category=labels.category;color=labels.colors.first ?? "neutral";aesthetics=labels.aesthetics.joined(separator:",");fit=labels.fit == "unknown" ? "" : labels.fit;labelNote="AI suggestions — review before adding. "+labels.uncertainty.joined(separator:" ")} catch {store.error=error.localizedDescription}
+    }
     func upload() async {
         guard let data else {return}; uploading=true; defer {uploading=false}
-        do {let _:WardrobeCreated=try await store.api.upload("/wardrobe",fields:["title":title,"category":category,"color":color],files:[UploadedFile(field:"image",data:data)]); try await store.refresh(); dismiss()} catch {store.error=error.localizedDescription}
+        do {let _:WardrobeCreated=try await store.api.upload("/wardrobe",fields:["title":title,"category":category,"color":color,"aesthetics":aesthetics,"fit":fit],files:[UploadedFile(field:"image",data:data)]); try await store.refresh(); dismiss()} catch {store.error=error.localizedDescription}
     }
 }

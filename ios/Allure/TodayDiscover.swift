@@ -5,12 +5,27 @@ struct TodayView: View {
     @State private var location = LocationAccess()
     @State private var showCities=false
     @State private var showTryOn=false
+    @State private var featured:Product?
+    @State private var showAvatar=false
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment:.leading,spacing:26) {
                     HStack { Text("ALLURÉ").font(.system(size:24,design:.serif)).tracking(4); Spacer(); Text("YOUR DAILY EDIT").font(.system(size:9,design:.monospaced)).tracking(2) }
                     SectionHeading(eyebrow:"Made for your day",title:"Hey \(store.name).\nLet’s make it you.")
+                    if let product=store.daily?.outfit.first(where:{$0.product.imageUrl != nil})?.product ?? store.feed.first(where:{$0.product.imageUrl != nil})?.product {
+                        Button {featured=product} label: {
+                            ZStack(alignment:.bottomLeading) {
+                                ProductArtwork(product:product,height:430)
+                                LinearGradient(colors:[.clear,.black.opacity(0.65)],startPoint:.center,endPoint:.bottom)
+                                VStack(alignment:.leading,spacing:12) {
+                                    Text("THE PERSONAL COLLECTION").font(.system(size:9)).tracking(2)
+                                    Text("A new point\nof view.").font(.system(size:42,design:.serif))
+                                    Text("EXPLORE YOUR EDIT ↗").font(.system(size:9)).tracking(1.5)
+                                }.foregroundStyle(.white).padding(24)
+                            }.frame(height:430)
+                        }.buttonStyle(.plain)
+                    }
                     HStack { Image(systemName:"location"); Text(store.locationLabel).font(.subheadline); Spacer(); Button("Change") {showCities=true}.font(.caption) }
                     if let daily=store.daily {
                         VStack(alignment:.leading,spacing:14) {
@@ -32,11 +47,14 @@ struct TodayView: View {
                         }.padding(24).frame(maxWidth:.infinity,alignment:.leading).background(.white,in:RoundedRectangle(cornerRadius:24))
                     }
                     Button {showTryOn=true} label: { HStack { Image(systemName:"viewfinder").font(.title2); VStack(alignment:.leading) {Text("The fitting room").font(.headline); Text("Preview a garment on you").font(.caption)}; Spacer(); Image(systemName:"arrow.up.right") }.padding(22).foregroundStyle(.white).background(Theme.olive,in:RoundedRectangle(cornerRadius:22)) }
+                    Button {showAvatar=true} label: {HStack {VStack(alignment:.leading,spacing:8) {Text("YOUR VIRTUAL MUSE").font(.system(size:9)).tracking(2);Text("An illustrated point of view.").font(.system(size:26,design:.serif))};Spacer();Image(systemName:"arrow.up.right")}.padding(22).foregroundStyle(Theme.ink).background(.white)}.buttonStyle(.plain)
                     Text("FIND YOUR KIND OF STYLE.").font(.caption.monospaced()).tracking(3).foregroundStyle(.secondary).padding(.vertical)
                 }.padding(24)
             }.background(Theme.paper).toolbar(.hidden,for:.navigationBar)
             .sheet(isPresented:$showCities) {CityPicker()}
             .sheet(isPresented:$showTryOn) {TryOnView()}
+            .sheet(item:$featured) {ProductDetailView(product:$0)}
+            .sheet(isPresented:$showAvatar) {StyleAvatarView()}
             .onChange(of:location.coordinate?.latitude) { _,_ in
                 if let coordinate=location.coordinate {Task {await store.setLocation(latitude:coordinate.latitude,longitude:coordinate.longitude,label:"Near you")}}
             }
@@ -72,24 +90,26 @@ struct DiscoverView: View {
     @State private var drag: CGFloat=0
     @State private var showSaved=false
     @State private var query=""
+    @State private var selected:Product?
+    @State private var today=false
     @State private var results: [Product]=[]
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment:.leading,spacing:22) {
-                    SectionHeading(eyebrow:"A little more you",title:"Your next favourite.")
-                    Text("Right to like. Left to dismiss for this profile. You can also use the buttons below.").font(.subheadline).foregroundStyle(.secondary)
+                    HStack {Text("Your next favourite.").font(.system(size:31,design:.serif));Spacer();Button {today=true} label:{Image(systemName:"cloud.sun")}.accessibilityLabel("Weather and your daily outfit")}
                     if let item=store.feed.first {
                         VStack(alignment:.leading,spacing:16) {
-                            ProductArtwork(product:item.product)
+                            ProductArtwork(product:item.product,height:340)
                             HStack {Text(item.product.title).font(.system(size:27,design:.serif)); Spacer()}
                             Text(item.product.priceText).font(.caption).foregroundStyle(.secondary)
-                            Text(item.reasons.joined(separator:" · ")).font(.subheadline).foregroundStyle(.secondary)
-                            if item.product.isDemo == true {Label("Fictional catalogue example",systemImage:"info.circle").font(.caption)}
-                        }.padding(20).background(.white,in:RoundedRectangle(cornerRadius:28))
+                            Text("Tap to explore why it’s in your edit").font(.system(size:10)).foregroundStyle(.secondary)
+                            if item.product.isDemo == true {Label(item.product.source == "reference_catalogue" ? "Reference photography · unverified offer" : "Fictional catalogue example",systemImage:"info.circle").font(.caption)}
+                        }.padding(12).background(.white,in:RoundedRectangle(cornerRadius:18)).overlay {RoundedRectangle(cornerRadius:18).stroke(Color.gray.opacity(0.15))}
+                        .onTapGesture {selected=item.product}
                         .offset(x:reduceMotion ? 0 : drag).rotationEffect(.degrees(reduceMotion ? 0 : Double(drag/25)))
                         .gesture(DragGesture().onChanged {drag=$0.translation.width}.onEnded { value in
-                            let action=value.translation.width < -80 ? "dislike" : value.translation.width > 80 ? "like" : nil
+                            let action=value.translation.height > 100 && abs(value.translation.width)<80 ? "save" : value.translation.width < -80 ? "dislike" : value.translation.width > 80 ? "like" : nil
                             withAnimation(reduceMotion ? nil : .snappy) {drag=0}
                             if let action {Task {await store.swipe(item.product,action:action)}}
                         })
@@ -101,14 +121,17 @@ struct DiscoverView: View {
                     } else {
                         ContentUnavailableView("You’re all caught up",systemImage:"checkmark.seal",description:Text("Your dismissed items stay hidden. Try live search for more options when the shopping provider is configured."))
                     }
-                    Divider().padding(.vertical,10)
-                    Text("Find something specific").font(.title3.weight(.medium))
-                    HStack {TextField("e.g. olive rain jacket",text:$query).textFieldStyle(.roundedBorder); Button("Search") {Task {await liveSearch()}}.disabled(query.count<2 || store.busy)}
+                    DisclosureGroup("Find something specific") {
+                        HStack {TextField("e.g. olive rain jacket",text:$query).textFieldStyle(.roundedBorder);Button("Search") {Task {await liveSearch()}}.disabled(query.count<2 || store.busy)}
+                    }.font(.caption)
                     ForEach(results) {p in VStack(alignment:.leading) {ProductRow(product:p); if let url=p.merchantUrl,let link=URL(string:url) {Link("View listing",destination:link).font(.caption)}; Button("Dismiss this item") {Task {await store.swipe(p,action:"dislike"); if store.error == nil {results.removeAll{$0.id==p.id}}}}.font(.caption)} }
                 }.padding(24)
-            }.background(Theme.paper).navigationTitle("Discover").navigationBarTitleDisplayMode(.inline)
+            }.background(Theme.paper).navigationTitle("ALLURÉ").navigationBarTitleDisplayMode(.inline)
             .toolbar {ToolbarItem(placement:.topBarTrailing) {Button("Saved",systemImage:"bookmark") {showSaved=true}}}
             .sheet(isPresented:$showSaved) {NavigationStack {List(store.saved) {ProductRow(product:$0)}.navigationTitle("Saved for later").toolbar {Button("Done") {showSaved=false}}}}
+            .sheet(item:$selected) {ProductDetailView(product:$0)}
+            .sheet(isPresented:$today) {TodayView()}
+            .onChange(of:store.feed.first?.id,initial:true) {_,id in store.focusedProductID=id}
             .refreshable {await store.perform {try await store.refresh()}}
         }
     }

@@ -6,6 +6,12 @@ import Observation
 final class AppStore {
     let api: API
     var name = ""
+    var selectedTab:AppTab = .discover
+    var showAssistant=false
+    var showWalkthrough=false
+    var profileTarget:String?
+    var focusedProductID:String?
+    var insights:Insights?
     var authenticated = false
     var error: String?
     var busy = false
@@ -39,6 +45,7 @@ final class AppStore {
         let result: Feed = try await api.request("/recommendations"); feed=result.items
         let closet: WardrobeList = try await api.request("/wardrobe"); wardrobe=closet.items
         let savedItems: ProductList = try await api.request("/saved"); saved=savedItems.products
+        insights=try await api.request("/me/insights")
     }
     func perform(_ operation: () async throws -> Void) async {
         guard !busy else { return }; busy=true; defer { busy=false }
@@ -71,6 +78,22 @@ final class AppStore {
         await perform {
             let _: EmptyResult = try await self.api.request("/me/inspirations",method:"PUT",body:["inspirations":items.map{["name":$0.name,"tags":$0.tags] as [String: Any]}])
             try await self.refresh(); self.daily=nil
+        }
+    }
+    func loadSample() async {
+        await perform {let _:EmptyResult=try await self.api.request("/demo/seed",method:"POST",body:[:]);try await self.refresh();self.showWalkthrough=true}
+    }
+    func applyBotActions(_ actions:[UIAction]) async throws {
+        if actions.contains(where:{$0.type == "refresh"}) {daily=nil;try await refresh()}
+        for action in actions where action.type == "open_feature" {
+            switch action.feature {
+            case "discover":selectedTab = .discover;showAssistant=false
+            case "wardrobe":selectedTab = .wardrobe;showAssistant=false
+            case "saved":selectedTab = .saved;showAssistant=false
+            case "profile":selectedTab = .profile;showAssistant=false
+            case "analyze_style","palette","hair":selectedTab = .profile;profileTarget=action.feature;showAssistant=false
+            default:break
+            }
         }
     }
     func signOut() { Vault.save("",account:api.baseURL); api.token=""; authenticated=false; feed=[]; daily=nil; wardrobe=[]; saved=[]; location=nil; locationLabel="Choose your city"; preferences=nil; inspirations=[] }

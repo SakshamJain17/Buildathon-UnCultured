@@ -2,6 +2,7 @@ import SwiftUI
 import PhotosUI
 
 struct TryOnView:View {
+    var selectedProduct:Product? = nil
     @Environment(AppStore.self) private var store
     @Environment(\.dismiss) private var dismiss
     @State private var personItem:PhotosPickerItem?
@@ -39,6 +40,18 @@ struct TryOnView:View {
         .onChange(of:personItem) {_,item in Task {do {if let raw=try await item?.loadTransferable(type:Data.self) {person=try normalisedPhoto(raw);submissionKey=UUID().uuidString}} catch {store.error=error.localizedDescription}}}
         .onChange(of:garmentItem) {_,item in Task {do {if let raw=try await item?.loadTransferable(type:Data.self) {garment=try normalisedPhoto(raw);submissionKey=UUID().uuidString}} catch {store.error=error.localizedDescription}}}
         .onChange(of:category) {_,_ in submissionKey=UUID().uuidString}
+        .task {
+            if let product=selectedProduct {
+                category=["tops","bottoms","one-pieces"].contains(product.category ?? "") ? product.category! : "tops"
+                do {
+                    let raw:Data
+                    if product.source?.contains("wardrobe") == true {raw=try await store.api.image(product.id)}
+                    else if let imageUrl=product.imageUrl,let url=URL(string:imageUrl,relativeTo:URL(string:store.endpoint)) {raw=try await URLSession.shared.data(from:url).0}
+                    else {return}
+                    garment=try normalisedPhoto(raw)
+                } catch {store.error="Choose a garment photo to continue."}
+            }
+        }
         .onDisappear {task?.cancel()}
     }
     @ViewBuilder func preview(_ data:Data?) -> some View {if let data,let image=UIImage(data:data) {Image(uiImage:image).resizable().scaledToFit().frame(maxHeight:170)}}

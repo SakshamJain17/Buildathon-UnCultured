@@ -6,16 +6,22 @@ struct StylistView:View {
     @State private var prompt=""
     @State private var run:Run?
     @State private var chatting=false
+    @State private var previousRun:String?
+    @State private var showAdd=false
+    @State private var showTryOn=false
+    @State private var showAvatar=false
+    @State private var actionProduct:Product?
+    @Environment(\.dismiss) private var dismiss
     var body:some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment:.leading,spacing:24) {
-                    SectionHeading(eyebrow:"Your personal stylist",title:"Let’s talk style.")
-                    Text("Tell me what’s on your mind. A new outfit, a rainy-day layer, or a different direction.").foregroundStyle(.secondary)
-                    ForEach(["Find a minimalist shirt in the demo catalogue. Label fictional examples.","Use my style profile and suggest a new outfit direction."],id:\.self) {suggestion in Button {prompt=suggestion} label: {HStack {Text(suggestion).font(.subheadline).multilineTextAlignment(.leading); Spacer(); Image(systemName:"arrow.up.left")}.padding().background(.white,in:RoundedRectangle(cornerRadius:16))}}
+                    Text("What can I do for you?").font(.system(size:31,design:.serif))
+                    Text("I can find outfits, save pieces, update your preferences, and show your progress.").font(.subheadline).foregroundStyle(.secondary)
+                    ForEach(["Save this piece for me.","Show my wardrobe and style progress."],id:\.self) {suggestion in Button {prompt=suggestion} label: {HStack {Text(suggestion).font(.subheadline).multilineTextAlignment(.leading); Spacer(); Image(systemName:"arrow.up.left")}.padding().background(.white,in:RoundedRectangle(cornerRadius:16))}}
                     TextField("Ask ALLURÉ…",text:$prompt,axis:.vertical).lineLimit(3...6).padding().background(.white,in:RoundedRectangle(cornerRadius:18))
                     Button(chatting ? "Your stylist is thinking…" : "Ask my stylist",systemImage:"sparkles") {Task {await ask()}}.buttonStyle(.borderedProminent).disabled(prompt.trimmingCharacters(in:.whitespaces).count<2 || chatting)
-                    if chatting {ProgressView("Checking your style and tools…")}
+                    if chatting {HStack {OrbCluster().frame(width:70,height:65);Text("Thinking…").font(.subheadline).foregroundStyle(.secondary)}}
                     if let run {
                         Text(run.answer).textSelection(.enabled).lineSpacing(5)
                         Label(run.status.replacingOccurrences(of:"_",with:" ").capitalized,systemImage:run.status == "completed" ? "checkmark.circle" : "info.circle").font(.caption).foregroundStyle(.secondary)
@@ -24,13 +30,16 @@ struct StylistView:View {
                     }
                     Text("Powered by your configured model. Tool results are the evidence; generated advice can be imperfect. Demo products are not merchant listings.").font(.caption).foregroundStyle(.secondary)
                 }.padding(24)
-            }.background(Theme.paper).navigationTitle("ALLURÉ").navigationBarTitleDisplayMode(.inline)
+            }.background(Theme.paper).navigationTitle("Allure").navigationBarTitleDisplayMode(.inline).toolbar {Button("Done") {dismiss()}}
+            .sheet(isPresented:$showAdd) {AddGarmentView()}
+            .sheet(isPresented:$showTryOn) {TryOnView(selectedProduct:actionProduct)}
+            .sheet(isPresented:$showAvatar) {StyleAvatarView()}
         }
     }
     func ask() async {
         chatting=true; defer {chatting=false}
-        var body:[String:Any]=["message":prompt]; if let location=store.location {body["location"]=location}
-        do {run=try await store.api.request("/agent/shop",method:"POST",body:body)} catch {store.error=error.localizedDescription}
+        var body:[String:Any]=["message":prompt]; if let location=store.location {body["location"]=location}; if let previousRun {body["previous_run_id"]=previousRun};if let selected=store.focusedProductID ?? store.feed.first?.product.id {body["selected_product_id"]=selected}
+        do {let result:Run=try await store.api.request("/agent/shop",method:"POST",body:body); run=result; previousRun=result.runId;try await store.applyBotActions(result.uiActions ?? []);for action in result.uiActions ?? [] where action.type == "open_feature" {switch action.feature {case "upload_garment":showAdd=true;case "tryon":actionProduct=result.products.first(where:{$0.id==action.productId});showTryOn=true;case "avatar":showAvatar=true;default:break}};if (result.uiActions ?? []).contains(where:{$0.type=="open_feature" && ["discover","wardrobe","saved","profile","analyze_style","palette","hair"].contains($0.feature ?? "")}) {dismiss()}} catch {store.error=error.localizedDescription}
     }
 }
 
@@ -47,46 +56,57 @@ struct ProfileView:View {
     @State private var showHair=false
     @State private var showPalette=false
     @State private var confirmDelete=false
-    var body:some View {
-        NavigationStack {
-            Form {
-                Section {VStack(alignment:.leading,spacing:8) {Text(store.name).font(.system(size:34,design:.serif)); Text("Individual by design.").foregroundStyle(.secondary)}}
-                Section("Your style DNA") {
-                    Picker("Aesthetic",selection:$aesthetic) {ForEach(["minimalist","streetwear","smart_casual","casual","outdoor"],id:\.self) {Text($0.replacingOccurrences(of:"_",with:" ").capitalized).tag($0)}}
-                    TextField("Colours, separated by commas",text:$colors)
-                    Picker("Fit",selection:$fit) {ForEach(["relaxed","oversized","regular","straight"],id:\.self) {Text($0.capitalized).tag($0)}}
-                    Button("Save my preferences") {Task {await store.savePreferences(aesthetic:aesthetic,colors:colors,fit:fit)}}.disabled(store.busy)
-                }
-                Section("People who inspire you") {
-                    TextField("Celebrity or creator’s name",text:$inspiration)
-                    TextField("Your chosen style tags, e.g. streetwear",text:$tags)
-                    Button("Follow this inspiration") {Task {await store.follow(inspiration,tags:tags); if store.error == nil {inspiration="";tags=""}}}.disabled(inspiration.trimmingCharacters(in:.whitespaces).isEmpty || tags.trimmingCharacters(in:.whitespaces).isEmpty || store.busy)
-                    ForEach(store.inspirations) {item in HStack {VStack(alignment:.leading) {Text(item.name); Text(item.tags.joined(separator:", ")).font(.caption).foregroundStyle(.secondary)}; Spacer(); Button("Unfollow") {Task {await store.updateInspirations(store.inspirations.filter{$0.id != item.id})}}.font(.caption)} }
-                    Text("You choose the style cues. This is inspiration, not an endorsement or a live feed of their recommendations.").font(.caption).foregroundStyle(.secondary)
-                }
-                Section("Teach ALLURÉ your taste") {
-                    PhotosPicker(selection:$selectedPhotos,maxSelectionCount:5,matching:.images) {Label("Choose five outfit references",systemImage:"photo.on.rectangle.angled")}
-                    Text("\(selectedPhotos.count) of 5 selected").font(.caption)
-                    Button(analysing ? "Analysing…" : "Analyse selected references") {Task {await analyse()}}.disabled(selectedPhotos.count != 5 || analysing)
-                    if !analysisMessage.isEmpty {Text(analysisMessage).font(.caption)}
-                    Text("Uploads only these five photos to your configured vision model. No automatic library scanning; a vision model must be configured.").font(.caption).foregroundStyle(.secondary)
-                }
-                Section("Beyond the outfit") {
-                    Button("Explore hairstyles",systemImage:"scissors") {showHair=true}
-                    Button("Explore your colour palette",systemImage:"paintpalette") {showPalette=true}
-                }
-                Section("Privacy & connection") {
-                    Text(store.endpoint).font(.caption.monospaced())
-                    Text("Location is used only after you ask. Wardrobe uploads are private to this session. Prototype sessions are not verified accounts.").font(.caption).foregroundStyle(.secondary)
-                    Button("Sign out") {store.signOut()}
-                    Button("Delete my profile and wardrobe",role:.destructive) {confirmDelete=true}
-                }
-            }.navigationTitle("Your kind of style").navigationBarTitleDisplayMode(.inline)
-            .sheet(isPresented:$showHair) {HairView()}.sheet(isPresented:$showPalette) {PaletteView()}
-            .confirmationDialog("Delete your profile, wardrobe photos and local backend history?",isPresented:$confirmDelete,titleVisibility:.visible) {Button("Delete profile",role:.destructive) {Task {await store.perform {let _:EmptyResult=try await store.api.request("/me",method:"DELETE"); store.signOut()}}}}
-            .onAppear {aesthetic=store.preferences?.aesthetics?.first ?? "minimalist"; colors=store.preferences?.preferredColors?.joined(separator:", ") ?? "beige, olive";fit=store.preferences?.silhouettes?.first ?? "relaxed"}
+    @State private var photosOpen=false
+    var body:some View {NavigationStack {Form {
+        Section {
+            Text(store.name).font(.system(size:33,design:.serif))
+            Text("Your style passport.").font(.subheadline).foregroundStyle(.secondary)
+            HStack {stat("Likes",store.insights?.interactions["like"] ?? 0);Spacer();stat("Saved",store.insights?.interactions["save"] ?? 0);Spacer();stat("Passed",store.insights?.interactions["dislike"] ?? 0);Spacer();stat("Pieces",store.insights?.wardrobeCount ?? 0)}.padding(.vertical,8)
         }
-    }
+        Section {
+            DisclosureGroup("Your style") {
+                Picker("Aesthetic",selection:$aesthetic) {ForEach(["minimalist","streetwear","smart_casual","casual","contemporary"],id:\.self){Text($0.replacingOccurrences(of:"_",with:" ").capitalized).tag($0)}}
+                TextField("Colours, separated by commas",text:$colors)
+                Picker("Fit",selection:$fit) {ForEach(["relaxed","oversized","regular","straight"],id:\.self){Text($0.capitalized).tag($0)}}
+                Button("Save preferences") {Task {await store.savePreferences(aesthetic:aesthetic,colors:colors,fit:fit)}}.disabled(store.busy)
+            }
+            DisclosureGroup("Five photo references",isExpanded:$photosOpen) {
+                PhotosPicker(selection:$selectedPhotos,maxSelectionCount:5,matching:.images) {Label("Choose five outfit references",systemImage:"photo.on.rectangle")}
+                Text("\(selectedPhotos.count) of 5 selected").font(.caption)
+                Button(analysing ? "Reading your references…" : "Analyse with AI") {Task {await analyse()}}.disabled(selectedPhotos.count != 5 || analysing)
+                if !analysisMessage.isEmpty {Text(analysisMessage).font(.caption)}
+                Text("Only selected photos are uploaded. The model analyses clothing, not sensitive personal traits.").font(.caption).foregroundStyle(.secondary)
+            }
+            DisclosureGroup("People who inspire you") {
+                TextField("Creator or celebrity name",text:$inspiration);TextField("Style cues, e.g. streetwear",text:$tags)
+                Button("Follow inspiration") {Task {await store.follow(inspiration,tags:tags);if store.error == nil {inspiration="";tags=""}}}.disabled(inspiration.isEmpty || tags.isEmpty || store.busy)
+                ForEach(store.inspirations) {item in HStack {Text(item.name);Spacer();Button("Unfollow") {Task {await store.updateInspirations(store.inspirations.filter{$0.id != item.id})}}.font(.caption)}}
+                Text("Your chosen cues, not a live celebrity feed or endorsement.").font(.caption).foregroundStyle(.secondary)
+            }
+            Button("Explore a colour palette",systemImage:"paintpalette") {showPalette=true}
+            Button("Explore hairstyles",systemImage:"scissors") {showHair=true}
+        }
+        Section {
+            Button("Guided walkthrough",systemImage:"play.circle") {store.showWalkthrough=true}
+            Button("Load labelled sample data",systemImage:"square.stack") {Task {await store.loadSample()}}.disabled(store.busy)
+            Text("Sample pieces and sample interactions are illustrative; they don’t represent your own purchases or taste.").font(.caption).foregroundStyle(.secondary)
+        }
+        Section {
+            DisclosureGroup("Privacy & connection") {
+                Text(store.endpoint).font(.caption.monospaced())
+                Text("Only selected photos and one-time, opt-in location. Prototype sessions are not recoverable accounts.").font(.caption).foregroundStyle(.secondary)
+                Button("Sign out") {store.signOut()}
+                Button("Delete profile and wardrobe",role:.destructive) {confirmDelete=true}
+            }
+        }
+    }.navigationTitle("ALLURÉ").navigationBarTitleDisplayMode(.inline)
+    .sheet(isPresented:$showHair) {HairView()}.sheet(isPresented:$showPalette) {PaletteView()}
+    .confirmationDialog("Delete your profile and private wardrobe photos?",isPresented:$confirmDelete,titleVisibility:.visible) {Button("Delete profile",role:.destructive) {Task {await store.perform {let _:EmptyResult=try await store.api.request("/me",method:"DELETE");store.signOut()}}}}
+    .onAppear {aesthetic=store.preferences?.aesthetics?.first ?? "minimalist";colors=store.preferences?.preferredColors?.joined(separator:", ") ?? "beige, olive";fit=store.preferences?.silhouettes?.first ?? "relaxed";openTarget()}
+    .onChange(of:store.profileTarget) {_,_ in openTarget()}
+    }}
+    func stat(_ title:String,_ value:Int)->some View {VStack(alignment:.leading,spacing:5){Text("\(value)").font(.system(size:25,design:.serif));Text(title).font(.system(size:9)).foregroundStyle(.secondary)}}
+    func openTarget(){if store.profileTarget=="analyze_style"{photosOpen=true};if store.profileTarget=="hair"{showHair=true};if store.profileTarget=="palette"{showPalette=true};store.profileTarget=nil}
     func analyse() async {
         analysing=true; defer {analysing=false}
         do {
