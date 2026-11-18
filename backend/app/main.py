@@ -14,7 +14,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.exceptions import HTTPException
 from pydantic import ValidationError
-from . import db,intelligence,agent
+from . import db,intelligence,agent,personal
 from .config import settings
 from .schemas import SessionIn,Preferences,DailyIn,SwipeIn,SearchIn,MatchIn,OutfitIn,AgentIn,VisionResult
 from .providers import ProviderError,gemini
@@ -107,7 +107,7 @@ async def user_preferences(request:Request,user_id:str,user:User):
 @app.delete('/api/v1/me',status_code=200)
 async def delete_me(request:Request,user:User):
     with db.connect() as conn:
-        for table in ('swipes','jobs','agent_runs','idempotency'): conn.execute(f'DELETE FROM {table} WHERE user_id=?',(user['id'],))
+        for table in ('swipes','jobs','agent_runs','idempotency','wardrobe'): conn.execute(f'DELETE FROM {table} WHERE user_id=?',(user['id'],))
         conn.execute('DELETE FROM users WHERE id=?',(user['id'],))
     return ok(request,{'deleted':True,'provider_deletion_note':'This deletes local records; external providers apply their own retention policies.'})
 
@@ -118,7 +118,7 @@ async def location_search(request:Request,user:User,q:str=Query(min_length=2,max
 @app.post('/api/v1/stylist/daily')
 async def daily(request:Request,body:DailyIn,user:User):
     forecast=await intelligence.weather(body.location.latitude,body.location.longitude)
-    return ok(request,intelligence.daily_style(user['name'],json.loads(user['preferences']),forecast,body.occasion))
+    return ok(request,intelligence.daily_style(user['name'],personal.context(user),forecast,body.occasion))
 
 @app.post('/api/v1/style/analyze')
 async def analyze(request:Request,user:User,images:Annotated[list[UploadFile],File()]):
@@ -150,7 +150,7 @@ async def analyze(request:Request,user:User,images:Annotated[list[UploadFile],Fi
 @app.get('/api/v1/recommendations')
 async def recommendations(request:Request,user:User,limit:int=Query(12,ge=1,le=50),include_seen:bool=False):
     with db.connect() as conn: seen=[r[0] for r in conn.execute('SELECT product_id FROM swipes WHERE user_id=?',(user['id'],))]
-    result=intelligence.rank(json.loads(user['preferences']),db.products(),excluded=[] if include_seen else seen)
+    result=intelligence.rank(personal.context(user),db.products(),excluded=[] if include_seen else seen)
     return ok(request,{'items':result[:limit],'mode':'attribute_ranking','demo_items_labelled':True})
 
 @app.post('/api/v1/swipes')
@@ -174,10 +174,13 @@ async def swipe(request:Request,body:SwipeIn,user:User,idempotency_key:Annotated
 async def saved(request:Request,user:User):
     with db.connect() as conn:
         rows=conn.execute("SELECT DISTINCT p.data FROM products p JOIN swipes s ON p.id=s.product_id WHERE s.user_id=? AND s.action='save'",(user['id'],)).fetchall()
-    return ok(request,{'products':[json.loads(r[0]) for r in rows]})
+    return ok(request,{'products':personal.visible(personal.context(user),[json.loads(r[0]) for r in rows])})
 
 @app.post('/api/v1/products/search')
-async def search(request:Request,body:SearchIn,user:User): return ok(request,await intelligence.search(body))
+async def search(request:Request,body:SearchIn,user:User):
+    result=await intelligence.search(body)
+    result['products']=personal.visible(personal.context(user),result['products'])
+    return ok(request,result)
 
 @app.post('/api/v1/products/match')
 async def match(request:Request,body:MatchIn,user:User):
@@ -191,7 +194,7 @@ async def compare(request:Request,body:MatchIn,user:User):
 async def complete(request:Request,body:OutfitIn,user:User):
     p=next((p for p in db.products() if p['id']==body.product_id),None)
     if not p: raise ProviderError('NOT_FOUND','Unknown product.',404)
-    return ok(request,intelligence.complete(json.loads(user['preferences']),p,body.budget))
+    return ok(request,intelligence.complete(personal.context(user),p,body.budget))
 
 @app.post('/api/v1/agent/shop')
 async def shop(request:Request,body:AgentIn,user:User): return ok(request,await agent.shop(user,body))
@@ -236,3 +239,58 @@ from .schemas import PaletteIn
 async def color_palette(request:Request,body:PaletteIn,user:User):
     if not body.consent: raise ProviderError('CONSENT_REQUIRED','Opt in to undertone-based colour suggestions.',422)
     return ok(request,intelligence.palette(body.undertone,body.preference))
+
+from .schemas import InspirationsIn,HairIn
+from fastapi.responses import Response
+
+@app.put('/api/v1/me/inspirations')
+async def inspirations(request:Request,body:InspirationsIn,user:User):
+    with db.connect() as conn:
+        conn.execute('BEGIN IMMEDIATE')
+        p=json.loads(conn.execute('SELECT preferences FROM users WHERE id=?',(user['id'],)).fetchone()[0])
+        p['inspirations']=[x.model_dump() for x in body.inspirations]
+        conn.execute('UPDATE users SET preferences=? WHERE id=?',(json.dumps(p),user['id']))
+    return ok(request,{'inspirations':p['inspirations'],'notice':'User-selected style inspiration; no endorsement or live celebrity feed is claimed.'})
+
+@app.post('/api/v1/stylist/hair')
+async def hairstyle(request:Request,body:HairIn,user:User):
+    prompt=('You are ALLURÉ, a personal stylist. Suggest three practical hairstyle options and maintenance tips based only on these user-provided choices. '
+        'Do not infer ethnicity, gender, health or face shape. No medical/scalp advice or claims about celebrity endorsement. '
+        'Explain these are suggestions, not guaranteed results. Return concise plain text. Choices: '+body.model_dump_json())
+    result=await gemini([{'role':'user','parts':[{'text':prompt}]}])
+    return ok(request,{'advice':'\n'.join(p.get('text','') for p in result.get('parts',[]) if not p.get('thought')),'source':'model_generated','photo_analysis':False})
+
+@app.post('/api/v1/wardrobe',status_code=201)
+async def wardrobe_add(request:Request,user:User,image:Annotated[UploadFile,File()],title:Annotated[str,Form(min_length=1,max_length=120)],category:Annotated[Literal['tops','bottoms','footwear','one-pieces','accessories'],Form()],color:Annotated[str,Form(max_length=40)]='neutral'):
+    raw=await image_bytes(image)
+    item_id='ward_'+uuid.uuid4().hex
+    p={'id':item_id,'title':title,'category':category,'colors':[color.lower()],'aesthetics':[],'fits':[],'weather_tags':[],'functional_tags':[], 'price':None,'currency':'INR','source':'your_wardrobe','is_demo':False,'image_url':None,'merchant_url':None}
+    with db.connect() as conn: conn.execute('INSERT INTO wardrobe VALUES (?,?,?,?,?)',(item_id,user['id'],json.dumps(p),raw,db.now()))
+    return ok(request,{'item':p})
+
+@app.get('/api/v1/wardrobe')
+async def wardrobe_list(request:Request,user:User):
+    with db.connect() as conn: rows=conn.execute('SELECT data FROM wardrobe WHERE user_id=?',(user['id'],)).fetchall()
+    return ok(request,{'items':[json.loads(r[0]) for r in rows]})
+
+@app.get('/api/v1/wardrobe/{item_id}/image')
+async def wardrobe_image(item_id:str,user:User):
+    with db.connect() as conn: row=conn.execute('SELECT image FROM wardrobe WHERE id=? AND user_id=?',(item_id,user['id'])).fetchone()
+    if not row: raise ProviderError('NOT_FOUND','Wardrobe image not found.',404)
+    return Response(bytes(row[0]),media_type='image/jpeg',headers={'Cache-Control':'no-store'})
+
+@app.delete('/api/v1/wardrobe/{item_id}')
+async def wardrobe_delete(request:Request,item_id:str,user:User):
+    with db.connect() as conn: result=conn.execute('DELETE FROM wardrobe WHERE id=? AND user_id=?',(item_id,user['id']))
+    if not result.rowcount: raise ProviderError('NOT_FOUND','Wardrobe item not found.',404)
+    return ok(request,{'deleted':True})
+
+@app.post('/api/v1/wardrobe/outfits')
+async def wardrobe_outfits(request:Request,user:User):
+    with db.connect() as conn: rows=conn.execute('SELECT data FROM wardrobe WHERE user_id=?',(user['id'],)).fetchall()
+    ranked=intelligence.rank(personal.context(user),[json.loads(r[0]) for r in rows])
+    selected=[]
+    for category in ('tops','bottoms','footwear'):
+        match=next((x for x in ranked if x['product'].get('category')==category),None)
+        if match: selected.append(match)
+    return ok(request,{'items':selected,'notice':'Based on your selected wardrobe attributes; garment vision and full colour compatibility are not applied.'})

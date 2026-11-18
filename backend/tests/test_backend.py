@@ -224,3 +224,38 @@ async def test_ollama_requires_vision_model(client,monkeypatch):
     monkeypatch.setattr(settings,'ollama_vision_model','')
     with pytest.raises(providers.ProviderError):
         await providers.gemini([{'role':'user','parts':[{'inlineData':{'data':'test'}}]}])
+
+def test_dismissal_survives_duplicate_ids_and_daily(client,auth,monkeypatch):
+    client.post('/api/v1/swipes',headers=auth,json={'product_id':'rain-shell','action':'dislike'})
+    original=next(x for x in db.products() if x['id']=='rain-shell')
+    duplicate={**original,'id':'different-merchant-id'};db.save_products([duplicate])
+    items=client.get('/api/v1/recommendations?include_seen=true',headers=auth).json()['data']['items']
+    assert not {'rain-shell','different-merchant-id'} & {x['product']['id'] for x in items}
+    async def forecast(*a):return {'current':{'apparent_temperature':21},'daily':{},'tags':['mild','rain'],'source':'fixture','precipitation_probability_percent':80,'currently_precipitating':False}
+    monkeypatch.setattr(intelligence,'weather',forecast)
+    result=client.post('/api/v1/stylist/daily',headers=auth,json={'location':{'latitude':28,'longitude':77}}).json()['data']
+    assert not {'rain-shell','different-merchant-id'} & {x['product']['id'] for x in result['outfit']}
+    other=client.post('/api/v1/sessions',json={'name':'Other'}).json()['data']
+    other_items=client.get('/api/v1/recommendations?limit=50',headers={'Authorization':'Bearer '+other['token']}).json()['data']['items']
+    assert 'rain-shell' in {x['product']['id'] for x in other_items}
+
+def test_private_wardrobe(client,auth):
+    result=client.post('/api/v1/wardrobe',headers=auth,files={'image':('shirt.png',image(),'image/png')},data={'title':'My shirt','category':'tops','color':'olive'})
+    assert result.status_code==201,result.text
+    item=result.json()['data']['item'];item_id=item['id']
+    assert client.get('/api/v1/wardrobe/'+item_id+'/image',headers=auth).headers['content-type']=='image/jpeg'
+    assert client.get('/api/v1/wardrobe',headers=auth).json()['data']['items'][0]['id']==item_id
+    assert client.post('/api/v1/wardrobe/outfits',headers=auth).json()['data']['items'][0]['product']['id']==item_id
+    other=client.post('/api/v1/sessions',json={'name':'Other'}).json()['data']
+    other_auth={'Authorization':'Bearer '+other['token']}
+    assert client.get('/api/v1/wardrobe/'+item_id+'/image',headers=other_auth).status_code==404
+    assert client.delete('/api/v1/wardrobe/'+item_id,headers=other_auth).status_code==404
+    assert client.delete('/api/v1/wardrobe/'+item_id,headers=auth).status_code==200
+
+def test_inspiration_and_hair(client,auth,monkeypatch):
+    assert client.put('/api/v1/me/inspirations',headers=auth,json={'inspirations':[{'name':'A creator','tags':['streetwear']}]}).status_code==200
+    assert client.get('/api/v1/me',headers=auth).json()['data']['preferences']['inspirations'][0]['name']=='A creator'
+    async def model(*a,**kw):return {'parts':[{'text':'Try three low-maintenance styles.'}]}
+    monkeypatch.setattr(main,'gemini',model)
+    result=client.post('/api/v1/stylist/hair',headers=auth,json={'length':'short','texture':'wavy','goal':'Low maintenance'})
+    assert result.status_code==200 and result.json()['data']['photo_analysis'] is False

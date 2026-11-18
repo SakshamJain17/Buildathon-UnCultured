@@ -86,3 +86,15 @@ class PaletteIn(Strict):
     undertone: Literal['warm','cool','neutral','unsure']
     consent: bool
     preference: Literal['muted','vibrant','balanced'] = 'balanced'
+
+class Inspiration(Strict):
+    name: str = Field(min_length=1,max_length=80)
+    tags: list[str] = Field(default_factory=list,max_length=10)
+
+class InspirationsIn(Strict):
+    inspirations: list[Inspiration] = Field(max_length=20)
+
+class HairIn(Strict):
+    length: Literal['short','medium','long'] = 'medium'
+    texture: Literal['straight','wavy','curly','coily','unsure'] = 'unsure'
+    goal: str = Field(default='low-maintenance everyday styling',max_length=400)

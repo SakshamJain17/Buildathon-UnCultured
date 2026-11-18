@@ -41,6 +41,8 @@ def features(p):
     return result
 
 def rank(preferences,items,weather_tags=(),budget=None,excluded=()):
+    from .personal import visible
+    items=visible(preferences,items)
     desired={}
     for key,source in [('colors','preferred_colors'),('aesthetics','aesthetics'),('fits','silhouettes'),('category','garment_preferences')]:
         for value in preferences.get(source,[]): desired[f'{key}:{value.lower()}']=1.0

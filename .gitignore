@@ -33,3 +33,12 @@ backend/runtime/
 *.lock
 package-lock.json
 .superdesign/tmp/
+
+# Native iOS build output
+DerivedData/
+ios/.build/
+*.xcuserstate
+xcuserdata/
+
+ios/.build-log.txt
+ios/.screenshots/

@@ -15,7 +15,9 @@ CREATE TABLE IF NOT EXISTS jobs (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFE
 CREATE INDEX IF NOT EXISTS jobs_user ON jobs(user_id, kind, created_at);
 CREATE TABLE IF NOT EXISTS agent_runs (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id), data TEXT NOT NULL, created_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS idempotency (user_id TEXT NOT NULL, key TEXT NOT NULL, kind TEXT NOT NULL, result_id TEXT NOT NULL, PRIMARY KEY(user_id,key,kind));
-PRAGMA user_version=1;
+CREATE TABLE IF NOT EXISTS wardrobe (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id), data TEXT NOT NULL, image BLOB NOT NULL, created_at TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS wardrobe_user ON wardrobe(user_id);
+PRAGMA user_version=2;
 '''
 
 def now():
