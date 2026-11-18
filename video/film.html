@@ -37,11 +37,13 @@ function text(str, px, py, font, col, align = 'center', alpha = 1, spacing = 0) 
   x.save(); x.globalAlpha = alpha; x.font = font; x.fillStyle = col; x.textAlign = align; x.textBaseline = 'middle';
   if (spacing) x.letterSpacing = spacing + 'px'; x.fillText(str, px, py); x.restore();
 }
-const IMG = [], PH = {}, ALL = []; // real H&M product photos
+const IMG = [], PH = {}, ALL = [], STILL = []; // real H&M product photos
 const ph = (name) => PH[name] || ALL[0];
 async function loadImages() {
   let files = []; try { files = await fetch('/api/products').then((r) => r.json()); } catch {}
   await Promise.all(files.map((f) => new Promise((res) => { const im = new Image(); im.onload = () => { PH[f.split('__')[0]] = im; ALL.push(im); res(); }; im.onerror = res; im.src = '/products/' + encodeURIComponent(f); })));
+  let st = []; try { st = await fetch('/api/stills').then((r) => r.json()); } catch {}
+  await Promise.all(st.map((f) => new Promise((res) => { const im = new Image(); im.onload = () => { STILL.push(im); res(); }; im.onerror = res; im.src = '/stills/' + f; })));
   ['Zip Hoodie A', 'Brocade Keyhole Dress', 'Regular Fit Oxford Shirt A', 'Loose Jeans A', 'Lightweight Bomber Jacket'].forEach((n, i) => IMG[i] = PH[n]);
 }
 const CUT = new Map();
@@ -71,7 +73,9 @@ function scene1(t) {
   for (const g of THROWS) { const k = prog(t, g.t0, g.t0 + .55); if (k <= 0) continue; const e = eOut(k);
     // thrown from the camera: starts huge at the bottom centre, flies away and lands
     const cx = lerp(W / 2 + (g.tx - W / 2) * .1, g.tx, e), cy = lerp(H + 260, g.ty, e) - Math.sin(k * Math.PI) * 140, sc = lerp(5.5, g.s, e);
-    drawCut(ALL[THROWS.indexOf(g) % Math.max(1, ALL.length)], cx, cy, 300 * sc, g.r * .6 + g.spin * (1 - e), clamp(k * 4), g.col.startsWith('#0') || g.col.startsWith('#1') || g.col.startsWith('#2') ? .75 : 0); }
+    const src = STILL.length ? STILL[THROWS.indexOf(g) % STILL.length] : ALL[THROWS.indexOf(g) % Math.max(1, ALL.length)];
+    x.save(); x.translate(cx, cy); x.scale(1, .55 + .45 * Math.abs(Math.cos((1 - e) * g.spin * 2))); x.translate(-cx, -cy);
+    drawCut(src, cx, cy, 330 * sc, g.r * .6 + g.spin * (1 - e), clamp(k * 4), g.col.startsWith('#0') || g.col.startsWith('#1') || g.col.startsWith('#2') ? .7 : 0); x.restore(); }
   const dark = prog(t, 8.0, 9.0); if (dark) { x.fillStyle = `rgba(0,0,0,${eIn(dark)})`; x.fillRect(0, 0, W, H); }
 }
 // ---------- Scene 2 (9.2–13 s): letters shuffle into STOP SCROLLING ----------
@@ -185,12 +189,13 @@ function scene5(t) {
   const [word, tail] = final ? ["THE ONE.", "main character, but make it denim"] : WORDS[cur] || [QUICK[idx % QUICK.length], ""];
   text("03 — SWIPE THROUGH LOOKS PICKED FOR YOU", 120, 90, `700 20px ${SANS}`, "#8a857a", "left", fadeIn, 6);
   const slam = (1 - eBack(prog(t, at, at + (fast ? .08 : .4)))) * 160, size = final ? 280 : 330;
-  x.save(); x.letterSpacing = "-6px"; text(word, W / 2, 470 + slam, `${size}px ${DISPLAY}`, final ? LIME : "#f4f2ee", "center", .95 * fadeIn); x.restore();
+  x.save(); x.letterSpacing = "-6px"; text(word, 120, 470 + slam, `${final ? 160 : 230}px ${DISPLAY}`, final ? LIME : "#f4f2ee", "left", .95 * fadeIn); x.restore();
   x.save(); x.globalAlpha = fadeIn; x.beginPath(); x.rect(0, 0, W, H); x.clip();
-  if (prev && mix < 1) drawCut(ph(prev), 960 + mix * 1400, 600, 900); // old look exits right
-  if (cur) drawCut(ph(cur), prev ? 960 - (1 - mix) * 1400 : 960, 600, 900); // new look enters from the left
+  const card = (name, cx, tilt, blur) => { x.save(); x.translate(cx, 560); x.rotate(tilt); if (blur) x.filter = `blur(${blur}px)`; x.shadowColor = 'rgba(0,0,0,.55)'; x.shadowBlur = 50; x.shadowOffsetY = 24; x.fillStyle = '#fff'; x.fillRect(-270, -380, 540, 760); x.shadowColor = 'transparent'; cover(ph(name), -262, -372, 524, 744); x.restore(); };
+  if (prev && mix < 1) card(prev, 1340 + eIn(mix) * 1000, mix * .12, fast ? 0 : mix * 10); // old look leaves to the right
+  if (cur) card(cur, prev ? 1340 - (1 - mix) * 1700 : 1340, prev ? -(1 - mix) * .12 : 0, prev && !fast ? (1 - mix) * 10 : 0); // new look swipes in from the left
   x.restore();
-  if (tail) text(tail, W / 2, 1010, `italic 400 46px ${SERIF}`, final ? "#f4f2ee" : LIME, "center", (final ? prog(t, 36.5, 37) : prog(t, at + .2, at + .5)) * fadeIn);
+  if (tail) text(tail, 124, 640, `italic 400 46px ${SERIF}`, final ? "#f4f2ee" : LIME, "left", (final ? prog(t, 36.5, 37) : prog(t, at + .2, at + .5)) * fadeIn);
   if (!fast) text(String(Math.min(idx + 1, 99)).padStart(2, "0") + " / LOOKS", W - 120, 90, `700 20px ${SANS}`, "#8a857a", "right", fadeIn, 6);
   const wf = 1 - prog(t, 21.6, 22.4); if (wf) { x.fillStyle = `rgba(255,255,255,${wf})`; x.fillRect(0, 0, W, H); }
 }
@@ -212,7 +217,7 @@ function scene6(t) {
   if (wIdx === 2) { x.fillStyle = 'rgba(255,255,255,.9)'; for (let i = 0; i < 120; i++) { const sx = (rnd(i) * W + Math.sin(t + i) * 30) % W, sy = (rnd(i * 5) * H + t * 120) % H; x.beginPath(); x.arc(sx, sy, 3 + rnd(i * 9) * 3, 0, 7); x.fill(); } }
   if (wIdx === 0 && t > 44) { const sun = prog(t, 44, 44.6); x.fillStyle = `rgba(216,164,44,${.25 * sun})`; x.beginPath(); x.arc(cx + 330, 230, 120, 0, 7); x.fill(); }
   const acc = prog(t, 42.4, 43.4);
-  drawCut(ph(FINAL_LOOK), cx, 560, 880);
+  lookFrame(FINAL_LOOK, cx, 560, 1);
   // weather layer: the piece Alluré adds on top for the conditions
   const layerName = wIdx === 1 ? 'Nylon Windbreaker' : wIdx === 2 ? 'Loose Fit Hoodie A' : wIdx === 3 ? 'Aviator Jacket' : null, layerLabel = ['', '+ FOR RAIN', '+ FOR THE COLD', '+ FOR NIGHT'][wIdx];
   if (layerName) { const lk = eBack(prog(t, [0, 45.6, 46.9, 48.2][wIdx], [0, 45.6, 46.9, 48.2][wIdx] + .35)); x.save(); x.translate(cx - 330, 360); x.scale(lk, lk); x.rotate(-.06);

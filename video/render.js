@@ -14,6 +14,8 @@ const server = http.createServer((req, res) => {
     return;
   }
   if (url === '/film') { res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' }); return fs.createReadStream(path.join(__dirname, 'film.html')).pipe(res); }
+  if (url === '/api/stills') { res.writeHead(200, { 'Content-Type': 'application/json' }); return res.end(JSON.stringify(fs.readdirSync(path.join(__dirname, 'stills')).filter((f) => f.endsWith('.jpg')))); }
+  if (url.startsWith('/stills/')) { const f = path.join(__dirname, 'stills', path.basename(url)); if (fs.existsSync(f)) { res.writeHead(200, { 'Content-Type': 'image/jpeg' }); return fs.createReadStream(f).pipe(res); } }
   if (url === '/api/products') { res.writeHead(200, { 'Content-Type': 'application/json' }); return res.end(JSON.stringify(fs.readdirSync(path.join(ROOT, 'products')))); }
   if (url.startsWith('/products/')) { const f = path.join(ROOT, 'products', path.basename(decodeURIComponent(url.slice(10)))); if (fs.existsSync(f)) { res.writeHead(200, { 'Content-Type': 'image/jpeg' }); return fs.createReadStream(f).pipe(res); } }
   res.writeHead(404); res.end();
