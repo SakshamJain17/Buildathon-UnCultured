@@ -141,7 +141,7 @@ ALLURÉ is a personalised fashion experience centred on individuality, expressio
 
 **Problem:** Shopping assistants can describe fashion, but often lack a persistent understanding of someone's taste, local weather, and evidence that two listings represent the same garment variant. ALLURÉ gives agents callable fashion tools and gives users explanations grounded in preferences and retrieved data.
 
-**What we built:** A FastAPI backend with session-scoped preferences, five-image style-analysis integration, bounded swipe learning, weather-aware daily outfit suggestions, optional user-selected undertone palettes, real shopping-search integration, conservative offer matching, price arithmetic, and asynchronous virtual try-on integration. A local Ollama agent chooses tools and reads their results. Frontend development is handled separately by the teammate; no website frontend is included yet.
+**What we built:** A FastAPI backend with session-scoped preferences, five-image style-analysis integration, bounded swipe learning, weather-aware daily outfit suggestions, optional user-selected undertone palettes, real shopping-search integration, conservative offer matching, price arithmetic, and asynchronous virtual try-on integration. A local Ollama agent chooses tools and reads their results. A native SwiftUI iOS 26+ prototype is included under ios/. Website development is handled separately by the teammate.
 
 **The hardest part:** Keeping unsupported claims out of recommendations: unknown prices do not pass budgets, different sizes cannot be exact matches, shipping uncertainty stays visible, fictional fixtures are labelled, and the agent's structured tool results accompany its answer.
 
@@ -187,4 +187,13 @@ Evaluation JSON is written under ignored `backend/runtime/`. Fixture tests and e
 
 ### Not yet verified / unfinished
 
-No local vision model was installed, and no live Gemini, SerpApi or FASHN call was made. Real five-photo model analysis, merchant discovery and generated try-on images therefore remain unverified. Their API adapters have unit coverage, not live integration evidence. Frontend, photo-based complexion analysis, MCP, streaming, embeddings, distributed workers, production authentication and deployment are not implemented. Outfit completion currently uses preferences and category diversity, not a full compatibility model. Occasion and palette intensity are accepted but not applied. Demo catalogue entries are fictional, unpriced and have no product photos or purchase links. Do not use them as proof of live shopping.
+No local vision model was installed, and no live Gemini, SerpApi or FASHN call was made. Real five-photo model analysis, merchant discovery and generated try-on images therefore remain unverified. Their API adapters have unit coverage, not live integration evidence. The website frontend, photo-based complexion analysis, MCP, streaming, embeddings, distributed workers, production authentication and deployment are not implemented. Outfit completion currently uses preferences and category diversity, not a full compatibility model. Occasion and palette intensity are accepted but not applied. Demo catalogue entries are fictional, unpriced and have no product photos or purchase links. Do not use them as proof of live shopping.
+
+
+### Native iPhone prototype
+
+Open [ios/Allure.xcodeproj](ios/Allure.xcodeproj) in Xcode and press Command+R with an iPhone simulator selected. See [iOS setup](ios/README.md). Native SwiftUI build succeeded using the installed iOS 27.2 simulator SDK, targeting iOS 26+. The actual iOS 26 runtime is not installed. Production Swift API decoding was verified against the running backend, including live weather and durable dismissal. UI interaction automation was unavailable due to desktop-control permissions.
+
+Added backend capabilities: private photo-backed wardrobe, simple owned-item outfits, explicit creator inspiration tags, hairstyle suggestions from user-entered choices, and persistent dislike filtering across catalogue feeds/daily outfits/agent search. There are now 23 passing backend tests.
+
+[Full backend flowchart and frontend blueprint](docs/BACKEND_BLUEPRINT.md)

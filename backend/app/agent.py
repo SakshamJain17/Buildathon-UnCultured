@@ -8,6 +8,7 @@ from .providers import gemini,ProviderError
 from .schemas import SearchIn
 
 TOOLS=[
+ {'name':'retrieve_wardrobe','description':'Retrieve the current user private wardrobe labels. Use these to suggest clothes the user actually owns, never claim unprovided attributes.','parameters':{'type':'object','properties':{}}},
  {'name':'search_demo_catalogue','description':'Search fictional catalogue fixtures when live shopping is unavailable. Never claim these are real merchant offers. No prices or purchase links are available.','parameters':{'type':'object','properties':{'query':{'type':'string'}},'required':['query']}},
  {'name':'retrieve_style_profile','description':'Read the current user clothing preferences.','parameters':{'type':'object','properties':{}}},
  {'name':'search_products','description':'Search actual India shopping listings. Product attributes not supplied by the source are unknown.','parameters':{'type':'object','properties':{'query':{'type':'string'},'max_price':{'type':'number'},'limit':{'type':'integer'}},'required':['query']}},
@@ -37,6 +38,12 @@ async def shop(user,body):
             items=items[:5]
             for p in items: found[p['id']]=p
             return {'products':items,'is_demo':True,'warning':'Fictional examples; no price, stock, or merchant claim can be made.'}
+        if name=='retrieve_wardrobe':
+            if args: raise ValueError('No arguments accepted')
+            with db.connect() as conn: rows=conn.execute('SELECT data FROM wardrobe WHERE user_id=?',(user['id'],)).fetchall()
+            items=[json.loads(r[0]) for r in rows]
+            for p in items: found[p['id']]=p
+            return {'products':items,'source':'user_wardrobe','warning':'Attributes entered by the user; no image-based analysis performed.'}
         if name=='retrieve_style_profile':
             if args: raise ValueError('No arguments accepted')
             return {'preferences':preferences}

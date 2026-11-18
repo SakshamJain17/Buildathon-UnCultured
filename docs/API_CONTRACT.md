@@ -105,3 +105,8 @@ const response = await fetch(`${BASE}/api/v1/tryon`, {
 Keep provider credentials server-side in `backend/.env`. `NEXT_PUBLIC_API_BASE_URL` is public and contains no credentials. CORS defaults to localhost:3000 and localhost:5173; configure explicit deployed origins before remote frontend use. Geolocation requires localhost or HTTPS.
 
 Generate a TypeScript request-schema client when ready, e.g. `npx openapi-typescript http://localhost:8766/openapi.json -o src/api-schema.d.ts`. Responses currently have a generic envelope in OpenAPI; use this contract for response field typing until per-endpoint response models are added.
+
+
+## Native app additions
+
+See [BACKEND_BLUEPRINT.md](BACKEND_BLUEPRINT.md) sections 7–8 for wardrobe, inspiration and hairstyle endpoints. GET /wardrobe/{item_id}/image returns private authenticated JPEG bytes rather than a JSON envelope. Disliked item identities are filtered even when include_seen=true.
