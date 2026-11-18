@@ -24,3 +24,12 @@ Thumbs.db
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# StyleMatch runtime and generated artifacts
+backend/.venv/
+backend/runtime/
+*.sqlite3
+.pytest_cache/
+*.lock
+package-lock.json
+.superdesign/tmp/
