@@ -14,3 +14,38 @@ body.simple-app{--paper:#fff;--ink:#111;--panel:#f4f4f4;--line:#e8e8e8;--muted:#
 .activity-details{margin-top:22px;font-size:11px}.activity-details summary{padding:12px 0;cursor:pointer}.activity-row{padding:11px 0;border-top:1px solid #eee;display:flex;justify-content:space-between;gap:20px;font-size:10px;color:#777}.activity-row b{font-weight:400;color:#111;text-transform:uppercase;font-size:8px}
 .simple-app .swipe-card .deck-image{height:clamp(220px,calc(100svh - 500px),340px)}
 @media(max-width:760px){.simple-app .swipe-card .deck-image{height:clamp(200px,calc(100svh - 500px),340px)}}
+
+/* Tactile discovery stack: the next piece stays visible beneath the active card. */
+.simple-app #swipeDeck{position:relative;isolation:isolate;overflow:visible;margin:0 auto 18px;width:100%;max-width:420px}
+.simple-app #activeCard{position:relative;z-index:3;touch-action:none;user-select:none;cursor:grab;transform-origin:50% 80%;transition:transform 380ms cubic-bezier(.2,.8,.2,1);box-shadow:0 14px 40px #0000000d;animation:card-arrive 300ms ease-out;will-change:transform}
+.simple-app #activeCard.dragging{transition:none;cursor:grabbing;animation:none}
+.simple-app #activeCard img{pointer-events:none;-webkit-user-drag:none}
+.simple-app .deck-underlay{position:absolute;inset:0;border:1px solid #dedede;border-radius:20px;background:#f4f4f4;overflow:hidden;pointer-events:none;box-shadow:0 8px 24px #00000008}
+.simple-app .deck-underlay img{height:100%;object-fit:cover;opacity:.65}
+.simple-app .deck-layer-1{z-index:2;transform:translateY(10px) scale(.96) rotate(-2deg)}
+.simple-app .deck-layer-2{z-index:1;transform:translateY(20px) scale(.92) rotate(3deg)}
+.simple-app .deck-stamp{position:absolute;z-index:5;left:22px;top:25px;font:600 17px var(--sans);letter-spacing:.12em;border:2px solid currentColor;padding:10px 14px;border-radius:8px;color:#111;background:#ffffffed;transform:rotate(-10deg);pointer-events:none}
+.simple-app .deck-stamp[data-action="dislike"]{left:auto;right:22px;transform:rotate(10deg)}
+.simple-app .deck-stamp[data-action="save"]{left:50%;transform:translateX(-50%);white-space:nowrap}
+.simple-app .swipe-actions button{min-width:56px;min-height:56px;box-shadow:0 4px 14px #00000009;transition:transform 150ms,background 150ms}
+.simple-app .swipe-actions button:active{transform:scale(.92)}
+@keyframes card-arrive{from{opacity:.6;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.simple-app #activeCard{animation:none;transition:none}.simple-app .swipe-actions button{transition:none}.simple-app .swipe-actions button:active{transform:none}}
+
+.simple-app #activeCard{border-radius:20px;overflow:hidden}
+
+/* Model-led discovery: the complete look panel travels with the gesture. */
+.simple-app #view-discover{position:relative;will-change:transform}
+.simple-app #swipeDeck{max-width:460px;margin-bottom:14px}
+.simple-app .deck-underlay{display:none}
+.simple-app #activeCard{border:0;border-radius:14px;box-shadow:none;animation:none;transform:none!important;transition:none}
+.simple-app #activeCard .deck-image{height:clamp(380px,calc(100svh - 330px),680px);background:#f1f2f2}
+.simple-app #activeCard .deck-image img{height:100%;width:100%;object-fit:contain;object-position:center}
+.simple-app #activeCard .swipe-info{padding:18px 4px 8px}
+.simple-app #activeCard .swipe-info h2{font-size:25px;line-height:1.2}
+.simple-app .swipe-actions{margin-top:8px}
+.simple-app #view-discover .toolbar{margin-bottom:14px}
+body.simple-app{overflow-x:clip}
+@media(max-width:760px){.simple-app #activeCard .deck-image{height:clamp(350px,calc(100svh - 360px),680px)}.simple-app #view-discover>.view-heading h1{font-size:27px}.simple-app #view-discover>.view-heading{margin-bottom:6px}.simple-app #view-discover .toolbar{margin-bottom:8px}}
+
+.simple-app #activeCard .deck-image{height:clamp(300px,calc(100svh - 490px),600px)}

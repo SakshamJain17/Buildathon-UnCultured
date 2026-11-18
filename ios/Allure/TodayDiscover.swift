@@ -87,7 +87,12 @@ struct CityPicker: View {
 struct DiscoverView: View {
     @Environment(AppStore.self) private var store
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var drag: CGFloat=0
+    @State private var drag: CGSize = .zero
+    @State private var sendingSwipe=false
+    @State private var modelLooks=true
+    private let modelIDs:Set<String> = ["ref_f8ed3becb467d2f3","ref_db22deae6cda0525","ref_9d4b3874f67fbd53","ref_eb0b325eb2666025"]
+    private var discoveryFeed:[Ranked] {modelLooks ? store.feed.filter {modelIDs.contains($0.id)} : store.feed}
+    @State private var swipeLabel=""
     @State private var showSaved=false
     @State private var query=""
     @State private var selected:Product?
@@ -98,42 +103,79 @@ struct DiscoverView: View {
             ScrollView {
                 VStack(alignment:.leading,spacing:22) {
                     HStack {Text("Your next favourite.").font(.system(size:31,design:.serif));Spacer();Button {today=true} label:{Image(systemName:"cloud.sun")}.accessibilityLabel("Weather and your daily outfit")}
-                    if let item=store.feed.first {
-                        VStack(alignment:.leading,spacing:10) {
-                            ProductArtwork(product:item.product,height:260)
-                            HStack {Text(item.product.title).font(.system(size:24,design:.serif)); Spacer()}
-                            Text(item.product.priceText).font(.caption).foregroundStyle(.secondary)
-                        }.padding(12).background(.white,in:RoundedRectangle(cornerRadius:18)).overlay {RoundedRectangle(cornerRadius:18).stroke(Color.gray.opacity(0.15))}
-                        .onTapGesture {selected=item.product}
-                        .offset(x:reduceMotion ? 0 : drag).rotationEffect(.degrees(reduceMotion ? 0 : Double(drag/25)))
-                        .highPriorityGesture(DragGesture().onChanged {drag=$0.translation.width}.onEnded { value in
-                            let action=value.translation.height > 100 && abs(value.translation.width)<80 ? "save" : value.translation.width < -80 ? "dislike" : value.translation.width > 80 ? "like" : nil
-                            withAnimation(reduceMotion ? nil : .snappy) {drag=0}
-                            if let action {Task {await store.swipe(item.product,action:action)}}
-                        })
+                    Picker("Explore",selection:$modelLooks) {Text("Styled looks").tag(true);Text("Individual pieces").tag(false)}.pickerStyle(.segmented)
+                    if let item=discoveryFeed.first {
+                        discoveryCard(item.product)
                         HStack(spacing:28) {
                             actionButton("Dismiss",symbol:"xmark",action:"dislike",product:item.product)
                             actionButton("Save",symbol:"bookmark",action:"save",product:item.product)
                             actionButton("Like",symbol:"heart",action:"like",product:item.product)
                         }.frame(maxWidth:.infinity)
+                        Text("← Dismiss · ↓ Save · Like →").font(.caption).foregroundStyle(.secondary).frame(maxWidth:.infinity)
                     } else {
-                        ContentUnavailableView("You’re all caught up",systemImage:"checkmark.seal",description:Text("Your dismissed items stay hidden. Try live search for more options when the shopping provider is configured."))
+                        ContentUnavailableView("You’re all caught up",systemImage:"checkmark.seal",description:Text("Your dismissed items stay hidden. Switch to Individual pieces to explore more of your edit, or ask Allure to find something new."))
                     }
                     DisclosureGroup("Find something specific") {
                         HStack {TextField("e.g. olive rain jacket",text:$query).textFieldStyle(.roundedBorder);Button("Search") {Task {await liveSearch()}}.disabled(query.count<2 || store.busy)}
                     }.font(.caption)
                     ForEach(results) {p in VStack(alignment:.leading) {ProductRow(product:p); if let url=p.merchantUrl,let link=URL(string:url) {Link("View listing",destination:link).font(.caption)}; Button("Dismiss this item") {Task {await store.swipe(p,action:"dislike"); if store.error == nil {results.removeAll{$0.id==p.id}}}}.font(.caption)} }
                 }.padding(24)
+                .offset(x:reduceMotion ? 0 : drag.width,y:reduceMotion ? 0 : drag.height)
             }.background(Theme.paper).navigationTitle("ALLURÉ").navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented:$showSaved) {NavigationStack {List(store.saved) {ProductRow(product:$0)}.navigationTitle("Saved for later").toolbar {Button("Done") {showSaved=false}}}}
             .sheet(item:$selected) {ProductDetailView(product:$0)}
             .sheet(isPresented:$today) {TodayView()}
-            .onChange(of:store.feed.first?.id,initial:true) {_,id in store.focusedProductID=id}
+            .onChange(of:discoveryFeed.first?.id,initial:true) {_,id in store.focusedProductID=id}
             .refreshable {await store.perform {try await store.refresh()}}
         }
     }
+    func discoveryCard(_ product:Product) -> some View {
+        VStack(alignment:.leading,spacing:10) {
+            ProductArtwork(product:product,height:380,showWholePhoto:true)
+            if modelLooks {Text("THE LOOK / ON MODEL").font(.caption2).tracking(2).foregroundStyle(.secondary)}
+            Text(product.title).font(.system(size:24,design:.serif))
+            Text(product.priceText).font(.caption).foregroundStyle(.secondary)
+        }.padding(12).background(.white,in:RoundedRectangle(cornerRadius:18))
+        .overlay {RoundedRectangle(cornerRadius:18).stroke(Color.gray.opacity(0.15))}
+        .overlay(alignment:.top) {
+            if !swipeLabel.isEmpty {Text(swipeLabel).font(.headline).tracking(2).padding(12).background(.white,in:RoundedRectangle(cornerRadius:8)).overlay {RoundedRectangle(cornerRadius:8).stroke(.black,lineWidth:2)}.padding(.top,24)}
+        }
+        .shadow(color:.black.opacity(0.06),radius:18,y:8)
+
+        .onTapGesture {if !sendingSwipe {selected=product}}
+        .highPriorityGesture(DragGesture(minimumDistance:12).onChanged { value in
+            guard !sendingSwipe && !store.busy else {return}
+            drag=value.translation
+            swipeLabel=drag.height > abs(drag.width)*1.15 ? "SAVE FOR LATER" : drag.width > 0 ? "MY STYLE" : "PASS"
+        }.onEnded { value in
+            guard !sendingSwipe && !store.busy else {return}
+            let x=value.translation.width,y=value.translation.height
+            let action=y>70 && y>abs(x)*1.15 ? "save" : abs(x)>70 && abs(x)>abs(y)*0.8 ? (x>0 ? "like" : "dislike") : nil
+            if let action {commitSwipe(product,action:action)} else {withAnimation(reduceMotion ? nil : .spring(response:0.35,dampingFraction:0.75)) {drag = .zero;swipeLabel=""}}
+        })
+        .accessibilityElement(children:.combine)
+        .accessibilityLabel(product.title+". "+product.priceText)
+        .accessibilityAction(named:"Like") {commitSwipe(product,action:"like")}
+        .accessibilityAction(named:"Save") {commitSwipe(product,action:"save")}
+        .accessibilityAction(named:"Dismiss") {commitSwipe(product,action:"dislike")}
+        .accessibilityAction(named:"View details") {selected=product}
+    }
+    func commitSwipe(_ product:Product,action:String) {
+        guard !sendingSwipe && !store.busy else {return}
+        sendingSwipe=true
+        swipeLabel=action == "save" ? "SAVE FOR LATER" : action == "like" ? "MY STYLE" : "PASS"
+        Task { @MainActor in
+            withAnimation(reduceMotion ? nil : .easeIn(duration:0.25)) {
+                drag=action == "save" ? CGSize(width:0,height:900) : CGSize(width:action == "like" ? 650 : -650,height:35)
+            }
+            if !reduceMotion {try? await Task.sleep(for:.milliseconds(250))}
+            await store.swipe(product,action:action)
+            var transaction=Transaction();transaction.disablesAnimations=true
+            withTransaction(transaction) {drag = .zero;swipeLabel="";sendingSwipe=false}
+        }
+    }
     func actionButton(_ title:String,symbol:String,action:String,product:Product) -> some View {
-        Button {Task {await store.swipe(product,action:action)}} label: {VStack(spacing:8) {Image(systemName:symbol).font(.title2).frame(width:52,height:52).background(.white,in:Circle()); Text(title).font(.caption)}}.disabled(store.busy).accessibilityLabel(title+" "+product.title)
+        Button {commitSwipe(product,action:action)} label: {VStack(spacing:8) {Image(systemName:symbol).font(.title2).frame(width:52,height:52).background(.white,in:Circle()); Text(title).font(.caption)}}.disabled(store.busy || sendingSwipe).accessibilityLabel(title+" "+product.title)
     }
     func liveSearch() async {await store.perform {let value:ProductList=try await store.api.request("/products/search",method:"POST",body:["query":query]); results=value.products}}
 }

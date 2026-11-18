@@ -12,11 +12,11 @@ This is the current implementation status. “Implemented” does not mean every
 | Hairstyle ideas | Local Ollama text | None | Genuine generated response verified; entered length/texture/goal only |
 | Illustrated style avatar | Local Ollama JSON design + safe SVG renderer | None | Genuine model-selected design verified; not a likeness, photograph or fit simulation |
 | Local weather | Open-Meteo | None for non-commercial demo | Genuine Gurugram forecast and city lookup verified |
-| Real merchant search | SerpApi adapter | SERPAPI_API_KEY | Key not supplied. Returns explicit 503; not live-verified |
+| Real merchant search | SerpApi adapter | SERPAPI_API_KEY | Supplied privately in ignored .env. Genuine search through website proxy returned Myntra, Amazon.in and Flipkart listings (HTTP 200). |
 | Personal-photo garment try-on | FASHN adapter | FASHN_API_KEY | Key not supplied. Lifecycle and payload unit-tested; real generation not verified |
 | Optional hosted reasoning/vision | Gemini adapter | GEMINI_API_KEY + GEMINI_MODEL | Not required in local mode; no live Gemini verification |
 
-**Current key count: zero for the local AI demo; two additional keys to enable live shopping and real try-on.** No plaintext keys belong in Swift, HTML, JavaScript, screenshots, source control or API responses. Model downloads and runtime photos are excluded from Git.
+**Current key count: zero for local AI/weather; SerpApi free-tier key is now configured and live-verified. FASHN remains unconfigured; no paid generation was enabled.** No plaintext keys belong in Swift, HTML, JavaScript, screenshots, source control or API responses. Model downloads and runtime photos are excluded from Git.
 
 ## Feature-to-storage audit
 
@@ -32,7 +32,7 @@ This is the current implementation status. “Implemented” does not mean every
 | AI wardrobe labels | Garment form > AI labels | POST /wardrobe/analyze | no photo retention until user adds garment | Requires review before saving |
 | Outfit completion | Product detail; wardrobe button; bot | POST /outfits/complete; POST /wardrobe/outfits | returned combinations | Basic attribute/category engine; full compatibility research unfinished |
 | Weather-aware styling | Weather chip or bot | /locations/search; /stylist/daily; get_local_weather | coordinates not persisted | Daily considers private wardrobe and shared catalogue metadata |
-| Shopping discovery | Bot; optional search | POST /products/search | normalised actual returned listings | Needs SerpApi key |
+| Shopping discovery | Bot; optional search | POST /products/search | normalised actual returned listings | SerpApi configured; live search verified |
 | Exact vs similar matching | Product comparison flow / bot | POST /products/match | supplied evidence | Conservative identifiers + size/colour; independent merchant verification not done |
 | Price comparison | Detail and agent | POST /prices/compare | observed data and evidence | Arithmetic covered by tests; real listings need shopping key |
 | Shopping agent | Persistent Allure bot | POST /agent/shop | run, result, tool trace | Real tool decisions, max 8 calls / 90 seconds |
@@ -78,4 +78,8 @@ The bot does not silently upload photos, spend on generation, buy items, or perm
 
 ## Remaining gaps
 
-Real shopping and generated personal-photo try-on require their keys and live tests. No production account recovery, cross-device account login, background notifications, complete fashion-compatibility model, precise fit/sizing prediction, photo-based complexion analysis, live celebrity feeds, MCP, or production deployment has been completed. The public demo tunnel is temporary and depends on the development Mac, backend, web server, Ollama and tunnel continuing to run.
+Real shopping is now live-verified with SerpApi. Generated personal-photo try-on remains unavailable without a provider or a separately implemented self-hosted model. No production account recovery, cross-device account login, background notifications, complete fashion-compatibility model, precise fit/sizing prediction, photo-based complexion analysis, live celebrity feeds, MCP, or production deployment has been completed. The public demo tunnel is temporary and depends on the development Mac, backend, web server, Ollama and tunnel continuing to run.
+
+## Model-led discovery polish
+
+Discover defaults to four visually reviewed full-body catalogue model photographs. The photograph is displayed uncropped; the full discovery content panel follows horizontal/downward gestures. Choosing Individual pieces exposes the rest of the ranked catalogue. Feedback is stored for the featured catalogue piece, not every garment visible on the model. The model references are neither AI-generated people nor personal try-on results. Buttons and keyboard controls remain available; reduced-motion preferences suppress travel animations. Failed requests restore the card, and controls prevent duplicate swipes while a request is pending.

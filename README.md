@@ -164,7 +164,7 @@ Open http://localhost:8790. API schemas: http://localhost:8766/docs. Native app:
 
 ### Models and keys
 
-Local demo: Ollama qwen3:8b for reasoning/actions and gemma3:4b for images; zero API keys. Set OLLAMA_VISION_MODEL=gemma3:4b in backend/.env after downloading it. Live shopping needs SERPAPI_API_KEY; real personal-photo try-on needs FASHN_API_KEY. Neither was supplied, so those features explicitly report unavailable and remain unverified live. Gemini is an optional configured alternative, not required by the local demo.
+Local demo: Ollama qwen3:8b for reasoning/actions and gemma3:4b for images; zero API keys. Set OLLAMA_VISION_MODEL=gemma3:4b in backend/.env after downloading it. Live shopping needs SERPAPI_API_KEY; real personal-photo try-on needs FASHN_API_KEY. SerpApi is now configured privately and a real shopping search passed. FASHN remains unconfigured, so generated personal-photo try-on is unavailable. Gemini is an optional configured alternative, not required by the local demo.
 
 ### Verification
 

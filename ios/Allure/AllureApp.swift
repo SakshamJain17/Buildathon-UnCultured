@@ -111,6 +111,7 @@ struct ProductArtwork: View {
     @Environment(AppStore.self) private var store
     let product: Product
     var height: CGFloat = 360
+    var showWholePhoto: Bool = false
     @State private var privatePhoto: UIImage?
     var body: some View {
         ZStack {
@@ -120,7 +121,7 @@ struct ProductArtwork: View {
                 else { ProgressView() }
             } else if let source=product.imageUrl,let url=URL(string:source,relativeTo:URL(string:store.endpoint)) {
                 AsyncImage(url:url) { phase in
-                    if let image=phase.image { image.resizable().scaledToFill() }
+                    if let image=phase.image { image.resizable().aspectRatio(contentMode:showWholePhoto ? .fit : .fill) }
                     else { VStack { ProgressView(); Text("Your style reference").font(.caption).padding() } }
                 }
             } else {

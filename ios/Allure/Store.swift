@@ -42,7 +42,7 @@ final class AppStore {
     }
     func refresh() async throws {
         let me: Profile = try await api.request("/me"); name=me.name; preferences=me.preferences; inspirations=me.preferences.inspirations ?? []
-        let result: Feed = try await api.request("/recommendations"); feed=result.items
+        let result: Feed = try await api.request("/recommendations?limit=50"); feed=result.items
         let closet: WardrobeList = try await api.request("/wardrobe"); wardrobe=closet.items
         let savedItems: ProductList = try await api.request("/saved"); saved=savedItems.products
         insights=try await api.request("/me/insights")

@@ -46,28 +46,46 @@ function renderToday(){
  $('dailyDescription').textContent=daily.styling_notes.join(' ');$('dailyHeadline').innerHTML=daily.weather.tags.includes('rain')?'A little rain.<br><em>A lot of you.</em>':'Your day.<br><em>Your point of view.</em>';
  }
 }
-function currentDeck(){const category=$('categoryFilter').value;return S.feed.filter(x=>!category||x.product.category===category)}
+const MODEL_LOOK_IDS=new Set(['ref_f8ed3becb467d2f3','ref_db22deae6cda0525','ref_9d4b3874f67fbd53','ref_eb0b325eb2666025']);
+function currentDeck(){const category=$('categoryFilter').value;const items=S.feed.filter(x=>category==='looks'?MODEL_LOOK_IDS.has(x.product.id):!category||x.product.category===category);return items}
 function renderDeck(){const item=currentDeck()[0];
- if(!item){$('swipeDeck').innerHTML='<div class="empty-state"><span class="eyebrow">A CONSIDERED PAUSE</span><h2>You’ve explored<br>this edit.</h2><p>Dismissed items stay hidden. Try another category or live search for more pieces.</p></div>';$('deckReasons').innerHTML='';document.querySelectorAll('[data-swipe]').forEach(b=>b.disabled=true);return}
+ if(!item){$('swipeDeck').innerHTML='<div class="empty-state"><span class="eyebrow">A CONSIDERED PAUSE</span><h2>You’ve explored<br>this edit.</h2><p>Dismissed items stay hidden. Choose Individual pieces for the rest of your edit, or ask Allure to find a new look.</p></div>';$('deckReasons').innerHTML='';document.querySelectorAll('[data-swipe]').forEach(b=>b.disabled=true);return}
  document.querySelectorAll('[data-swipe]').forEach(b=>b.disabled=S.swiping);
- const p=item.product;S.focusedProduct=p;$('swipeDeck').innerHTML=`<article class="swipe-card" id="activeCard" tabindex="0" role="button" aria-label="Explore ${esc(p.title)}"><div class="deck-stamp" id="deckStamp">LIKE</div><div class="deck-image">${photo(p)}</div><div class="swipe-info"><span class="eyebrow">${esc(p.brand||'YOUR PERSONAL EDIT')}</span><h2>${esc(p.title)}</h2><p>${price(p)}</p></div></article>`;
+ const p=item.product;S.focusedProduct=p;$('swipeDeck').innerHTML=currentDeck().slice(1,3).reverse().map((next,i)=>`<div class="deck-underlay deck-layer-${2-i}" aria-hidden="true"><div class="deck-image">${photo(next.product)}</div></div>`).join('')+`<article class="swipe-card" id="activeCard" tabindex="0" role="button" aria-label="Explore ${esc(p.title)}"><div class="deck-stamp" id="deckStamp">LIKE</div><div class="deck-image">${photo(p)}</div><div class="swipe-info"><span class="eyebrow">${$('categoryFilter').value==='looks'?'THE LOOK / ON MODEL':esc(p.brand||'YOUR PERSONAL EDIT')}</span><h2>${esc(p.title)}</h2><p>${price(p)}</p></div></article>`;
  $('deckReasons').innerHTML=item.reasons.map(reason=>`<span class="chip">${esc(reason)}</span>`).join('');bindSwipe($('activeCard'),p);
 }
 $('categoryFilter').onchange=renderDeck;
+function swipeDirection(x,y){return y>70&&y>Math.abs(x)*1.15?'save':Math.abs(x)>70&&Math.abs(x)>Math.abs(y)*.8?(x>0?'like':'dislike'):null}
+function resetCard(card){card.classList.remove('dragging');$('view-discover').style.transition='transform 350ms cubic-bezier(.2,.8,.2,1)';$('view-discover').style.transform='';const stamp=card.querySelector('.deck-stamp');if(stamp)stamp.style.opacity=0;}
 function bindSwipe(card,p){let start=null,moved=false;
- card.addEventListener('pointerdown',e=>{if(S.swiping)return;start={x:e.clientX,y:e.clientY};moved=false;card.setPointerCapture(e.pointerId)});
- card.addEventListener('pointermove',e=>{if(!start)return;const x=e.clientX-start.x,y=e.clientY-start.y;moved=Math.abs(x)+Math.abs(y)>10;card.style.transition='none';card.style.transform=`translate(${x}px,${y*.3}px) rotate(${x/22}deg)`;const stamp=$('deckStamp');stamp.textContent=y>Math.abs(x)&&y>50?'SAVE':x>0?'LIKE':'DISMISS';stamp.style.opacity=Math.min(1,(Math.abs(x)+Math.max(0,y))/130)});
- card.addEventListener('pointerup',e=>{if(!start)return;const x=e.clientX-start.x,y=e.clientY-start.y;start=null;card.style.transition='transform .25s';card.style.transform='';$('deckStamp').style.opacity=0;if(Math.abs(x)>85)guard(()=>swipe(p,x>0?'like':'dislike'));else if(y>100)guard(()=>swipe(p,'save'));else if(!moved)guard(()=>openDetail(p.id))});
- card.addEventListener('pointercancel',()=>{start=null;card.style.transform='';if($('deckStamp'))$('deckStamp').style.opacity=0});card.addEventListener('keydown',e=>{if(e.key==='Enter')guard(()=>openDetail(p.id))});
+ card.addEventListener('dragstart',e=>e.preventDefault());
+ card.addEventListener('pointerdown',e=>{if(S.swiping||e.button!==0)return;start={x:e.clientX,y:e.clientY};moved=false;card.setPointerCapture(e.pointerId);card.classList.add('dragging');$('view-discover').style.transition='none'});
+ card.addEventListener('pointermove',e=>{if(!start)return;const x=e.clientX-start.x,y=e.clientY-start.y;moved=moved||Math.abs(x)+Math.abs(y)>10;const down=y>Math.abs(x)*1.15;const action=down?'save':x>0?'like':'dislike';const reduced=matchMedia('(prefers-reduced-motion:reduce)').matches;$('view-discover').style.transform=reduced?'':`translate(${x}px,${Math.max(-35,y)}px)`;const stamp=card.querySelector('.deck-stamp');stamp.textContent=action==='save'?'SAVE FOR LATER':action==='like'?'MY STYLE':'PASS';stamp.dataset.action=action;stamp.style.opacity=Math.min(1,(down?y:Math.abs(x))/100)});
+ card.addEventListener('pointerup',e=>{if(!start)return;const x=e.clientX-start.x,y=e.clientY-start.y;start=null;const action=swipeDirection(x,y);if(action)guard(()=>swipe(p,action));else{resetCard(card);if(!moved)guard(()=>openDetail(p.id))}});
+ card.addEventListener('pointercancel',()=>{start=null;resetCard(card)});
+ card.addEventListener('lostpointercapture',()=>{if(start){start=null;resetCard(card)}});
+ card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();guard(()=>openDetail(p.id))}});
 }
-async function swipe(p,action){if(S.swiping)return;S.swiping=true;document.querySelectorAll('[data-swipe]').forEach(b=>b.disabled=true);try{
- await api('/swipes',{method:'POST',body:{product_id:p.id,action},idempotency:crypto.randomUUID()});
- S.feed=S.feed.filter(x=>x.id!==p.id&&x.product.id!==p.id);S.daily=null;
+async function animateSwipe(card,action){
+ if(!card)return;
+ const stamp=card.querySelector('.deck-stamp');stamp.textContent=action==='save'?'SAVE FOR LATER':action==='like'?'MY STYLE':'PASS';stamp.dataset.action=action;stamp.style.opacity=1;
+ if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+ card.classList.remove('dragging');
+ const panel=$('view-discover');const end=action==='save'?`translate(0,${innerHeight}px) rotate(0deg)`:`translate(${action==='like'?1:-1}00vw,0)`;
+ const animation=panel.animate([{transform:getComputedStyle(panel).transform,opacity:1},{transform:end,opacity:0}],{duration:300,easing:'cubic-bezier(.3,.05,.6,1)',fill:'forwards'});
+ await animation.finished;return animation;
+}
+async function swipe(p,action){if(S.swiping)return;S.swiping=true;document.querySelectorAll('[data-swipe]').forEach(b=>b.disabled=true);
+ const card=currentDeck()[0]?.product.id===p.id?$('activeCard'):null;
+ const request=api('/swipes',{method:'POST',body:{product_id:p.id,action},idempotency:crypto.randomUUID()}).then(value=>({value}),error=>({error}));
+ let departure;try{
+ departure=await animateSwipe(card,action);const result=await request;if(result.error)throw result.error;departure?.cancel();$('view-discover').style.transform='';
+ S.feed=S.feed.filter(x=>x.id!==p.id&&x.product.id!==p.id);S.daily=null;renderDeck();
  toast(action==='dislike'?'Dismissed. This piece stays out of new recommendations.':action==='save'?'Saved to your personal collection.':'A little more insight into your style.');
  await refresh();
- }finally{S.swiping=false;renderDeck()}}
+ }finally{departure?.cancel();S.swiping=false;$('view-discover').style.transform='';renderDeck();if(!matchMedia('(prefers-reduced-motion:reduce)').matches)$('view-discover').animate([{opacity:.4,transform:'translateX(28px)'},{opacity:1,transform:'translateX(0)'}],{duration:260,easing:'ease-out'})}}
 document.querySelectorAll('[data-swipe]').forEach(b=>b.onclick=()=>{const p=currentDeck()[0]?.product;if(p)guard(()=>swipe(p,b.dataset.swipe))});
-document.addEventListener('keydown',e=>{if(S.active!=='discover'||$('modal').open||['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName))return;const action={ArrowLeft:'dislike',ArrowRight:'like',ArrowDown:'save'}[e.key];if(action){e.preventDefault();const p=currentDeck()[0]?.product;if(p)guard(()=>swipe(p,action))}});
+document.addEventListener('keydown',e=>{if(S.active!=='discover'||S.swiping||$('modal').open||$('assistantDrawer').open||['INPUT','TEXTAREA','SELECT','BUTTON'].includes(document.activeElement.tagName))return;const action={ArrowLeft:'dislike',ArrowRight:'like',ArrowDown:'save'}[e.key];if(action){e.preventDefault();const p=currentDeck()[0]?.product;if(p)guard(()=>swipe(p,action))}});
 async function openDetail(id){const p=S.products.get(id);if(!p)return;S.selected=p;
  const ranked=S.feed.find(x=>x.product.id===id);modal('THE PERSONAL EDIT / '+p.title,`<div class="detail-grid"><div class="detail-image">${photo(p)}</div><div><span class="eyebrow">${esc(p.brand||'YOUR WARDROBE')} / ${esc(p.category||'FASHION')}</span><h1>${esc(p.title)}</h1><p>${price(p)}</p><div class="notice">${esc(ranked?.reasons.join(' · ')||'Explore this piece in the context of your personal style.')}</div><div class="profile-tags">${[...(p.colors||[]),...(p.aesthetics||[]),...(p.fits||[])].map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</div><div class="detail-actions"><button class="button" id="detailTryOn">PREVIEW IT ON ME ↗</button>${p.source!=='your_wardrobe'?'<button class="button ghost" id="detailSave">SAVE THIS PIECE +</button>':''}<button class="text-link icon-button" id="askAboutPiece">ASK MY STYLIST ABOUT THIS ↗</button></div><h3>Complete the look.</h3><div id="complements"><p class="micro">Finding complementary categories…</p></div><h3>Considered shopping.</h3><p class="notice">${p.source==='reference_catalogue'?'This photograph is a reference from the supplied H&M catalogue. Manifest prices are unverified and are not shown as live offers.':'Only retrieved offers can be compared. Unknown sizes, shipping and variants stay explicit.'}</p><button class="button ghost" id="compareOffers">SEARCH LIVE ALTERNATIVES ↗</button><div id="offerResults"></div></div></div>`);
  $('detailTryOn').onclick=()=>openTryOn(p);if($('detailSave'))$('detailSave').onclick=()=>guard(async()=>{await swipe(p,'save');$('modal').close()});
